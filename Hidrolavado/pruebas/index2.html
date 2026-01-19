@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>LavoTodo | Hidrolavado Profesional</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="LavoTodo - Hidrolavado profesional en toda Argentina. Veredas, fachadas, galpones y más. Presupuesto sin cargo.">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #ffffff;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* HERO */
+    header {
+      background: linear-gradient(
+        rgba(0, 59, 115, 0.75),
+        rgba(0, 59, 115, 0.75)
+      ),
+      url(./Imagenes/Hidro-IMG.png);
+      background-size: cover;
+      background-position: center;
+      color: #fff;
+      text-align: center;
+      padding: 100px 20px;
+    }
+
+    header h1 {
+      font-size: 42px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 30px;
+      background: #0a84ff;
+      color: #fff;
+      padding: 15px 30px;
+      border-radius: 30px;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    section {
+      padding: 70px 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 40px;
+      color: #003b73;
+    }
+
+    /* QUIENES SOMOS */
+    .about {
+      background: #eaf4ff;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    /* SERVICIOS */
+    .services {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .service {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* GALERIA */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+      
+    .gallery img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* En pantallas grandes */
+    @media (min-width: 900px) {
+      .gallery img {
+       height: 420px;
+      }
+    }
+
+
+    
+    .gallery div {
+      background: #dfefff;
+      height: 200px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #003b73;
+      font-weight: bold;
+    }
+
+    /* CONTACTO */
+    .contact {
+      background: #003b73;
+      color: #fff;
+      border-radius: 12px;
+      padding: 40px;
+    }
+
+    .contact form input,
+    .contact form textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: none;
+      font-size: 16px;
+    }
+
+    .contact form button {
+      background: #0a84ff;
+      color: #fff;
+      border: none;
+      padding: 15px;
+      width: 100%;
+      font-size: 18px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* WHATSAPP */
+    .whatsapp {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #25D366;
+      color: #fff;
+      padding: 15px 20px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      background: #eaf4ff;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>LavoTodo</h1>
+  <p>Hidrolavado profesional de veredas, fachadas, galpones y superficies en toda Argentina.</p>
+  <a class="btn" href="https://wa.me/5493413688060" target="_blank">
+    Pedir presupuesto por WhatsApp
+  </a>
+</header>
+
+<section>
+  <h2>Quiénes somos</h2>
+  <div class="about">
+    Somos un equipo especializado en hidrolavado profesional. Utilizamos maquinaria y productos adecuados para cada superficie, logrando resultados visibles desde el primer lavado.
+  </div>
+</section>
+
+<section>
+  <h2>Servicios</h2>
+  <div class="services">
+    <div class="service">Veredas y espacios públicos</div>
+    <div class="service">Fachadas comerciales</div>
+    <div class="service">Galpones y depósitos</div>
+    <div class="service">Maquinaria industrial</div>
+    <div class="service">Patios y cocheras</div>
+    <div class="service">Limpieza post obra</div>
+  </div>
+</section>
+
+<section>
+  <h2>Trabajos realizados</h2>
+  <div class="gallery">
+    <div>Foto / Video</div>
+    <div>Foto / Video</div>
+    <div>Foto / Video</div>
+  </div>
+</section>
+
+<section>
+  <h2>Trabajos en altura</h2>
+  <p style="text-align:center; max-width:800px; margin:0 auto 40px;">
+    Realizamos trabajos de hidrolavado en altura con personal capacitado y
+    equipos adecuados, garantizando seguridad y resultados profesionales.
+  </p>
+
+  <div class="gallery">
+    <img src="./Imagenes/Rogiro Aceros/ROGIRO ALTURA (2).JPEG" alt="Hidrolavado en altura ROGIRO ACEROS- LavoTodo">
+    <img src="./Imagenes/Rogiro Aceros/ROGIRO ALTURA (2).JPG" alt="Limpieza de fachada en altura">
+    <img src="./Imagenes/Rogiro Aceros/ROGIRO ALTURA.JPG" alt="Trabajo de hidrolavado profesional en altura">
+  </div>
+</section>
+
+
+<section>
+  <h2>Pedir presupuesto</h2>
+  <div class="contact">
+    <form action="https://formsubmit.co/lavotodoros@gmail.com" method="POST">
+      <input type="text" name="name" placeholder="Nombre" required>
+      <input type="tel" name="phone" placeholder="Teléfono">
+      <input type="text" name="zona" placeholder="Ciudad / Provincia">
+      <textarea name="message" placeholder="Contanos qué necesitás limpiar" rows="4"></textarea>
+      <button type="submit">Enviar consulta</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  📍 Trabajamos en toda Argentina <br>
+  📩 lavotodoros@gmail.com
+</footer>
+
+<a class="whatsapp" href="https://wa.me/5493413688060" target="_blank">
+  WhatsApp
+</a>
+
+</body>
+</html>
