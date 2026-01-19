@@ -2,7 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>LavoTodo | Hidrolavado Profesional</title>
+  <title>LavoTodo | Hidrolavado profesional y trabajos en altura en Argentina</title>
+
+  <meta name="description" content="LavoTodo ofrece hidrolavado profesional, trabajos en altura, limpieza de fachadas y pintura en toda Argentina. Presupuesto sin cargo.">
+  <meta name="keywords" content="hidrolavado, trabajos en altura, limpieza de fachadas, hidrolavado profesional, limpieza industrial">
+  <meta name="author" content="LavoTodo">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
@@ -15,10 +20,10 @@
 
     /* HERO */
     .hero {
-      height: 100vh;
+      height: 120vh;
       background-image:
         linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-        url("https://images.unsplash.com/photo-1600695268275-1a6468700bd5");
+        url("./FOTOSLAVADO/SAVEIRO.JPEG");
       background-size: cover;
       background-position: center;
       display: flex;
@@ -26,7 +31,7 @@
       justify-content: center;
       text-align: center;
       color: #fff;
-      padding: 20px;
+      padding: 0px;
     }
 
     .hero-content {
@@ -60,7 +65,6 @@
       border: 2px solid #fff;
     }
 
-    /* SECCIONES */
     section {
       max-width: 1200px;
       margin: auto;
@@ -94,7 +98,6 @@
       background-position: center;
       box-shadow: 0 10px 25px rgba(0,0,0,0.25);
       overflow: hidden;
-      cursor: pointer;
       transition: transform .2s, box-shadow .2s;
     }
 
@@ -102,10 +105,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(
-        rgba(0,0,0,0.15),
-        rgba(0,0,0,0.75)
-      );
+      background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.75));
     }
 
     .service:hover {
@@ -121,31 +121,14 @@
     .service h3 {
       margin: 0 0 8px;
       font-size: 22px;
-      text-decoration: none;
     }
 
     .service p {
       margin: 0;
       font-size: 15px;
       opacity: 0.9;
-      text-decoration: none;
     }
 
-    /* WHATSAPP */
-    .whatsapp {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #25D366;
-      color: #fff;
-      padding: 15px 22px;
-      border-radius: 50px;
-      text-decoration: none;
-      font-weight: bold;
-      z-index: 1000;
-    }
-
-    /* FOOTER */
     footer {
       text-align: center;
       padding: 40px;
@@ -158,6 +141,19 @@
       text-decoration: none;
       font-weight: bold;
     }
+
+    .whatsapp {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #25D366;
+      color: #fff;
+      padding: 15px 22px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: bold;
+      z-index: 1000;
+    }
   </style>
 </head>
 
@@ -167,49 +163,43 @@
 <div class="hero">
   <div class="hero-content">
     <h1>LavoTodo</h1>
-    <p>Hidrolavado profesional, trabajos en altura y mantenimiento de superficies en toda Argentina.</p>
+    <p>Hidrolavado profesional, trabajos en altura y limpieza de fachadas en toda Argentina.</p>
 
     <a class="btn" href="https://wa.me/5493413688060">Pedir presupuesto</a>
-    <a class="btn secondary" href="mailto:lavotodoros@gmail.com">Contactar por mail</a>
   </div>
 </div>
 
-<!-- SERVICIOS -->
 <section>
   <h2>Servicios</h2>
 
   <div class="services">
 
-    <a class="service"
-       href="servicios/hidrolavado.html"
-       style="background-image:url('./pruebas/Imagenes/Hidro-IMG.png')">
+    <a class="service" href="servicios/hidrolavado.html"
+       style="background-image:url(./FOTOSLAVADO/ESCUELA.JPEG)">
       <div>
         <h3>Hidrolavado profesional</h3>
-        <p>Limpieza profunda de superficies y espacios exteriores.</p>
+        <p>Limpieza profunda de superficies exteriores.</p>
       </div>
     </a>
 
-    <a class="service"
-       href="servicios/altura.html"
-       style="background-image:url('./pruebas/Imagenes/Hidro-IMG.png')">
+    <a class="service" href="servicios/altura.html"
+       style="background-image:url(./FOTOSLAVADO/ROGIRO\ ALTURA.JPEG)">
       <div>
         <h3>Trabajos en altura</h3>
-        <p>Limpieza y mantenimiento de fachadas y estructuras elevadas.</p>
+        <p>Limpieza y mantenimiento de fachadas y estructuras.</p>
       </div>
     </a>
 
-    <a class="service"
-       href="servicios/fachadas.html"
-       style="background-image:url('./pruebas/Imagenes/Hidro-IMG.png')">
+    <a class="service" href="servicios/fachadas.html"
+       style="background-image:url(./FOTOSLAVADO/FRENTE.JPEG)">
       <div>
-        <h3>Limpieza de fachadas</h3>
-        <p>Recuperación estética de frentes comerciales y edificios.</p>
+        <h3>Limpieza de frentes</h3>
+        <p>Recuperación estética de frentes comerciales.</p>
       </div>
     </a>
 
-    <a class="service"
-       href="servicios/pintura.html"
-       style="background-image:url('./pruebas/Imagenes/Hidro-IMG.png')">
+    <a class="service" href="servicios/pintura.html"
+       style="background-image:url('./FOTOSLAVADO/pintura.jpg')">
       <div>
         <h3>Trabajos de pintura</h3>
         <p>Pintura y mantenimiento de superficies exteriores.</p>
@@ -220,7 +210,7 @@
 </section>
 
 <footer>
-  📍 Trabajamos en toda Argentina · 📩
+  📍 Servicio en toda Argentina · 📩
   <a href="mailto:lavotodoros@gmail.com">lavotodoros@gmail.com</a>
 </footer>
 
