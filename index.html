@@ -48,23 +48,32 @@
 <body>
 <header>
   <h1>Control Financiero</h1>
-  <div class="subtitle">Gestión de Ingresos, Gastos & Rendimiento</div>
+  <div class="subtitle">Gestión de Ingresos, Gastos & Rendimiento Mensual</div>
 </header>
 <main>
+  <div class="card" style="background: #1e293b; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
+    <div>
+      <div style="font-size: 12px; opacity: 0.8; font-weight: 600;">📅 PERÍODO EN VISUALIZACIÓN</div>
+      <div id="activeMonthLabel" style="font-size: 18px; font-weight: 800; text-transform: capitalize;">Mes actual</div>
+    </div>
+    <select id="monthSelector" onchange="changeMonth()" style="width: auto; margin: 0; padding: 8px 12px; font-size: 14px; background: #334155; color: #fff; border: 1px solid #475569;">
+    </select>
+  </div>
+
   <div class="grid">
     <div class="card" style="border-left: 5px solid #3b82f6;">
-      <div class="muted" style="font-weight: 600; font-size: 12px;">💵 EFECTIVO</div>
+      <div class="muted" style="font-weight: 600; font-size: 12px;">💵 EFECTIVO HISTÓRICO</div>
       <div id="cash" class="big" style="color: #2563eb;">$0</div>
     </div>
     <div class="card" style="border-left: 5px solid #8b5cf6;">
-      <div class="muted" style="font-weight: 600; font-size: 12px;">📱 MERCADO PAGO</div>
+      <div class="muted" style="font-weight: 600; font-size: 12px;">📱 MERCADO PAGO HISTÓRICO</div>
       <div id="mp" class="big" style="color: #7c3aed;">$0</div>
     </div>
   </div>
   
   <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div class="muted" style="font-weight: 600; font-size: 12px;">💰 CAJA TOTAL DISPONIBLE</div>
+      <div class="muted" style="font-weight: 600; font-size: 12px;">💰 CAJA TOTAL EN MANO</div>
       <span id="healthBadge" class="badge" style="background:#dcfce7; color:#166534;">Saludable</span>
     </div>
     <div id="total" class="big" style="color: var(--primary);">$0</div>
@@ -82,9 +91,9 @@
   </div>
 
   <div class="card" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #a7f3d0;">
-    <div class="muted" style="color: #065f46; font-weight: 800; font-size: 12px; letter-spacing: 0.5px;">🟢 DINERO REALMENTE DISPONIBLE PARA VOS</div>
+    <div class="muted" style="color: #065f46; font-weight: 800; font-size: 12px; letter-spacing: 0.5px;">🟢 DISPONIBLE REAL DEL MES SELECCIONADO</div>
     <div id="disponible" class="big" style="color: #047857; margin-top: 6px;">$0</div>
-    <div class="muted" style="font-size: 12px; margin-top: 6px; color: #047857;">*Ya deducido: ahorro de vacaciones fijo y gasto mensual fija.*</div>
+    <div class="muted" style="font-size: 12px; margin-top: 6px; color: #047857;" id="disponibleDetail">*Incluye saldo acumulado anterior menos compromisos fijos del mes.*</div>
   </div>
 
   <div class="card">
@@ -93,7 +102,7 @@
     <select id="quickService" onchange="fillServiceDesc()">
       <option value="">-- Seleccionar servicio o escribir abajo --</option>
       <option value="Lavado de frente">🏠 Lavado de frente</option>
-      <option value="Lavado de techo / tejas">🚘🚙 Lavado de auto</option>
+      <option value="Lavado de techo / tejas">🚙🚘 Lavado de Auto</option>
       <option value="Lavado de vereda / patio">🧹 Lavado de vereda / patio</option>
       <option value="Limpieza de pileta">💧 Limpieza de pileta</option>
       <option value="Pintura / Impermeabilización">🎨 Pintura / Impermeabilización</option>
@@ -145,19 +154,20 @@
   </div>
 
   <div class="card">
-    <h3>🎯 Compromisos Fijos & Dólar</h3>
+    <h3>🎯 Compromisos Fijos </h3>
     <label class="muted" style="font-size: 13px;">Dólar de referencia ($)</label>
     <input id="usd" type="number" value="1550" onchange="settings()">
     
     <div class="row">
-      <span>🏖️ Ahorro Vacaciones</span>
+      <span> 💵 Ahorro</span>
       <b style="color: var(--accent);">USD 300 (~$<span id="vacationPesos">465.000</span>)</b>
     </div>
 
     <div class="row">
-      <span>💳 Gasto Fijo Tarjeta Mensual</span>
+      <span>💳 Gasto Fijo Mensual</span>
       <b style="color: var(--accent);">$600.000</b>
     </div>
+    <div class="muted" style="font-size: 11px; margin-top: 8px; color: var(--muted);">*Los compromisos fijos se aplican de forma estricta al mes seleccionado.*</div>
   </div>
 
   <div class="card">
@@ -180,9 +190,16 @@
 </main>
 
 <script>
-const K='control_financiero_v15';
+const K='control_financiero_v17';
 let D=JSON.parse(localStorage.getItem(K)||'null')||{moves:[],usd:1550};
 let currentFilter = 'all';
+
+const getYearMonthStr = (d = new Date()) => {
+  let m = d.getMonth() + 1;
+  return `${d.getFullYear()}-${m < 10 ? '0' + m : m}`;
+};
+
+let selectedMonth = getYearMonthStr();
 const $=id=>document.getElementById(id),fmt=n=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n);
 
 function save(){
@@ -247,13 +264,51 @@ function setFilter(f){
   renderHist();
 }
 
+function updateMonthSelector(){
+  let monthsSet = new Set();
+  monthsSet.add(getYearMonthStr());
+  D.moves.forEach(x => {
+    monthsSet.add(x.date.substring(0, 7));
+  });
+
+  let sortedMonths = Array.from(monthsSet).sort().reverse();
+  let html = '';
+  sortedMonths.forEach(ym => {
+    let [y, m] = ym.split('-');
+    let dateObj = new Date(y, m - 1, 1);
+    let label = dateObj.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+    html += `<option value="${ym}" ${ym === selectedMonth ? 'selected' : ''}>${label}</option>`;
+  });
+  $('monthSelector').innerHTML = html;
+
+  let [y, m] = selectedMonth.split('-');
+  let activeObj = new Date(y, m - 1, 1);
+  $('activeMonthLabel').textContent = activeObj.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+}
+
+function changeMonth(){
+  selectedMonth = $('monthSelector').value;
+  render();
+  summary(currentSummaryType);
+}
+
 let currentSummaryType = 'd';
 function calc(kind){
   let now=new Date(),s=new Date(now);
   if(kind==='d')s.setHours(0,0,0,0);
   if(kind==='w'){let d=(now.getDay()+6)%7;s.setDate(now.getDate()-d);s.setHours(0,0,0,0)}
-  if(kind==='m')s=new Date(now.getFullYear(),now.getMonth(),1);
-  let a=D.moves.filter(x=>new Date(x.date)>=s);
+  if(kind==='m'){
+    let [y, m] = selectedMonth.split('-');
+    s = new Date(y, m - 1, 1);
+  }
+  
+  let a = D.moves.filter(x => {
+    if(kind === 'm'){
+      return x.date.startsWith(selectedMonth);
+    }
+    return new Date(x.date) >= s;
+  });
+
   let i=a.filter(x=>x.type==='in').reduce((z,x)=>z+x.amount,0);
   let o=a.filter(x=>x.type==='out').reduce((z,x)=>z+x.amount,0);
   return [a, i, o, i-o];
@@ -262,7 +317,7 @@ function calc(kind){
 function summary(k){
   currentSummaryType = k;
   let [a, i, o, n] = calc(k);
-  let title = k==='d'?'Hoy':k==='w'?'Esta semana':'Este mes';
+  let title = k==='d'?'Hoy':k==='w'?'Esta semana':$('activeMonthLabel').textContent;
   
   let expensesMap = {};
   a.filter(x=>x.type==='out').forEach(x => {
@@ -273,16 +328,20 @@ function summary(k){
     expHtml += '<div class="row" style="color:var(--muted);"><span>↳ ' + cat + '</span><b>' + fmt(expensesMap[cat]) + '</b></div>';
   }
 
-  // Si es vista mensual, agregamos proyección estimada de cierre de mes
   let projectionHtml = '';
   if(k === 'm') {
     let now = new Date();
-    let dayNum = now.getDate();
-    let totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    if(dayNum > 0) {
-      let dailyAverage = i / dayNum;
-      let projectedTotal = Math.round(dailyAverage * totalDays);
-      projectionHtml = '<div class="row" style="background:#f8fafc; padding:8px 10px; border-radius:8px; margin-top:8px; border:none;"><span>🔮 Proyección cierre de mes</span><b style="color:var(--accent);">' + fmt(projectedTotal) + '</b></div>';
+    let [selY, selM] = selectedMonth.split('-');
+    let isCurrentMonth = (now.getFullYear() == selY && (now.getMonth() + 1) == selM);
+    
+    if(isCurrentMonth) {
+      let dayNum = now.getDate();
+      let totalDays = new Date(selY, selM, 0).getDate();
+      if(dayNum > 0) {
+        let dailyAverage = i / dayNum;
+        let projectedTotal = Math.round(dailyAverage * totalDays);
+        projectionHtml = '<div class="row" style="background:#f8fafc; padding:8px 10px; border-radius:8px; margin-top:8px; border:none;"><span>🔮 Proyección cierre de mes</span><b style="color:var(--accent);">' + fmt(projectedTotal) + '</b></div>';
+      }
     }
   }
 
@@ -296,7 +355,7 @@ function summary(k){
 
 function copySummary(){
   let [, i, o, n] = calc(currentSummaryType);
-  let title = currentSummaryType==='d'?'Hoy':currentSummaryType==='w'?'Esta semana':'Este mes';
+  let title = currentSummaryType==='d'?'Hoy':currentSummaryType==='w'?'Esta semana':$('activeMonthLabel').textContent;
   let text = `📊 *Resumen Financiero - Lavo Todo (${title})*\n` +
              `💵 Ingresos: ${fmt(i)}\n` +
              `💸 Gastos: ${fmt(o)}\n` +
@@ -312,6 +371,9 @@ function settings(){
 }
 
 function render(){
+  updateMonthSelector();
+
+  // 1. Caja Total Histórica (Efectivo y MP acumulado de todos los tiempos)
   let c=0,m=0;
   D.moves.forEach(x=>{
     let v=x.type==='in'?x.amount:-x.amount;
@@ -332,18 +394,44 @@ function render(){
 
   let vacationPesos = 300 * D.usd;
   $('vacationPesos').textContent = new Intl.NumberFormat('es-AR').format(vacationPesos);
-  
   let fixedCard = 600000;
-  let disponibleReal = totalCaja - fixedCard - vacationPesos;
+  let totalFixedMonth = fixedCard + vacationPesos;
+
+  // 2. ARRASTRE DE SALDO ANTERIOR (Efecto Acumulado)
+  // Calculamos todo lo que pasó DESDE EL INICIO hasta el ÚLTIMO DÍA DEL MES ANTERIOR AL SELECCIONADO
+  let [selY, selM] = selectedMonth.split('-').map(Number);
   
-  $('disponible').textContent = fmt(Math.max(0, disponibleReal));
+  let pastMoves = D.moves.filter(x => {
+    let xDate = new Date(x.date);
+    let xY = xDate.getFullYear();
+    let xM = xDate.getMonth() + 1;
+    // Todo lo que sea estrictamente anterior al mes seleccionado
+    return (xY < selY) || (xY === selY && xM < selM);
+  });
+
+  let pastIn = pastMoves.filter(x => x.type === 'in').reduce((z, x) => z + x.amount, 0);
+  let pastOut = pastMoves.filter(x => x.type === 'out').reduce((z, x) => z + x.amount, 0);
+  let accumulatedCarryOver = pastIn - pastOut; // Lo que sobró (o faltó) de meses pasados
+
+  // Movimientos propios del mes seleccionado
+  let monthMoves = D.moves.filter(x => x.date.startsWith(selectedMonth));
+  let monthIn = monthMoves.filter(x => x.type === 'in').reduce((z, x) => z + x.amount, 0);
+  let monthOut = monthMoves.filter(x => x.type === 'out').reduce((z, x) => z + x.amount, 0);
+
+  // Disponible real del mes = (Lo que arrastrás de meses anteriores) + (Ingresos del mes) - (Gastos del mes) - (Compromisos fijos del mes)
+  let disponibleMes = accumulatedCarryOver + monthIn - monthOut - totalFixedMonth;
+
+  $('disponible').textContent = fmt(disponibleMes);
   $('usd').value = D.usd;
 
+  let detailText = `*Arrastre anterior: ${fmt(accumulatedCarryOver)} + Mes: ${fmt(monthIn - monthOut)} - Fijos: ${fmt(totalFixedMonth)}*`;
+  $('disponibleDetail').textContent = detailText;
+
   let badge = $('healthBadge');
-  if(disponibleReal > 200000) {
+  if(disponibleMes > 200000) {
     badge.textContent = 'Excelente';
     badge.style.background = '#dcfce7'; badge.style.color = '#166534';
-  } else if(disponibleReal > 0) {
+  } else if(disponibleMes > 0) {
     badge.textContent = 'Saludable';
     badge.style.background = '#e0f2fe'; badge.style.color = '#0369a1';
   } else {
@@ -355,7 +443,9 @@ function render(){
 }
 
 function renderHist(){
-  let filteredMoves = D.moves.slice().reverse().filter(x => {
+  let monthMoves = D.moves.filter(x => x.date.startsWith(selectedMonth));
+  
+  let filteredMoves = monthMoves.slice().reverse().filter(x => {
     if(currentFilter === 'in') return x.type === 'in';
     if(currentFilter === 'out') return x.type === 'out';
     return true;
@@ -387,7 +477,7 @@ function renderHist(){
     htmlHist += '</div>';
   }
 
-  $('hist').innerHTML = htmlHist || '<div class="muted" style="text-align:center; padding:15px;">No hay movimientos registrados en esta vista.</div>';
+  $('hist').innerHTML = htmlHist || '<div class="muted" style="text-align:center; padding:15px;">No hay movimientos registrados para este mes.</div>';
 }
 
 function backup(){
@@ -398,7 +488,7 @@ function backup(){
 }
 
 render();
-summary('d');
+summary('m');
 </script>
 </body>
 </html>
