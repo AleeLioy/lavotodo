@@ -23,7 +23,7 @@
   h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
   .subtitle { opacity: .75; font-size: 13px; margin-top: 4px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin: 12px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(226, 232, 240, 0.6); }
+  .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin: 12px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(226, 232, 240, 0.6); page-break-inside: avoid; break-inside: avoid; }
   .big { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-top: 4px; }
   .btn { border: 0; border-radius: 14px; padding: 14px; background: var(--primary); color: #fff; font-weight: 700; width: 100%; margin-top: 10px; font-size: 15px; cursor: pointer; transition: transform 0.1s ease, opacity 0.2s; }
   .btn:active { transform: scale(0.98); }
@@ -43,6 +43,12 @@
   .bar-mp { background: #8b5cf6; height: 100%; transition: width 0.4s; }
   .filter-pill { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
   .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+  
+  @media print {
+    body { background: #fff; padding: 0; }
+    .btn, .del-btn, input, select, .filter-pill { display: none !important; }
+    .card { box-shadow: none; border: 1px solid #ccc; }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
@@ -374,7 +380,6 @@ function settings(){
 function render(){
   updateMonthSelector();
 
-  // 1. Caja Total Histórica (Efectivo y MP acumulado de todos los tiempos)
   let c=0,m=0;
   D.moves.forEach(x=>{
     let v=x.type==='in'?x.amount:-x.amount;
@@ -398,28 +403,23 @@ function render(){
   let fixedCard = 600000;
   let totalFixedMonth = fixedCard + vacationPesos;
 
-  // 2. ARRASTRE DE SALDO ANTERIOR (Efecto Acumulado)
-  // Calculamos todo lo que pasó DESDE EL INICIO hasta el ÚLTIMO DÍA DEL MES ANTERIOR AL SELECCIONADO
   let [selY, selM] = selectedMonth.split('-').map(Number);
   
   let pastMoves = D.moves.filter(x => {
     let xDate = new Date(x.date);
     let xY = xDate.getFullYear();
     let xM = xDate.getMonth() + 1;
-    // Todo lo que sea estrictamente anterior al mes seleccionado
     return (xY < selY) || (xY === selY && xM < selM);
   });
 
   let pastIn = pastMoves.filter(x => x.type === 'in').reduce((z, x) => z + x.amount, 0);
   let pastOut = pastMoves.filter(x => x.type === 'out').reduce((z, x) => z + x.amount, 0);
-  let accumulatedCarryOver = pastIn - pastOut; // Lo que sobró (o faltó) de meses pasados
+  let accumulatedCarryOver = pastIn - pastOut;
 
-  // Movimientos propios del mes seleccionado
   let monthMoves = D.moves.filter(x => x.date.startsWith(selectedMonth));
   let monthIn = monthMoves.filter(x => x.type === 'in').reduce((z, x) => z + x.amount, 0);
   let monthOut = monthMoves.filter(x => x.type === 'out').reduce((z, x) => z + x.amount, 0);
 
-  // Disponible real del mes = (Lo que arrastrás de meses anteriores) + (Ingresos del mes) - (Gastos del mes) - (Compromisos fijos del mes)
   let disponibleMes = accumulatedCarryOver + monthIn - monthOut - totalFixedMonth;
 
   $('disponible').textContent = fmt(disponibleMes);
@@ -480,21 +480,18 @@ function renderHist(){
 
   $('hist').innerHTML = htmlHist || '<div class="muted" style="text-align:center; padding:15px;">No hay movimientos registrados para este mes.</div>';
 }
+
 function exportPDF(){
-  // Seleccionamos todo el contenedor principal o armamos un reporte limpio del mes
   let element = document.querySelector('main');
   let opt = {
-    margin:       10,
+    margin:       5,
     filename:     `Reporte-Financiero-${selectedMonth}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true },
+    html2canvas:  { scale: 1.3, useCORS: true, letterRendering: true },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
-  
-  // Genera y descarga el PDF automáticamente
   html2pdf().from(element).set(opt).save();
 }
-
 
 render();
 summary('m');
