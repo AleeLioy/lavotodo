@@ -3,145 +3,186 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Lavo Todo</title>
+<title>Control Financiero</title>
 <style>
+  :root {
+    --bg: #f2f4f8;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --muted: #64748b;
+    --primary: #0f172a;
+    --accent: #2563eb;
+    --green: #10b981;
+    --red: #ef4444;
+    --border: #e2e8f0;
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; background: #f5f5f7; color: #111; }
-  header { background: #111; color: #fff; padding: 22px 16px; }
-  main { max-width: 760px; margin: auto; padding: 12px 14px 40px; }
-  h1 { margin: 0; font-size: 24px; }
-  .muted { color: #777; font-size: 13px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-  .card { background: #fff; border-radius: 18px; padding: 16px; margin: 10px 0; box-shadow: 0 2px 10px #0001; }
-  .big { font-size: 25px; font-weight: 800; }
-  .btn { border: 0; border-radius: 13px; padding: 14px; background: #111; color: #fff; font-weight: 700; width: 100%; margin-top: 8px; font-size: 15px; }
-  .alt { background: #e9e9ee; color: #111; }
-  .green { background: #16834b; }
-  .red { background: #c93434; }
-  .del-btn { background: #ff3b30; color: #fff; border: 0; border-radius: 8px; padding: 4px 8px; font-size: 12px; margin-left: 8px; cursor: pointer; }
-  input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; margin: 6px 0 10px; }
-  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-  .hidden { display: none; }
-  .ok { color: #16834b; }
-  .bad { color: #c93434; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 50px; }
+  header { background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; padding: 28px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  main { max-width: 760px; margin: auto; padding: 16px; }
+  h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+  .subtitle { opacity: .75; font-size: 13px; margin-top: 4px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin: 12px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(226, 232, 240, 0.6); }
+  .big { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-top: 4px; }
+  .btn { border: 0; border-radius: 14px; padding: 14px; background: var(--primary); color: #fff; font-weight: 700; width: 100%; margin-top: 10px; font-size: 15px; cursor: pointer; transition: transform 0.1s ease, opacity 0.2s; }
+  .btn:active { transform: scale(0.98); }
+  .btn.alt { background: #e2e8f0; color: var(--text); }
+  .btn.green { background: var(--green); }
+  .btn.red { background: var(--red); }
+  .del-btn { background: #fee2e2; color: var(--red); border: 0; border-radius: 8px; padding: 6px 10px; font-size: 12px; margin-left: 8px; cursor: pointer; font-weight: bold; }
+  input, select { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 14px; font-size: 16px; margin: 8px 0 14px; background: #f8fafc; color: var(--text); outline: none; }
+  input:focus, select:focus { border-color: var(--accent); background: #fff; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .row:last-child { border-bottom: 0; }
+  .ok { color: var(--green); }
+  .bad { color: var(--red); }
+  .badge { background: #eff6ff; color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+  .bar-container { background: var(--border); border-radius: 10px; height: 12px; width: 100%; display: flex; overflow: hidden; margin: 12px 0 6px; }
+  .bar-cash { background: #3b82f6; height: 100%; transition: width 0.4s; }
+  .bar-mp { background: #8b5cf6; height: 100%; transition: width 0.4s; }
+  .filter-pill { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 </style>
 </head>
 <body>
 <header>
-  <h1>🚗 Lavo Todo</h1>
-  <div style="opacity:.7">Caja · ahorro · reinversión · disponible</div>
+  <h1>Control Financiero</h1>
+  <div class="subtitle">Gestión de Ingresos, Gastos & Rendimiento</div>
 </header>
 <main>
   <div class="grid">
-    <div class="card">
-      <div class="muted">💵 Efectivo</div>
-      <div id="cash" class="big">$0</div>
+    <div class="card" style="border-left: 5px solid #3b82f6;">
+      <div class="muted" style="font-weight: 600; font-size: 12px;">💵 EFECTIVO</div>
+      <div id="cash" class="big" style="color: #2563eb;">$0</div>
     </div>
-    <div class="card">
-      <div class="muted">📱 Mercado Pago</div>
-      <div id="mp" class="big">$0</div>
+    <div class="card" style="border-left: 5px solid #8b5cf6;">
+      <div class="muted" style="font-weight: 600; font-size: 12px;">📱 MERCADO PAGO</div>
+      <div id="mp" class="big" style="color: #7c3aed;">$0</div>
     </div>
   </div>
   
   <div class="card">
-    <div class="muted">💰 Caja Total</div>
-    <div id="total" class="big">$0</div>
-    <div id="reserve" class="muted" style="margin-top:6px;"></div>
-  </div>
-
-  <div class="card" style="background: #eef9f2; border: 1px solid #d1fae5;">
-    <div class="muted" style="color: #065f46; font-weight: bold;">🟢 Dinero Realmente Disponible para Vos</div>
-    <div id="disponible" class="big" style="color: #047857; margin-top: 4px;">$0</div>
-    <div class="muted" style="font-size: 11px; margin-top: 4px;">*Descontando tarjeta ($600k) y 10% de reinversión.*</div>
-  </div>
-
-  <div class="card">
-    <h3>🚗 Cargar lavado</h3>
-    <div class="grid">
-      <button class="btn" onclick="wash(25000)">$25.000</button>
-      <button class="btn" onclick="wash(30000)">$30.000</button>
-      <button class="btn" onclick="wash(35000)">$35.000</button>
-      <button class="btn" onclick="wash(40000)">$40.000</button>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div class="muted" style="font-weight: 600; font-size: 12px;">💰 CAJA TOTAL DISPONIBLE</div>
+      <span id="healthBadge" class="badge" style="background:#dcfce7; color:#166534;">Saludable</span>
     </div>
-    <div id="wf" class="hidden" style="margin-top: 10px;">
-      <label class="muted">Cantidad de autos</label>
-      <input id="qty" type="number" min="1" value="1">
-      <select id="wm">
-        <option value="cash">💵 Efectivo</option>
-        <option value="mp">📱 Mercado Pago</option>
-      </select>
-      <button class="btn green" onclick="saveWash()">Confirmar Lavado</button>
+    <div id="total" class="big" style="color: var(--primary);">$0</div>
+    
+    <div style="margin-top: 14px;">
+      <div style="display:flex; justify-content:space-between; font-size:12px;" class="muted">
+        <span id="labelCash">Efectivo: 0%</span>
+        <span id="labelMp">Mercado Pago: 0%</span>
+      </div>
+      <div class="bar-container">
+        <div id="barCash" class="bar-cash" style="width: 50%;"></div>
+        <div id="barMp" class="bar-mp" style="width: 50%;"></div>
+      </div>
     </div>
   </div>
 
+  <div class="card" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #a7f3d0;">
+    <div class="muted" style="color: #065f46; font-weight: 800; font-size: 12px; letter-spacing: 0.5px;">🟢 DINERO REALMENTE DISPONIBLE PARA VOS</div>
+    <div id="disponible" class="big" style="color: #047857; margin-top: 6px;">$0</div>
+    <div class="muted" style="font-size: 12px; margin-top: 6px; color: #047857;">*Ya deducido: ahorro de vacaciones fijo y gasto mensual fija.*</div>
+  </div>
+
   <div class="card">
-    <h3>➕ Otro ingreso / Monto libre</h3>
-    <input id="id" placeholder="Descripción (ej. Extra, pulido, etc.)">
-    <input id="ia" type="number" placeholder="Monto ($)">
-    <select id="im">
+    <h3>📥 Cargar ingreso</h3>
+    <label class="muted" style="font-size: 13px;">Servicio frecuente</label>
+    <select id="quickService" onchange="fillServiceDesc()">
+      <option value="">-- Seleccionar servicio o escribir abajo --</option>
+      <option value="Lavado de frente">🏠 Lavado de frente</option>
+      <option value="Lavado de techo / tejas">🚘🚙 Lavado de auto</option>
+      <option value="Lavado de vereda / patio">🧹 Lavado de vereda / patio</option>
+      <option value="Limpieza de pileta">💧 Limpieza de pileta</option>
+      <option value="Pintura / Impermeabilización">🎨 Pintura / Impermeabilización</option>
+    </select>
+    <label class="muted" style="font-size: 13px;">Descripción / Detalle</label>
+    <input id="inDesc" placeholder="Ej. Servicio completo, trabajo extra...">
+    <label class="muted" style="font-size: 13px;">Monto ($)</label>
+    <input id="inAmt" type="number" placeholder="0">
+    <label class="muted" style="font-size: 13px;">Medio de cobro</label>
+    <select id="inMethod">
       <option value="cash">💵 Efectivo</option>
       <option value="mp">📱 Mercado Pago</option>
     </select>
-    <button class="btn" onclick="income()">Guardar ingreso</button>
+    <button class="btn green" onclick="saveIncome()">Guardar Ingreso</button>
   </div>
 
   <div class="card">
     <h3>💸 Cargar gasto</h3>
+    <label class="muted" style="font-size: 13px;">Categoría</label>
     <select id="ec">
-      <option>🧴 Productos</option>
-      <option>⛽ Combustible</option>
-      <option>🔧 Mantenimiento</option>
-      <option>🛒 Herramientas</option>
+      <option>🧴 Insumos / Productos</option>
+      <option>⛽ Combustible / Movilidad</option>
+      <option>🔧 Mantenimiento / Reparación</option>
+      <option>🛒 Herramientas / Equipos</option>
       <option>💳 Tarjeta</option>
       <option>📦 Otro</option>
     </select>
-    <input id="ed" placeholder="Detalle">
-    <input id="ea" type="number" placeholder="Monto ($)">
+    <label class="muted" style="font-size: 13px;">Detalle</label>
+    <input id="ed" placeholder="Detalle del gasto">
+    <label class="muted" style="font-size: 13px;">Monto ($)</label>
+    <input id="ea" type="number" placeholder="0">
+    <label class="muted" style="font-size: 13px;">Medio de pago</label>
     <select id="em">
       <option value="cash">💵 Efectivo</option>
       <option value="mp">📱 Mercado Pago</option>
     </select>
-    <button class="btn red" onclick="expense()">Guardar gasto</button>
+    <button class="btn red" onclick="expense()">Guardar Gasto</button>
   </div>
 
   <div class="card">
     <h3>📊 Resumen de rendimiento</h3>
-    <div class="grid">
-      <button class="btn alt" onclick="summary('d')">Hoy</button>
-      <button class="btn alt" onclick="summary('w')">Semana</button>
-      <button class="btn alt" onclick="summary('m')">Mes</button>
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 6px;">
+      <button class="btn alt" style="margin-top:0;" onclick="summary('d')">Hoy</button>
+      <button class="btn alt" style="margin-top:0;" onclick="summary('w')">Semana</button>
+      <button class="btn alt" style="margin-top:0;" onclick="summary('m')">Mes</button>
     </div>
-    <div id="sum" style="margin-top: 12px;"></div>
+    <div id="sum" style="margin-top: 14px;"></div>
+    <button class="btn alt" onclick="copySummary()" style="margin-top: 12px; font-size:14px;">📋 Copiar resumen para WhatsApp</button>
   </div>
 
   <div class="card">
-    <h3>🎯 Objetivos y Metas</h3>
-    <label class="muted">Dólar de referencia ($)</label>
-    <input id="usd" type="number" value="1500" onchange="settings()">
-    <label class="muted">USD ahorrados para vacaciones</label>
-    <input id="saved" type="number" value="0" onchange="settings()">
-    <div id="goal" style="margin-top:10px;"></div>
-    <div class="row"><span>🏖️ Meta vacaciones</span><b>USD 1.200</b></div>
-    <div class="row"><span>💳 Tarjeta cada día 8</span><b>$600.000</b></div>
-    <div class="row"><span>📈 Reinversión sugerida</span><b>10%</b></div>
+    <h3>🎯 Compromisos Fijos & Dólar</h3>
+    <label class="muted" style="font-size: 13px;">Dólar de referencia ($)</label>
+    <input id="usd" type="number" value="1550" onchange="settings()">
+    
+    <div class="row">
+      <span>🏖️ Ahorro Vacaciones</span>
+      <b style="color: var(--accent);">USD 300 (~$<span id="vacationPesos">465.000</span>)</b>
+    </div>
+
+    <div class="row">
+      <span>💳 Gasto Fijo Tarjeta Mensual</span>
+      <b style="color: var(--accent);">$600.000</b>
+    </div>
   </div>
 
   <div class="card">
-    <h3>📜 Historial por Días</h3>
-    <div class="muted" style="margin-bottom:8px;">Tus movimientos agrupados por fecha:</div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h3 style="margin:0;">📜 Historial</h3>
+      <div style="display:flex; gap:6px;">
+        <button class="filter-pill active" id="filtAll" onclick="setFilter('all')">Todos</button>
+        <button class="filter-pill" id="filtIn" onclick="setFilter('in')">Ingresos</button>
+        <button class="filter-pill" id="filtOut" onclick="setFilter('out')">Gastos</button>
+      </div>
+    </div>
+    <div class="muted" style="margin-bottom:12px; font-size:12px;">Toca la ✕ para borrar cualquier error:</div>
     <div id="hist"></div>
   </div>
 
   <div class="card">
-    <button class="btn alt" onclick="backup()">Exportar respaldo JSON</button>
-    <button class="btn alt" onclick="wipe()" style="color:#c93434;">Borrar todos los datos</button>
+    <button class="btn alt" onclick="backup()">Exportar Respaldo JSON</button>
+    <button class="btn alt" onclick="wipeLocalData()" style="color:var(--red);">Borrar Todos los Datos</button>
   </div>
 </main>
 
 <script>
-const K='lavadero_finanzas_v4';
-let D=JSON.parse(localStorage.getItem(K)||'null')||{moves:[],usd:1500,saved:0};
-let P=0;
+const K='control_financiero_v15';
+let D=JSON.parse(localStorage.getItem(K)||'null')||{moves:[],usd:1550};
+let currentFilter = 'all';
 const $=id=>document.getElementById(id),fmt=n=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n);
 
 function save(){
@@ -150,32 +191,34 @@ function save(){
   summary(currentSummaryType);
 }
 
-function wash(p){P=p;$('wf').classList.remove('hidden');$('qty').focus()}
+function fillServiceDesc(){
+  let val = $('quickService').value;
+  if(val) $('inDesc').value = val;
+}
 
-function add(type,amount,method,cat,desc,extra={}){
-  D.moves.push({id: Date.now(), date:new Date().toISOString(), type, amount, method, cat, desc, ...extra});
+function add(type,amount,method,cat,desc){
+  D.moves.push({id: Date.now(), date:new Date().toISOString(), type, amount, method, cat, desc});
   save();
 }
 
-function saveWash(){
-  let q=Math.max(1,+$('qty').value||1);
-  add('in', P*q, $('wm').value, 'Lavado', q+' auto(s) de '+fmt(P), {isWash: true, count: q});
-  P=0; $('wf').classList.add('hidden'); $('qty').value='1';
-}
-
-function income(){
-  let a=+$('ia').value;
-  if(a){
-    add('in', a, $('im').value, 'Otro', $('id').value||'Otro ingreso');
-    $('ia').value=''; $('id').value='';
+function saveIncome(){
+  let a=+$('inAmt').value;
+  let desc=$('inDesc').value.trim()||'Ingreso general';
+  if(a>0){
+    add('in', a, $('inMethod').value, 'Ingreso', desc);
+    $('inAmt').value=''; $('inDesc').value=''; $('quickService').value='';
+  } else {
+    alert('Por favor ingresá un monto válido.');
   }
 }
 
 function expense(){
   let a=+$('ea').value;
-  if(a){
+  if(a>0){
     add('out', a, $('em').value, $('ec').value, $('ed').value||$('ec').value);
     $('ea').value=''; $('ed').value='';
+  } else {
+    alert('Por favor ingresá un monto válido.');
   }
 }
 
@@ -184,6 +227,24 @@ function removeMove(id){
     D.moves = D.moves.filter(x => x.id !== id);
     save();
   }
+}
+
+function wipeLocalData(){
+  if(confirm('¿Estás seguro de borrar todos los datos del sistema?')){
+    localStorage.removeItem(K);
+    D={moves:[],usd:1550};
+    save();
+    alert('Datos borrados correctamente.');
+  }
+}
+
+function setFilter(f){
+  currentFilter = f;
+  ['filtAll','filtIn','filtOut'].forEach(id=>$(id).classList.remove('active'));
+  if(f==='all')$('filtAll').classList.add('active');
+  if(f==='in')$('filtIn').classList.add('active');
+  if(f==='out')$('filtOut').classList.add('active');
+  renderHist();
 }
 
 let currentSummaryType = 'd';
@@ -195,28 +256,58 @@ function calc(kind){
   let a=D.moves.filter(x=>new Date(x.date)>=s);
   let i=a.filter(x=>x.type==='in').reduce((z,x)=>z+x.amount,0);
   let o=a.filter(x=>x.type==='out').reduce((z,x)=>z+x.amount,0);
-  let washes = a.filter(x=>x.isWash);
-  let totalWashesCount = washes.reduce((z,x)=>z+(x.count||1),0);
-  let totalWashesIncome = washes.reduce((z,x)=>z+x.amount,0);
-  let avgPerCar = totalWashesCount > 0 ? Math.round(totalWashesIncome / totalWashesCount) : 0;
-  return [a, i, o, i-o, totalWashesCount, avgPerCar];
+  return [a, i, o, i-o];
 }
 
 function summary(k){
   currentSummaryType = k;
-  let [a, i, o, n, washCount, avg] = calc(k);
+  let [a, i, o, n] = calc(k);
   let title = k==='d'?'Hoy':k==='w'?'Esta semana':'Este mes';
-  $('sum').innerHTML='<div class="muted" style="margin-bottom:6px;font-weight:bold;">Mostrando: '+title+'</div>'+
+  
+  let expensesMap = {};
+  a.filter(x=>x.type==='out').forEach(x => {
+    expensesMap[x.cat] = (expensesMap[x.cat] || 0) + x.amount;
+  });
+  let expHtml = '';
+  for(let cat in expensesMap){
+    expHtml += '<div class="row" style="color:var(--muted);"><span>↳ ' + cat + '</span><b>' + fmt(expensesMap[cat]) + '</b></div>';
+  }
+
+  // Si es vista mensual, agregamos proyección estimada de cierre de mes
+  let projectionHtml = '';
+  if(k === 'm') {
+    let now = new Date();
+    let dayNum = now.getDate();
+    let totalDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    if(dayNum > 0) {
+      let dailyAverage = i / dayNum;
+      let projectedTotal = Math.round(dailyAverage * totalDays);
+      projectionHtml = '<div class="row" style="background:#f8fafc; padding:8px 10px; border-radius:8px; margin-top:8px; border:none;"><span>🔮 Proyección cierre de mes</span><b style="color:var(--accent);">' + fmt(projectedTotal) + '</b></div>';
+    }
+  }
+
+  $('sum').innerHTML='<div class="muted" style="margin-bottom:6px;font-weight:bold;font-size:12px;">PERÍODO: '+title.toUpperCase()+'</div>'+
     '<div class="row"><span>Ingresos</span><b>'+fmt(i)+'</b></div>'+
     '<div class="row"><span>Gastos</span><b>'+fmt(o)+'</b></div>'+
-    '<div class="row"><span>Neto del período</span><b class="'+(n>=0?'ok':'bad')+'">'+fmt(n)+'</b></div>'+
-    '<div class="row"><span>Cantidad de lavados</span><b>'+washCount+' auto(s)</b></div>'+
-    '<div class="row"><span>Promedio por auto</span><b>'+fmt(avg)+'</b></div>';
+    expHtml +
+    '<div class="row" style="border-top:2px solid var(--border); margin-top:6px; padding-top:8px;"><span>Neto del período</span><b class="'+(n>=0?'ok':'bad')+'">'+fmt(n)+'</b></div>' +
+    projectionHtml;
+}
+
+function copySummary(){
+  let [, i, o, n] = calc(currentSummaryType);
+  let title = currentSummaryType==='d'?'Hoy':currentSummaryType==='w'?'Esta semana':'Este mes';
+  let text = `📊 *Resumen Financiero - Lavo Todo (${title})*\n` +
+             `💵 Ingresos: ${fmt(i)}\n` +
+             `💸 Gastos: ${fmt(o)}\n` +
+             `📈 Neto: ${fmt(n)}`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('¡Resumen copiado al portapapeles para WhatsApp!');
+  });
 }
 
 function settings(){
-  D.usd=+$('usd').value||1500;
-  D.saved=+$('saved').value||0;
+  D.usd=+$('usd').value||1550;
   save();
 }
 
@@ -231,24 +322,47 @@ function render(){
   $('mp').textContent=fmt(m);
   $('total').textContent=fmt(totalCaja);
 
-  // Cálculo disponible real (Menos tarjeta $600k y 10% reinversión)
-  let reinversion = totalCaja * 0.10;
-  let disponibleReal = totalCaja - 600000 - reinversion;
+  let pCash = totalCaja > 0 ? Math.max(0, Math.min(100, Math.round((c / totalCaja) * 100))) : 50;
+  let pMp = totalCaja > 0 ? (100 - pCash) : 50;
+  if(totalCaja === 0) { pCash = 50; pMp = 50; }
+  $('barCash').style.width = pCash + '%';
+  $('barMp').style.width = pMp + '%';
+  $('labelCash').textContent = `Efectivo: ${pCash}%`;
+  $('labelMp').textContent = `Mercado Pago: ${pMp}%`;
+
+  let vacationPesos = 300 * D.usd;
+  $('vacationPesos').textContent = new Intl.NumberFormat('es-AR').format(vacationPesos);
+  
+  let fixedCard = 600000;
+  let disponibleReal = totalCaja - fixedCard - vacationPesos;
+  
   $('disponible').textContent = fmt(Math.max(0, disponibleReal));
+  $('usd').value = D.usd;
 
-  let now=new Date(),n=new Date(now.getFullYear(),now.getMonth(),8);
-  if(now>=n)n.setMonth(n.getMonth()+1);
-  let days=Math.max(1,Math.ceil((n-now)/86400000));
-  $('reserve').innerHTML='💳 Faltan '+fmt(Math.max(0,600000-totalCaja))+' para la tarjeta · Vence en '+days+' días';
+  let badge = $('healthBadge');
+  if(disponibleReal > 200000) {
+    badge.textContent = 'Excelente';
+    badge.style.background = '#dcfce7'; badge.style.color = '#166534';
+  } else if(disponibleReal > 0) {
+    badge.textContent = 'Saludable';
+    badge.style.background = '#e0f2fe'; badge.style.color = '#0369a1';
+  } else {
+    badge.textContent = 'Comprometido';
+    badge.style.background = '#fee2e2'; badge.style.color = '#991b1b';
+  }
 
-  let left=Math.max(0,1200-D.saved);
-  $('goal').innerHTML='🏖️ Falta ahorrar <b>USD '+left.toLocaleString('es-AR')+'</b> · equivalente a '+fmt(left*D.usd);
-  $('usd').value=D.usd;
-  $('saved').value=D.saved;
+  renderHist();
+}
 
-  // Renderizar historial agrupado por fecha
+function renderHist(){
+  let filteredMoves = D.moves.slice().reverse().filter(x => {
+    if(currentFilter === 'in') return x.type === 'in';
+    if(currentFilter === 'out') return x.type === 'out';
+    return true;
+  });
+
   let groups = {};
-  D.moves.slice().reverse().forEach(x => {
+  filteredMoves.forEach(x => {
     let dateStr = new Date(x.date).toLocaleDateString('es-AR');
     if(!groups[dateStr]) groups[dateStr] = [];
     groups[dateStr].push(x);
@@ -261,19 +375,26 @@ function render(){
     let dayOut = dayMoves.filter(x=>x.type==='out').reduce((z,x)=>z+x.amount,0);
     let dayNet = dayIn - dayOut;
 
-    htmlHist += '<div style="background:#f9f9fb; border-radius:12px; padding:12px; margin-bottom:10px; border:1px solid #eee;">' +
-      '<div style="font-weight:bold; margin-bottom:6px; display:flex; justify-content:space-between;"><span>📅 ' + date + '</span><span class="'+(dayNet>=0?'ok':'bad')+'">Neto: '+fmt(dayNet)+'</span></div>';
+    htmlHist += '<div style="background:#f8fafc; border-radius:14px; padding:14px; margin-bottom:12px; border:1px solid var(--border);">' +
+      '<div style="font-weight:700; font-size:13px; margin-bottom:8px; display:flex; justify-content:space-between; color:var(--muted);"><span>📅 ' + date + '</span><span class="'+(dayNet>=0?'ok':'bad')+'">Neto: '+fmt(dayNet)+'</span></div>';
     
     dayMoves.forEach(x => {
-      htmlHist += '<div class="row" style="font-size:14px; border-bottom:1px solid #f0f0f0;">' +
-        '<span>' + x.desc + ' <small class="muted">(' + (x.method==='cash'?'Efectivo':'MP') + ')</small></span>' +
-        '<div><b class="'+(x.type==='in'?'ok':'bad')+'">' + (x.type==='in'?'+':'-') + fmt(x.amount) + '</b>' +
+      htmlHist += '<div class="row">' +
+        '<span><b>' + x.desc + '</b> <small class="muted">(' + (x.method==='cash'?'Efectivo':'MP') + ')</small></span>' +
+        '<div style="display:flex; align-items:center;"><b class="'+(x.type==='in'?'ok':'bad')+'">' + (x.type==='in'?'+':'-') + fmt(x.amount) + '</b>' +
         '<button class="del-btn" onclick="removeMove(' + x.id + ')">✕</button></div></div>';
     });
     htmlHist += '</div>';
   }
 
-  $('hist').innerHTML = htmlHist || '<div class="muted">Todavía no hay movimientos registrados.</div>';
+  $('hist').innerHTML = htmlHist || '<div class="muted" style="text-align:center; padding:15px;">No hay movimientos registrados en esta vista.</div>';
+}
+
+function backup(){
+  let a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(D,null,2)],{type:'application/json'}));
+  a.download='control-financiero-lavotodo.json';
+  a.click();
 }
 
 render();
