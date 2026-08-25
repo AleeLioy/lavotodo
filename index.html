@@ -1,224 +1,228 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>LavoTodo | Hidrolavado profesional y trabajos en altura en Argentina</title>
-
-  <meta name="description" content="hidrolavado LavoTodo ofrece hidrolavado profesional, trabajos en altura, limpieza de fachadas y pintura en toda Argentina. Presupuesto sin cargo.">
-  <meta name="keywords" content="hidrolavado, trabajos en altura, limpieza de fachadas, hidrolavado profesional, limpieza industrial">
-  <meta name="author" content="hidrolavado LavoTodo">
-
-  <link rel="icon" href="LOGO.png" type="image/png">
-  <link rel="apple-touch-icon" href="LOGO.png">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: #f2f6fb;
-      color: #333;
-    }
-
-    /* HERO */
-    .hero {
-      height: 100vh;
-      background-image:
-        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-        url("./FOTOSLAVADO/SAVEIRO.JPEG");
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: #fff;
-      padding: 20px;
-    }
-
-    .hero-content {
-      max-width: 900px;
-    }
-
-    .hero h1 {
-      font-size: 56px;
-      margin-bottom: 20px;
-    }
-
-    .hero p {
-      font-size: 22px;
-      margin-bottom: 35px;
-    }
-
-    .btn {
-      background: #0a84ff;
-      color: #fff;
-      padding: 16px 34px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-size: 18px;
-      font-weight: bold;
-      margin: 10px;
-      display: inline-block;
-    }
-
-    .btn.secondary {
-      background: transparent;
-      border: 2px solid #fff;
-    }
-
-    section {
-      max-width: 1200px;
-      margin: auto;
-      padding: 80px 20px;
-    }
-
-    h2 {
-      text-align: center;
-      font-size: 36px;
-      color: #003b73;
-      margin-bottom: 50px;
-    }
-
-    /* SERVICIOS */
-    .services {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
-      gap: 30px;
-    }
-
-    .service {
-      position: relative;
-      height: 260px;
-      padding: 30px;
-      border-radius: 18px;
-      color: #fff;
-      text-decoration: none;
-      display: flex;
-      align-items: flex-end;
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-      overflow: hidden;
-      transition: transform .2s, box-shadow .2s;
-    }
-
-    .service::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.75));
-    }
-
-    .service:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
-    }
-
-    .service div {
-      position: relative;
-      z-index: 2;
-    }
-
-    .service h3 {
-      margin: 0 0 8px;
-      font-size: 22px;
-    }
-
-    .service p {
-      margin: 0;
-      font-size: 15px;
-      opacity: 0.9;
-    }
-
-    footer {
-      text-align: center;
-      padding: 40px;
-      background: #eaf4ff;
-      font-size: 14px;
-    }
-
-    footer a {
-      color: #003b73;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .whatsapp {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #25D366;
-      color: #fff;
-      padding: 15px 22px;
-      border-radius: 50px;
-      text-decoration: none;
-      font-weight: bold;
-      z-index: 1000;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lavo Todo</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif; background: #f5f5f7; color: #111; }
+  header { background: #111; color: #fff; padding: 22px 16px; }
+  main { max-width: 760px; margin: auto; padding: 12px 14px 40px; }
+  h1 { margin: 0; font-size: 24px; }
+  .muted { color: #777; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+  .card { background: #fff; border-radius: 18px; padding: 16px; margin: 10px 0; box-shadow: 0 2px 10px #0001; }
+  .big { font-size: 25px; font-weight: 800; }
+  .btn { border: 0; border-radius: 13px; padding: 14px; background: #111; color: #fff; font-weight: 700; width: 100%; margin-top: 8px; font-size: 15px; }
+  .alt { background: #e9e9ee; color: #111; }
+  .green { background: #16834b; }
+  .red { background: #c93434; }
+  .del-btn { background: #ff3b30; color: #fff; border: 0; border-radius: 8px; padding: 4px 8px; font-size: 12px; margin-left: 8px; cursor: pointer; }
+  input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; font-size: 16px; margin: 6px 0 10px; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+  .hidden { display: none; }
+  .ok { color: #16834b; }
+  .bad { color: #c93434; }
+</style>
 </head>
-
 <body>
-
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-content">
-    <h1>LavoTodo</h1>
-    <p>Hidrolavado profesional, trabajos en altura y limpieza de fachadas en toda Argentina.</p>
-
-    <a class="btn" href="https://wa.me/5493413688060">Pedir presupuesto</a>
-    <a class="btn secondary" href="mailto:lavotodoros@gmail.com">Contacto por mail</a>
+<header>
+  <h1>🚗 Lavo Todo</h1>
+  <div style="opacity:.7">Caja · ahorro · reinversión · disponible</div>
+</header>
+<main>
+  <div class="grid">
+    <div class="card">
+      <div class="muted">💵 Efectivo</div>
+      <div id="cash" class="big">$0</div>
+    </div>
+    <div class="card">
+      <div class="muted">📱 Mercado Pago</div>
+      <div id="mp" class="big">$0</div>
+    </div>
   </div>
-</div>
-
-<section>
-  <h2>Servicios</h2>
-
-  <div class="services">
-
-    <a class="service" href="hidrolavado.html"
-       style="background-image:url('./FOTOSLAVADO/ESCUELA.JPEG')">
-      <div>
-        <h3>Hidrolavado profesional</h3>
-        <p>Limpieza profunda de superficies exteriores.</p>
-      </div>
-    </a>
-
-    <a class="service" href="altura.html"
-       style="background-image:url('./FOTOSLAVADO/ROGIRO\ ALTURA\ .JPEG')">
-      <div>
-        <h3>Trabajos en altura</h3>
-        <p>Limpieza y mantenimiento de fachadas y estructuras.</p>
-      </div>
-    </a>
-
-    <a class="service" href="fachadas.html"
-       style="background-image:url('./FOTOSLAVADO/FRENTE.JPEG')">
-      <div>
-        <h3>Limpieza de fachadas</h3>
-        <p>Recuperación estética de frentes comerciales.</p>
-      </div>
-    </a>
-
-    <a class="service" href="pintura.html"
-       style="background-image:url('/FOTOSLAVADO/pintura.jpg')">
-      <div>
-        <h3>Trabajos de pintura</h3>
-        <p>Pintura y mantenimiento de superficies exteriores.</p>
-      </div>
-    </a>
-
+  <div class="card">
+    <div class="muted">💰 Total</div>
+    <div id="total" class="big">$0</div>
+    <div id="reserve" class="muted"></div>
   </div>
-</section>
+  <div class="card">
+    <h3>🚗 Cargar lavado</h3>
+    <div class="grid">
+      <button class="btn" onclick="wash(25000)">$25.000</button>
+      <button class="btn" onclick="wash(30000)">$30.000</button>
+      <button class="btn" onclick="wash(35000)">$35.000</button>
+      <button class="btn" onclick="wash(40000)">$40.000</button>
+    </div>
+    <div id="wf" class="hidden">
+      <input id="qty" type="number" min="1" value="1">
+      <select id="wm">
+        <option value="cash">💵 Efectivo</option>
+        <option value="mp">📱 Mercado Pago</option>
+      </select>
+      <button class="btn green" onclick="saveWash()">Confirmar</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>➕ Otro ingreso</h3>
+    <input id="id" placeholder="Descripción">
+    <input id="ia" type="number" placeholder="Monto">
+    <select id="im">
+      <option value="cash">💵 Efectivo</option>
+      <option value="mp">📱 Mercado Pago</option>
+    </select>
+    <button class="btn" onclick="income()">Guardar ingreso</button>
+  </div>
+  <div class="card">
+    <h3>💸 Cargar gasto</h3>
+    <select id="ec">
+      <option>🧴 Productos</option>
+      <option>⛽ Combustible</option>
+      <option>🔧 Mantenimiento</option>
+      <option>🛒 Herramientas</option>
+      <option>💳 Tarjeta</option>
+      <option>📦 Otro</option>
+    </select>
+    <input id="ed" placeholder="Detalle">
+    <input id="ea" type="number" placeholder="Monto">
+    <select id="em">
+      <option value="cash">💵 Efectivo</option>
+      <option value="mp">📱 Mercado Pago</option>
+    </select>
+    <button class="btn red" onclick="expense()">Guardar gasto</button>
+  </div>
+  <div class="card">
+    <h3>📊 Resumen</h3>
+    <div class="grid">
+      <button class="btn alt" onclick="summary('d')">Hoy</button>
+      <button class="btn alt" onclick="summary('w')">Semana</button>
+      <button class="btn alt" onclick="summary('m')">Mes</button>
+    </div>
+    <div id="sum" style="margin-top: 10px;"></div>
+  </div>
+  <div class="card">
+    <h3>🎯 Objetivos</h3>
+    <label>Dólar de referencia</label>
+    <input id="usd" type="number" value="1500" onchange="settings()">
+    <label>USD ahorrados</label>
+    <input id="saved" type="number" value="0" onchange="settings()">
+    <div id="goal" style="margin-top:10px;"></div>
+    <div class="row"><span>🏖️ Meta vacaciones</span><b>USD 1.200</b></div>
+    <div class="row"><span>💳 Tarjeta cada día 8</span><b>$600.000</b></div>
+    <div class="row"><span>📈 Reinversión sugerida</span><b>10%</b></div>
+  </div>
+  <div class="card">
+    <h3>📜 Historial y Últimos Movimientos</h3>
+    <div id="hist"></div>
+  </div>
+  <div class="card">
+    <button class="btn alt" onclick="backup()">Exportar respaldo</button>
+    <button class="btn alt" onclick="wipe()">Borrar datos</button>
+  </div>
+</main>
+<script>
+const K='lavadero_finanzas_v3';
+let D=JSON.parse(localStorage.getItem(K)||'null')||{moves:[],usd:1500,saved:0};
+let P=0;
+const $=id=>document.getElementById(id),fmt=n=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n);
 
-<footer>
-  📍 Servicio en toda Argentina · 📩
-  <a href="mailto:lavotodoros@gmail.com">lavotodoros@gmail.com</a>
-</footer>
+function save(){
+  localStorage.setItem(K,JSON.stringify(D));
+  render();
+  summary(currentSummaryType);
+}
 
-<a class="whatsapp" href="https://wa.me/5493413688060">WhatsApp</a>
+function wash(p){P=p;$('wf').classList.remove('hidden');$('qty').focus()}
+function add(type,amount,method,cat,desc){
+  D.moves.push({id: Date.now(), date:new Date().toISOString(), type, amount, method, cat, desc});
+  save();
+}
+function saveWash(){
+  let q=Math.max(1,+$('qty').value||1);
+  add('in',P*q,$('wm').value,'Lavado',q+' × '+fmt(P));
+  P=0; $('wf').classList.add('hidden'); $('qty').value='1';
+}
+function income(){
+  let a=+$('ia').value;
+  if(a){
+    add('in',a,$('im').value,'Otro',$('id').value||'Otro ingreso');
+    $('ia').value=''; $('id').value='';
+  }
+}
+function expense(){
+  let a=+$('ea').value;
+  if(a){
+    add('out',a,$('em').value,$('ec').value,$('ed').value||$('ec').value);
+    $('ea').value=''; $('ed').value='';
+  }
+}
 
+function removeMove(id){
+  if(confirm('¿Eliminar este movimiento?')){
+    D.moves = D.moves.filter(x => x.id !== id);
+    save();
+  }
+}
+
+let currentSummaryType = 'd';
+function calc(kind){
+  let now=new Date(),s=new Date(now);
+  if(kind==='d')s.setHours(0,0,0,0);
+  if(kind==='w'){let d=(now.getDay()+6)%7;s.setDate(now.getDate()-d);s.setHours(0,0,0,0)}
+  if(kind==='m')s=new Date(now.getFullYear(),now.getMonth(),1);
+  let a=D.moves.filter(x=>new Date(x.date)>=s);
+  let i=a.filter(x=>x.type==='in').reduce((z,x)=>z+x.amount,0);
+  let o=a.filter(x=>x.type==='out').reduce((z,x)=>z+x.amount,0);
+  return [a,i,o,i-o];
+}
+
+function summary(k){
+  currentSummaryType = k;
+  let [a,i,o,n]=calc(k);
+  let title = k==='d'?'Hoy':k==='w'?'Esta semana':'Este mes';
+  $('sum').innerHTML='<div class="muted" style="margin-bottom:6px;font-weight:bold;">Mostrando: '+title+'</div>'+
+    '<div class="row"><span>Ingresos</span><b>'+fmt(i)+'</b></div>'+
+    '<div class="row"><span>Gastos</span><b>'+fmt(o)+'</b></div>'+
+    '<div class="row"><span>Neto</span><b class="'+(n>=0?'ok':'bad')+'">'+fmt(n)+'</b></div>'+
+    '<div class="row"><span>Movimientos</span><b>'+a.length+'</b></div>';
+}
+
+function settings(){
+  D.usd=+$('usd').value||1500;
+  D.saved=+$('saved').value||0;
+  save();
+}
+
+function render(){
+  let c=0,m=0;
+  D.moves.forEach(x=>{
+    let v=x.type==='in'?x.amount:-x.amount;
+    if(x.method==='cash')c+=v; else m+=v;
+  });
+  $('cash').textContent=fmt(c);
+  $('mp').textContent=fmt(m);
+  $('total').textContent=fmt(c+m);
+
+  let now=new Date(),n=new Date(now.getFullYear(),now.getMonth(),8);
+  if(now>=n)n.setMonth(n.getMonth()+1);
+  let days=Math.max(1,Math.ceil((n-now)/86400000));
+  $('reserve').innerHTML='💳 Faltan '+fmt(Math.max(0,600000-(c+m)))+' para la tarjeta · '+days+' días';
+
+  let left=Math.max(0,1200-D.saved);
+  $('goal').innerHTML='🏖️ Falta ahorrar <b>USD '+left.toLocaleString('es-AR')+'</b> · equivalente a '+fmt(left*D.usd);
+  $('usd').value=D.usd;
+  $('saved').value=D.saved;
+
+  $('hist').innerHTML=D.moves.slice(-10).reverse().map(x=>
+    '<div class="row"><span>'+new Date(x.date).toLocaleDateString('es-AR')+' · '+x.desc+' ('+(x.method==='cash'?'Efectivo':'MP')+')</span>'+
+    '<div><b class="'+(x.type==='in'?'ok':'bad')+'">'+(x.type==='in'?'+':'-')+fmt(x.amount)+'</b>'+
+    '<button class="del-btn" onclick="removeMove('+x.id+')">✕</button></div></div>'
+  ).join('')||'<div class="muted">Todavía no hay movimientos.</div>';
+}
+
+render();
+summary('d');
+</script>
 </body>
 </html>
