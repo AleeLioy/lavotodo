@@ -43,6 +43,17 @@
   .bar-mp { background: #8b5cf6; height: 100%; transition: width 0.4s; }
   .filter-pill { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
   .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+  /* Pantalla de bloqueo de contraseña */
+  #lockScreen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--primary); display: flex; justify-content: center; align-items: center;
+    z-index: 9999; padding: 20px;
+  }
+  .lock-card {
+    background: var(--card-bg); width: 100%; max-width: 380px; padding: 30px;
+    border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center;
+  }
   
   @media print {
     body { background: #fff; padding: 0; }
@@ -53,150 +64,180 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-<header>
-  <h1>Control Financiero</h1>
-  <div class="subtitle">Gestión de Ingresos, Gastos & Rendimiento Mensual</div>
-</header>
-<main>
-  <div class="card" style="background: #1e293b; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
-    <div>
-      <div style="font-size: 12px; opacity: 0.8; font-weight: 600;">📅 PERÍODO EN VISUALIZACIÓN</div>
-      <div id="activeMonthLabel" style="font-size: 18px; font-weight: 800; text-transform: capitalize;">Mes actual</div>
-    </div>
-    <select id="monthSelector" onchange="changeMonth()" style="width: auto; margin: 0; padding: 8px 12px; font-size: 14px; background: #334155; color: #fff; border: 1px solid #475569;">
-    </select>
-  </div>
 
-  <div class="grid">
-    <div class="card" style="border-left: 5px solid #3b82f6;">
-      <div class="muted" style="font-weight: 600; font-size: 12px;">💵 EFECTIVO HISTÓRICO</div>
-      <div id="cash" class="big" style="color: #2563eb;">$0</div>
-    </div>
-    <div class="card" style="border-left: 5px solid #8b5cf6;">
-      <div class="muted" style="font-weight: 600; font-size: 12px;">📱 MERCADO PAGO HISTÓRICO</div>
-      <div id="mp" class="big" style="color: #7c3aed;">$0</div>
-    </div>
+<!-- PANTALLA DE ACCESO CON CONTRASEÑA -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <h2 style="margin-top:0; color:var(--primary);">🔒 Acceso Privado</h2>
+    <p class="muted" style="font-size:13px; margin-bottom:20px;">Ingresá tu contraseña para ver el panel financiero</p>
+    <input type="password" id="passInput" placeholder="Contraseña" style="text-align:center; font-weight:bold; letter-spacing:2px;" onkeypress="if(event.key === 'Enter') checkPassword()">
+    <button class="btn" onclick="checkPassword()">Ingresar</button>
   </div>
-  
-  <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div class="muted" style="font-weight: 600; font-size: 12px;">💰 CAJA TOTAL EN MANO</div>
-      <span id="healthBadge" class="badge" style="background:#dcfce7; color:#166534;">Saludable</span>
+</div>
+
+<div id="mainContent" style="display: none;">
+  <header>
+    <h1>Control Financiero</h1>
+    <div class="subtitle">Gestión de Ingresos, Gastos & Rendimiento Mensual</div>
+  </header>
+  <main>
+    <div class="card" style="background: #1e293b; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
+      <div>
+        <div style="font-size: 12px; opacity: 0.8; font-weight: 600;">📅 PERÍODO EN VISUALIZACIÓN</div>
+        <div id="activeMonthLabel" style="font-size: 18px; font-weight: 800; text-transform: capitalize;">Mes actual</div>
+      </div>
+      <select id="monthSelector" onchange="changeMonth()" style="width: auto; margin: 0; padding: 8px 12px; font-size: 14px; background: #334155; color: #fff; border: 1px solid #475569;">
+      </select>
     </div>
-    <div id="total" class="big" style="color: var(--primary);">$0</div>
+
+    <div class="grid">
+      <div class="card" style="border-left: 5px solid #3b82f6;">
+        <div class="muted" style="font-weight: 600; font-size: 12px;">💵 EFECTIVO HISTÓRICO</div>
+        <div id="cash" class="big" style="color: #2563eb;">$0</div>
+      </div>
+      <div class="card" style="border-left: 5px solid #8b5cf6;">
+        <div class="muted" style="font-weight: 600; font-size: 12px;">📱 MERCADO PAGO HISTÓRICO</div>
+        <div id="mp" class="big" style="color: #7c3aed;">$0</div>
+      </div>
+    </div>
     
-    <div style="margin-top: 14px;">
-      <div style="display:flex; justify-content:space-between; font-size:12px;" class="muted">
-        <span id="labelCash">Efectivo: 0%</span>
-        <span id="labelMp">Mercado Pago: 0%</span>
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="muted" style="font-weight: 600; font-size: 12px;">💰 CAJA TOTAL EN MANO</div>
+        <span id="healthBadge" class="badge" style="background:#dcfce7; color:#166534;">Saludable</span>
       </div>
-      <div class="bar-container">
-        <div id="barCash" class="bar-cash" style="width: 50%;"></div>
-        <div id="barMp" class="bar-mp" style="width: 50%;"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #a7f3d0;">
-    <div class="muted" style="color: #065f46; font-weight: 800; font-size: 12px; letter-spacing: 0.5px;">🟢 DISPONIBLE REAL DEL MES SELECCIONADO</div>
-    <div id="disponible" class="big" style="color: #047857; margin-top: 6px;">$0</div>
-    <div class="muted" style="font-size: 12px; margin-top: 6px; color: #047857;" id="disponibleDetail">*Incluye saldo acumulado anterior menos compromisos fijos del mes.*</div>
-  </div>
-
-  <div class="card">
-    <h3>📥 Cargar ingreso</h3>
-    <label class="muted" style="font-size: 13px;">Servicio frecuente</label>
-    <select id="quickService" onchange="fillServiceDesc()">
-      <option value="">-- Seleccionar servicio o escribir abajo --</option>
-      <option value="Lavado de frente">🏠 Lavado de frente</option>
-      <option value="Lavado de Autos">🚙🚘 Lavado de Auto</option>
-      <option value="Lavado de vereda / patio">🧹 Lavado de vereda / patio</option>
-      <option value="Limpieza de pileta">💧 Limpieza de pileta</option>
-      <option value="Pintura / Impermeabilización">🎨 Pintura / Impermeabilización</option>
-    </select>
-    <label class="muted" style="font-size: 13px;">Descripción / Detalle</label>
-    <input id="inDesc" placeholder="Ej. Servicio completo, trabajo extra...">
-    <label class="muted" style="font-size: 13px;">Monto ($)</label>
-    <input id="inAmt" type="number" placeholder="0">
-    <label class="muted" style="font-size: 13px;">Medio de cobro</label>
-    <select id="inMethod">
-      <option value="cash">💵 Efectivo</option>
-      <option value="mp">📱 Mercado Pago</option>
-    </select>
-    <button class="btn green" onclick="saveIncome()">Guardar Ingreso</button>
-  </div>
-
-  <div class="card">
-    <h3>💸 Cargar gasto</h3>
-    <label class="muted" style="font-size: 13px;">Categoría</label>
-    <select id="ec">
-      <option>🧴 Insumos / Productos</option>
-      <option>⛽ Combustible / Movilidad</option>
-      <option>🔧 Mantenimiento / Reparación</option>
-      <option>🛒 Herramientas / Equipos</option>
-      <option>💳 Tarjeta</option>
-      <option>📦 Otro</option>
-    </select>
-    <label class="muted" style="font-size: 13px;">Detalle</label>
-    <input id="ed" placeholder="Detalle del gasto">
-    <label class="muted" style="font-size: 13px;">Monto ($)</label>
-    <input id="ea" type="number" placeholder="0">
-    <label class="muted" style="font-size: 13px;">Medio de pago</label>
-    <select id="em">
-      <option value="cash">💵 Efectivo</option>
-      <option value="mp">📱 Mercado Pago</option>
-    </select>
-    <button class="btn red" onclick="expense()">Guardar Gasto</button>
-  </div>
-
-  <div class="card">
-    <h3>📊 Resumen de rendimiento</h3>
-    <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 6px;">
-      <button class="btn alt" style="margin-top:0;" onclick="summary('d')">Hoy</button>
-      <button class="btn alt" style="margin-top:0;" onclick="summary('w')">Semana</button>
-      <button class="btn alt" style="margin-top:0;" onclick="summary('m')">Mes</button>
-    </div>
-    <div id="sum" style="margin-top: 14px;"></div>
-    <button class="btn alt" onclick="copySummary()" style="margin-top: 12px; font-size:14px;">📋 Copiar resumen para WhatsApp</button>
-  </div>
-
-  <div class="card">
-    <h3>🎯 Compromisos Fijos </h3>
-    <label class="muted" style="font-size: 13px;">Dólar de referencia ($)</label>
-    <input id="usd" type="number" value="1550" onchange="settings()">
-    
-    <div class="row">
-      <span> 💵 Ahorro</span>
-      <b style="color: var(--accent);">USD 300 (~$<span id="vacationPesos">465.000</span>)</b>
-    </div>
-
-    <div class="row">
-      <span>💳 Gasto Fijo Mensual</span>
-      <b style="color: var(--accent);">$600.000</b>
-    </div>
-    <div class="muted" style="font-size: 11px; margin-top: 8px; color: var(--muted);">*Los compromisos fijos se aplican de forma estricta al mes seleccionado.*</div>
-  </div>
-
-  <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-      <h3 style="margin:0;">📜 Historial</h3>
-      <div style="display:flex; gap:6px;">
-        <button class="filter-pill active" id="filtAll" onclick="setFilter('all')">Todos</button>
-        <button class="filter-pill" id="filtIn" onclick="setFilter('in')">Ingresos</button>
-        <button class="filter-pill" id="filtOut" onclick="setFilter('out')">Gastos</button>
+      <div id="total" class="big" style="color: var(--primary);">$0</div>
+      
+      <div style="margin-top: 14px;">
+        <div style="display:flex; justify-content:space-between; font-size:12px;" class="muted">
+          <span id="labelCash">Efectivo: 0%</span>
+          <span id="labelMp">Mercado Pago: 0%</span>
+        </div>
+        <div class="bar-container">
+          <div id="barCash" class="bar-cash" style="width: 50%;"></div>
+          <div id="barMp" class="bar-mp" style="width: 50%;"></div>
+        </div>
       </div>
     </div>
-    <div class="muted" style="margin-bottom:12px; font-size:12px;">Toca la ✕ para borrar cualquier error:</div>
-    <div id="hist"></div>
-  </div>
 
-  <div class="card">
-    <button class="btn alt" onclick="exportPDF()">📄 Descargar Reporte en PDF</button>
-    <button class="btn alt" onclick="wipeLocalData()" style="color:var(--red);">Borrar Todos los Datos</button>
-  </div>
-</main>
+    <div class="card" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #a7f3d0;">
+      <div class="muted" style="color: #065f46; font-weight: 800; font-size: 12px; letter-spacing: 0.5px;">🟢 DISPONIBLE REAL DEL MES SELECCIONADO</div>
+      <div id="disponible" class="big" style="color: #047857; margin-top: 6px;">$0</div>
+      <div class="muted" style="font-size: 12px; margin-top: 6px; color: #047857;" id="disponibleDetail">*Incluye saldo acumulado anterior menos compromisos fijos del mes.*</div>
+    </div>
+
+    <div class="card">
+      <h3>📥 Cargar ingreso</h3>
+      <label class="muted" style="font-size: 13px;">Servicio frecuente</label>
+      <select id="quickService" onchange="fillServiceDesc()">
+        <option value="">-- Seleccionar servicio o escribir abajo --</option>
+        <option value="Lavado de frente">🏠 Lavado de frente</option>
+        <option value="Lavado de Autos">🚙🚘 Lavado de Auto</option>
+        <option value="Lavado de vereda / patio">🧹 Lavado de vereda / patio</option>
+        <option value="Limpieza de pileta">💧 Limpieza de pileta</option>
+        <option value="Pintura / Impermeabilización">🎨 Pintura / Impermeabilización</option>
+      </select>
+      <label class="muted" style="font-size: 13px;">Descripción / Detalle</label>
+      <input id="inDesc" placeholder="Ej. Servicio completo, trabajo extra...">
+      <label class="muted" style="font-size: 13px;">Monto ($)</label>
+      <input id="inAmt" type="number" placeholder="0">
+      <label class="muted" style="font-size: 13px;">Medio de cobro</label>
+      <select id="inMethod">
+        <option value="cash">💵 Efectivo</option>
+        <option value="mp">📱 Mercado Pago</option>
+      </select>
+      <button class="btn green" onclick="saveIncome()">Guardar Ingreso</button>
+    </div>
+
+    <div class="card">
+      <h3>💸 Cargar gasto</h3>
+      <label class="muted" style="font-size: 13px;">Categoría</label>
+      <select id="ec">
+        <option>🧴 Insumos / Productos</option>
+        <option>⛽ Combustible / Movilidad</option>
+        <option>🔧 Mantenimiento / Reparación</option>
+        <option>🛒 Herramientas / Equipos</option>
+        <option>💳 Tarjeta</option>
+        <option>📦 Otro</option>
+      </select>
+      <label class="muted" style="font-size: 13px;">Detalle</label>
+      <input id="ed" placeholder="Detalle del gasto">
+      <label class="muted" style="font-size: 13px;">Monto ($)</label>
+      <input id="ea" type="number" placeholder="0">
+      <label class="muted" style="font-size: 13px;">Medio de pago</label>
+      <select id="em">
+        <option value="cash">💵 Efectivo</option>
+        <option value="mp">📱 Mercado Pago</option>
+      </select>
+      <button class="btn red" onclick="expense()">Guardar Gasto</button>
+    </div>
+
+    <div class="card">
+      <h3>📊 Resumen de rendimiento</h3>
+      <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 6px;">
+        <button class="btn alt" style="margin-top:0;" onclick="summary('d')">Hoy</button>
+        <button class="btn alt" style="margin-top:0;" onclick="summary('w')">Semana</button>
+        <button class="btn alt" style="margin-top:0;" onclick="summary('m')">Mes</button>
+      </div>
+      <div id="sum" style="margin-top: 14px;"></div>
+      <button class="btn alt" onclick="copySummary()" style="margin-top: 12px; font-size:14px;">📋 Copiar resumen para WhatsApp</button>
+    </div>
+
+    <div class="card">
+      <h3>🎯 Compromisos Fijos </h3>
+      <label class="muted" style="font-size: 13px;">Dólar de referencia ($)</label>
+      <input id="usd" type="number" value="1550" onchange="settings()">
+      
+      <div class="row">
+        <span> 💵 Ahorro</span>
+        <b style="color: var(--accent);">USD 300 (~$<span id="vacationPesos">465.000</span>)</b>
+      </div>
+
+      <div class="row">
+        <span>💳 Gasto Fijo Mensual</span>
+        <b style="color: var(--accent);">$600.000</b>
+      </div>
+      <div class="muted" style="font-size: 11px; margin-top: 8px; color: var(--muted);">*Los compromisos fijos se aplican de forma estricta al mes seleccionado.*</div>
+    </div>
+
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="margin:0;">📜 Historial</h3>
+        <div style="display:flex; gap:6px;">
+          <button class="filter-pill active" id="filtAll" onclick="setFilter('all')">Todos</button>
+          <button class="filter-pill" id="filtIn" onclick="setFilter('in')">Ingresos</button>
+          <button class="filter-pill" id="filtOut" onclick="setFilter('out')">Gastos</button>
+        </div>
+      </div>
+      <div class="muted" style="margin-bottom:12px; font-size:12px;">Toca la ✕ para borrar cualquier error:</div>
+      <div id="hist"></div>
+    </div>
+
+    <div class="card">
+      <button class="btn alt" onclick="exportPDF()">📄 Descargar Reporte en PDF</button>
+      <button class="btn alt" onclick="wipeLocalData()" style="color:var(--red);">Borrar Todos los Datos</button>
+    </div>
+  </main>
+</div>
 
 <script>
+// ==================== CONFIGURACIÓN DE CONTRASEÑA ====================
+const CLAVE_SECRETA = '688060'; // Cambiá '1234' por la contraseña que quieras usar
+
+function checkPassword() {
+  let ing = document.getElementById('passInput').value;
+  if(ing === CLAVE_SECRETA) {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    render();
+    summary('m');
+  } else {
+    alert('Contraseña incorrecta.');
+    document.getElementById('passInput').value = '';
+  }
+}
+// ======================================================================
+
 const K='control_financiero_v17';
 let D=JSON.parse(localStorage.getItem(K)||'null')||{moves:[],usd:1550};
 let currentFilter = 'all';
@@ -490,11 +531,8 @@ function exportPDF(){
     html2canvas:  { scale: 1.3, useCORS: true, letterRendering: true },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
-  html2pdf().from(element).set(opt).save();
+  html2canvas().from(element).set(opt).save();
 }
-
-render();
-summary('m');
 </script>
 </body>
 </html>
