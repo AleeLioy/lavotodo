@@ -42,11 +42,19 @@
       <div id="mp" class="big">$0</div>
     </div>
   </div>
+  
   <div class="card">
-    <div class="muted">💰 Total</div>
+    <div class="muted">💰 Caja Total</div>
     <div id="total" class="big">$0</div>
-    <div id="reserve" class="muted"></div>
+    <div id="reserve" class="muted" style="margin-top:6px;"></div>
   </div>
+
+  <div class="card" style="background: #eef9f2; border: 1px solid #d1fae5;">
+    <div class="muted" style="color: #065f46; font-weight: bold;">🟢 Dinero Realmente Disponible para Vos</div>
+    <div id="disponible" class="big" style="color: #047857; margin-top: 4px;">$0</div>
+    <div class="muted" style="font-size: 11px; margin-top: 4px;">*Descontando tarjeta ($600k) y 10% de reinversión.*</div>
+  </div>
+
   <div class="card">
     <h3>🚗 Cargar lavado</h3>
     <div class="grid">
@@ -55,25 +63,28 @@
       <button class="btn" onclick="wash(35000)">$35.000</button>
       <button class="btn" onclick="wash(40000)">$40.000</button>
     </div>
-    <div id="wf" class="hidden">
+    <div id="wf" class="hidden" style="margin-top: 10px;">
+      <label class="muted">Cantidad de autos</label>
       <input id="qty" type="number" min="1" value="1">
       <select id="wm">
         <option value="cash">💵 Efectivo</option>
         <option value="mp">📱 Mercado Pago</option>
       </select>
-      <button class="btn green" onclick="saveWash()">Confirmar</button>
+      <button class="btn green" onclick="saveWash()">Confirmar Lavado</button>
     </div>
   </div>
+
   <div class="card">
-    <h3>➕ Otro ingreso</h3>
-    <input id="id" placeholder="Descripción">
-    <input id="ia" type="number" placeholder="Monto">
+    <h3>➕ Otro ingreso / Monto libre</h3>
+    <input id="id" placeholder="Descripción (ej. Extra, pulido, etc.)">
+    <input id="ia" type="number" placeholder="Monto ($)">
     <select id="im">
       <option value="cash">💵 Efectivo</option>
       <option value="mp">📱 Mercado Pago</option>
     </select>
     <button class="btn" onclick="income()">Guardar ingreso</button>
   </div>
+
   <div class="card">
     <h3>💸 Cargar gasto</h3>
     <select id="ec">
@@ -85,44 +96,50 @@
       <option>📦 Otro</option>
     </select>
     <input id="ed" placeholder="Detalle">
-    <input id="ea" type="number" placeholder="Monto">
+    <input id="ea" type="number" placeholder="Monto ($)">
     <select id="em">
       <option value="cash">💵 Efectivo</option>
       <option value="mp">📱 Mercado Pago</option>
     </select>
     <button class="btn red" onclick="expense()">Guardar gasto</button>
   </div>
+
   <div class="card">
-    <h3>📊 Resumen</h3>
+    <h3>📊 Resumen de rendimiento</h3>
     <div class="grid">
       <button class="btn alt" onclick="summary('d')">Hoy</button>
       <button class="btn alt" onclick="summary('w')">Semana</button>
       <button class="btn alt" onclick="summary('m')">Mes</button>
     </div>
-    <div id="sum" style="margin-top: 10px;"></div>
+    <div id="sum" style="margin-top: 12px;"></div>
   </div>
+
   <div class="card">
-    <h3>🎯 Objetivos</h3>
-    <label>Dólar de referencia</label>
+    <h3>🎯 Objetivos y Metas</h3>
+    <label class="muted">Dólar de referencia ($)</label>
     <input id="usd" type="number" value="1500" onchange="settings()">
-    <label>USD ahorrados</label>
+    <label class="muted">USD ahorrados para vacaciones</label>
     <input id="saved" type="number" value="0" onchange="settings()">
     <div id="goal" style="margin-top:10px;"></div>
     <div class="row"><span>🏖️ Meta vacaciones</span><b>USD 1.200</b></div>
     <div class="row"><span>💳 Tarjeta cada día 8</span><b>$600.000</b></div>
     <div class="row"><span>📈 Reinversión sugerida</span><b>10%</b></div>
   </div>
+
   <div class="card">
-    <h3>📜 Historial y Últimos Movimientos</h3>
+    <h3>📜 Historial por Días</h3>
+    <div class="muted" style="margin-bottom:8px;">Tus movimientos agrupados por fecha:</div>
     <div id="hist"></div>
   </div>
+
   <div class="card">
-    <button class="btn alt" onclick="backup()">Exportar respaldo</button>
-    <button class="btn alt" onclick="wipe()">Borrar datos</button>
+    <button class="btn alt" onclick="backup()">Exportar respaldo JSON</button>
+    <button class="btn alt" onclick="wipe()" style="color:#c93434;">Borrar todos los datos</button>
   </div>
 </main>
+
 <script>
-const K='lavadero_finanzas_v3';
+const K='lavadero_finanzas_v4';
 let D=JSON.parse(localStorage.getItem(K)||'null')||{moves:[],usd:1500,saved:0};
 let P=0;
 const $=id=>document.getElementById(id),fmt=n=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n);
@@ -134,26 +151,30 @@ function save(){
 }
 
 function wash(p){P=p;$('wf').classList.remove('hidden');$('qty').focus()}
-function add(type,amount,method,cat,desc){
-  D.moves.push({id: Date.now(), date:new Date().toISOString(), type, amount, method, cat, desc});
+
+function add(type,amount,method,cat,desc,extra={}){
+  D.moves.push({id: Date.now(), date:new Date().toISOString(), type, amount, method, cat, desc, ...extra});
   save();
 }
+
 function saveWash(){
   let q=Math.max(1,+$('qty').value||1);
-  add('in',P*q,$('wm').value,'Lavado',q+' × '+fmt(P));
+  add('in', P*q, $('wm').value, 'Lavado', q+' auto(s) de '+fmt(P), {isWash: true, count: q});
   P=0; $('wf').classList.add('hidden'); $('qty').value='1';
 }
+
 function income(){
   let a=+$('ia').value;
   if(a){
-    add('in',a,$('im').value,'Otro',$('id').value||'Otro ingreso');
+    add('in', a, $('im').value, 'Otro', $('id').value||'Otro ingreso');
     $('ia').value=''; $('id').value='';
   }
 }
+
 function expense(){
   let a=+$('ea').value;
   if(a){
-    add('out',a,$('em').value,$('ec').value,$('ed').value||$('ec').value);
+    add('out', a, $('em').value, $('ec').value, $('ed').value||$('ec').value);
     $('ea').value=''; $('ed').value='';
   }
 }
@@ -174,18 +195,23 @@ function calc(kind){
   let a=D.moves.filter(x=>new Date(x.date)>=s);
   let i=a.filter(x=>x.type==='in').reduce((z,x)=>z+x.amount,0);
   let o=a.filter(x=>x.type==='out').reduce((z,x)=>z+x.amount,0);
-  return [a,i,o,i-o];
+  let washes = a.filter(x=>x.isWash);
+  let totalWashesCount = washes.reduce((z,x)=>z+(x.count||1),0);
+  let totalWashesIncome = washes.reduce((z,x)=>z+x.amount,0);
+  let avgPerCar = totalWashesCount > 0 ? Math.round(totalWashesIncome / totalWashesCount) : 0;
+  return [a, i, o, i-o, totalWashesCount, avgPerCar];
 }
 
 function summary(k){
   currentSummaryType = k;
-  let [a,i,o,n]=calc(k);
+  let [a, i, o, n, washCount, avg] = calc(k);
   let title = k==='d'?'Hoy':k==='w'?'Esta semana':'Este mes';
   $('sum').innerHTML='<div class="muted" style="margin-bottom:6px;font-weight:bold;">Mostrando: '+title+'</div>'+
     '<div class="row"><span>Ingresos</span><b>'+fmt(i)+'</b></div>'+
     '<div class="row"><span>Gastos</span><b>'+fmt(o)+'</b></div>'+
-    '<div class="row"><span>Neto</span><b class="'+(n>=0?'ok':'bad')+'">'+fmt(n)+'</b></div>'+
-    '<div class="row"><span>Movimientos</span><b>'+a.length+'</b></div>';
+    '<div class="row"><span>Neto del período</span><b class="'+(n>=0?'ok':'bad')+'">'+fmt(n)+'</b></div>'+
+    '<div class="row"><span>Cantidad de lavados</span><b>'+washCount+' auto(s)</b></div>'+
+    '<div class="row"><span>Promedio por auto</span><b>'+fmt(avg)+'</b></div>';
 }
 
 function settings(){
@@ -200,25 +226,54 @@ function render(){
     let v=x.type==='in'?x.amount:-x.amount;
     if(x.method==='cash')c+=v; else m+=v;
   });
+  let totalCaja = c + m;
   $('cash').textContent=fmt(c);
   $('mp').textContent=fmt(m);
-  $('total').textContent=fmt(c+m);
+  $('total').textContent=fmt(totalCaja);
+
+  // Cálculo disponible real (Menos tarjeta $600k y 10% reinversión)
+  let reinversion = totalCaja * 0.10;
+  let disponibleReal = totalCaja - 600000 - reinversion;
+  $('disponible').textContent = fmt(Math.max(0, disponibleReal));
 
   let now=new Date(),n=new Date(now.getFullYear(),now.getMonth(),8);
   if(now>=n)n.setMonth(n.getMonth()+1);
   let days=Math.max(1,Math.ceil((n-now)/86400000));
-  $('reserve').innerHTML='💳 Faltan '+fmt(Math.max(0,600000-(c+m)))+' para la tarjeta · '+days+' días';
+  $('reserve').innerHTML='💳 Faltan '+fmt(Math.max(0,600000-totalCaja))+' para la tarjeta · Vence en '+days+' días';
 
   let left=Math.max(0,1200-D.saved);
   $('goal').innerHTML='🏖️ Falta ahorrar <b>USD '+left.toLocaleString('es-AR')+'</b> · equivalente a '+fmt(left*D.usd);
   $('usd').value=D.usd;
   $('saved').value=D.saved;
 
-  $('hist').innerHTML=D.moves.slice(-10).reverse().map(x=>
-    '<div class="row"><span>'+new Date(x.date).toLocaleDateString('es-AR')+' · '+x.desc+' ('+(x.method==='cash'?'Efectivo':'MP')+')</span>'+
-    '<div><b class="'+(x.type==='in'?'ok':'bad')+'">'+(x.type==='in'?'+':'-')+fmt(x.amount)+'</b>'+
-    '<button class="del-btn" onclick="removeMove('+x.id+')">✕</button></div></div>'
-  ).join('')||'<div class="muted">Todavía no hay movimientos.</div>';
+  // Renderizar historial agrupado por fecha
+  let groups = {};
+  D.moves.slice().reverse().forEach(x => {
+    let dateStr = new Date(x.date).toLocaleDateString('es-AR');
+    if(!groups[dateStr]) groups[dateStr] = [];
+    groups[dateStr].push(x);
+  });
+
+  let htmlHist = '';
+  for(let date in groups){
+    let dayMoves = groups[date];
+    let dayIn = dayMoves.filter(x=>x.type==='in').reduce((z,x)=>z+x.amount,0);
+    let dayOut = dayMoves.filter(x=>x.type==='out').reduce((z,x)=>z+x.amount,0);
+    let dayNet = dayIn - dayOut;
+
+    htmlHist += '<div style="background:#f9f9fb; border-radius:12px; padding:12px; margin-bottom:10px; border:1px solid #eee;">' +
+      '<div style="font-weight:bold; margin-bottom:6px; display:flex; justify-content:space-between;"><span>📅 ' + date + '</span><span class="'+(dayNet>=0?'ok':'bad')+'">Neto: '+fmt(dayNet)+'</span></div>';
+    
+    dayMoves.forEach(x => {
+      htmlHist += '<div class="row" style="font-size:14px; border-bottom:1px solid #f0f0f0;">' +
+        '<span>' + x.desc + ' <small class="muted">(' + (x.method==='cash'?'Efectivo':'MP') + ')</small></span>' +
+        '<div><b class="'+(x.type==='in'?'ok':'bad')+'">' + (x.type==='in'?'+':'-') + fmt(x.amount) + '</b>' +
+        '<button class="del-btn" onclick="removeMove(' + x.id + ')">✕</button></div></div>';
+    });
+    htmlHist += '</div>';
+  }
+
+  $('hist').innerHTML = htmlHist || '<div class="muted">Todavía no hay movimientos registrados.</div>';
 }
 
 render();
