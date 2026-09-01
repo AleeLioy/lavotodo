@@ -1,247 +1,1063 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retos Deportivos - Autenticación, Strava & Mercado Pago</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --accent-color: #10b981;
-            --accent-hover: #059669;
-            --text-color: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --strava-color: #fc4c02;
-            --mp-color: #009ee3;
-        }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brasil 2027 - Admin, Monedas & Gastos</title>
+<!-- SDK de Firebase (Firestore) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
+<style>
+  :root {
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --card-border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+    --primary: #0284c7;
+    --accent: #4f46e5;
+    --green: #16a34a;
+    --red: #dc2626;
+    --yellow: #d97706;
+    --pool: #7c3aed;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--text); padding-bottom: 70px; -webkit-font-smoothing: antialiased;
+  }
+  header {
+    background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+    padding: 20px 16px; border-bottom: 1px solid var(--card-border); position: sticky; top: 0; z-index: 100;
+  }
+  .header-content { max-width: 650px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+  h1 { margin: 0; font-size: 18px; font-weight: 700; color: #0f172a; }
+  .subtitle { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  main { max-width: 650px; margin: 0 auto; padding: 16px; }
+  
+  .card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 18px;
+    padding: 18px; margin-bottom: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  }
+  .card-title { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .metric-value { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-top: 2px; }
+  
+  label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 6px; margin-top: 12px; }
+  label:first-of-type { margin-top: 0; }
+  
+  input, select, textarea {
+    width: 100%; max-width: 100%; background: #f8fafc; border: 1px solid var(--card-border);
+    color: var(--text); padding: 11px 13px; border-radius: 12px; font-size: 13px; outline: none; transition: all 0.2s;
+  }
+  input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
+  input:disabled { background: #e2e8f0; color: #64748b; cursor: not-allowed; }
+  
+  .btn {
+    width: 100%; border: 0; border-radius: 12px; padding: 12px; font-weight: 700; font-size: 13px;
+    cursor: pointer; transition: transform 0.1s ease, opacity 0.2s; text-align: center; display: block; margin-top: 14px;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn.primary { background: var(--primary); color: #ffffff; }
+  .btn.green { background: var(--green); color: #ffffff; }
+  .btn.pool { background: var(--pool); color: #ffffff; }
+  .btn.alt { background: #e2e8f0; color: var(--text); border: 1px solid var(--card-border); }
+  .btn.red { background: var(--red); color: #ffffff; }
+  
+  .pay-action-btn { background: var(--green); color: white; border: 0; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 8px; }
+  .pay-action-btn:active { transform: scale(0.98); }
+  .pay-action-btn:disabled { background: #cbd5e1; color: #64748b; cursor: not-allowed; }
 
-        .container {
-            width: 100%;
-            max-width: 480px;
-        }
+  .confirm-btn { background: var(--green); color: white; border: 0; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; }
+  .reject-btn { background: rgba(220, 38, 38, 0.1); color: var(--red); border: 0; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 6px; }
+  
+  .tabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+  .tab {
+    flex: 1; min-width: 80px; padding: 10px 6px; border-radius: 12px; border: 1px solid var(--card-border);
+    background: var(--card); color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s;
+  }
+  .tab.active { background: var(--primary); color: #ffffff; border-color: var(--primary); font-weight: 700; }
+  
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+  .row:last-child { border-bottom: 0; }
+  
+  .del-btn { background: rgba(220, 38, 38, 0.1); color: var(--red); border: 0; border-radius: 8px; padding: 5px 9px; font-size: 11px; margin-left: 8px; cursor: pointer; font-weight: bold; }
+  
+  .pill { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .pill.pool-tag { background: rgba(124, 58, 237, 0.1); color: var(--pool); }
+  .pill.personal-tag { background: rgba(2, 132, 199, 0.1); color: var(--primary); }
+  .pill.currency-tag { background: rgba(217, 119, 6, 0.1); color: var(--yellow); }
+  .pill.admin-tag { background: rgba(22, 163, 74, 0.1); color: var(--green); }
+  .pill.pending-tag { background: rgba(217, 119, 6, 0.1); color: var(--yellow); }
 
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
+  .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+  .checkbox-label {
+    background: #f8fafc; border: 1px solid var(--card-border); padding: 8px; border-radius: 10px;
+    font-size: 12px; display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;
+  }
+  .checkbox-label input { width: auto; margin: 0; }
 
-        h2, h3 { margin-top: 0; }
-        
-        button {
-            width: 100%;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
+  .ok { color: var(--green); font-weight: 700; }
+  .bad { color: var(--red); font-weight: 700; }
+  .muted { color: var(--muted); }
+  .section-view { display: none; }
+  .section-view.active { display: block; }
 
-        button:hover { background-color: var(--accent-hover); }
-
-        .btn-strava { background-color: var(--strava-color); }
-        .btn-strava:hover { background-color: #d33c00; }
-
-        .btn-mp { background-color: var(--mp-color); }
-        .btn-mp:hover { background-color: #0081bc; }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-color);
-            color: white;
-            margin-bottom: 10px;
-            box-sizing: border-box;
-        }
-
-        .hidden { display: none; }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(15, 23, 42, 0.5);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            margin-bottom: 16px;
-        }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 16px 0;
-        }
-
-        .stat-box {
-            background: rgba(15, 23, 42, 0.5);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .stat-box span {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .stat-box strong {
-            font-size: 1.1rem;
-            color: var(--text-color);
-        }
-    </style>
+  #lock-screen, #profile-screen, #profile-pin-screen {
+    position: fixed; inset: 0; background: var(--bg); z-index: 999;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .lock-card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 20px;
+    padding: 24px; width: 100%; max-width: 360px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center;
+  }
+  .profile-option {
+    background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 12px;
+    margin-bottom: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;
+    display: flex; justify-content: space-between; align-items: center; text-align: left;
+  }
+  .profile-option:hover { border-color: var(--primary); background: #f0f9ff; color: var(--primary); }
+</style>
 </head>
 <body>
 
-<div class="container">
-
-    <!-- SECCIÓN 1: LOGIN / REGISTRO -->
-    <div id="authSection" class="card">
-        <h2>🔐 Ingresar a la App</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Registrate para unirte a los pozos y competir.</p>
-        
-        <input type="email" id="loginEmail" placeholder="Correo electrónico">
-        <input type="password" id="loginPass" placeholder="Contraseña">
-        
-        <button onclick="simularLogin()">Iniciar Sesión / Registrarse</button>
-    </div>
-
-    <!-- SECCIÓN 2: DASHBOARD DEL USUARIO -->
-    <div id="dashboardSection" class="card hidden">
-        <div class="user-badge">
-            <span id="welcomeUser">Hola, Usuario</span>
-            <button onclick="cerrarSesion()" style="width: auto; padding: 4px 8px; font-size: 0.8rem; margin:0; background: #ef4444;">Salir</button>
-        </div>
-
-        <h3>🏃‍♂️ Reto: 10 KM en el día</h3>
-        
-        <div class="stat-grid">
-            <div class="stat-box">
-                <span>Buy-in (Entrada)</span>
-                <strong>$2.000 ARS</strong>
-            </div>
-            <div class="stat-box">
-                <span>Inscritos Pagos</span>
-                <strong id="inscritosCount">3</strong>
-            </div>
-        </div>
-
-        <!-- FLUJO 1: PAGO CON MERCADO PAGO -->
-        <div id="paymentSection">
-            <p style="color: var::text-muted; font-size: 0.85rem;">Para participar, realizá el pago del Buy-in.</p>
-            <button class="btn-mp" onclick="pagarBuyIn()">Pagar Buy-in con Mercado Pago 💙</button>
-        </div>
-
-        <div id="paymentSuccessSection" class="hidden">
-            <p style="color: #34d399; font-size: 0.9rem; font-weight: bold; margin-bottom: 8px;">✔ Buy-in abonado con éxito</p>
-            
-            <!-- FLUJO 2: CONEXIÓN STRAVA -->
-            <div id="stravaNotConnected">
-                <button class="btn-strava" onclick="conectarStrava()">Conectar con Strava 🧡</button>
-            </div>
-
-            <div id="stravaConnected" class="hidden">
-                <p style="color: #34d399; font-size: 0.85rem; font-weight: bold; margin: 8px 0;">✔ Strava vinculado</p>
-                <button onclick="verificarProgresoStrava()" style="background-color: #3b82f6;">Verificar mi Actividad de Hoy</button>
-            </div>
-        </div>
-
-        <div id="resultadoValidacion" style="margin-top: 12px; font-size: 0.85rem; font-family: monospace;"></div>
-    </div>
-
+<!-- PANTALLA 1: CONTRASEÑA GENERAL -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
+    <h2 style="margin: 0 0 6px 0; font-size: 18px;">Brasil 2027</h2>
+    <div class="muted" style="font-size: 12px; margin-bottom: 16px;">Ingresá la contraseña del grupo</div>
+    <input id="lockPasswordInput" type="password" placeholder="Contraseña..." style="text-align: center; font-size: 16px; letter-spacing: 2px;">
+    <button class="btn primary" onclick="checkPassword()">Ingresar</button>
+  </div>
 </div>
 
+<!-- PANTALLA 2: SELECCIÓN DE PERFIL -->
+<div id="profile-screen" style="display: none;">
+  <div class="lock-card" style="max-width: 400px; text-align: left;">
+    <div style="text-align: center; margin-bottom: 14px;">
+      <div style="font-size: 32px; margin-bottom: 4px;">👤</div>
+      <h2 style="margin: 0; font-size: 18px;">¿Quién sos?</h2>
+      <div class="muted" style="font-size: 11px; margin-top: 2px;">Seleccioná tu perfil para ingresar con tu clave</div>
+    </div>
+    <div id="profileListContainer"></div>
+  </div>
+</div>
+
+<!-- PANTALLA 3: CONTRASEÑA PERSONAL DEL PERFIL -->
+<div id="profile-pin-screen" style="display: none;">
+  <div class="lock-card">
+    <div style="font-size: 32px; margin-bottom: 8px;" id="pinProfileIcon">🔑</div>
+    <h2 style="margin: 0 0 6px 0; font-size: 18px;" id="pinProfileTitle">Contraseña de Usuario</h2>
+    <div class="muted" style="font-size: 12px; margin-bottom: 16px;" id="pinProfileSubtitle">Ingresá tu clave personal</div>
+    <input id="profilePinInput" type="password" placeholder="Clave personal..." style="text-align: center; font-size: 16px; letter-spacing: 2px;">
+    <button class="btn primary" onclick="verifyProfilePin()">Confirmar Clave</button>
+    <button class="btn alt" onclick="backToProfileSelector()" style="margin-top: 8px;">← Elegir otro perfil</button>
+  </div>
+</div>
+
+<header>
+  <div class="header-content">
+    <div>
+      <h1>🇧🇷 Brasil 2027 🌴</h1>
+      <div class="subtitle" id="headerUserSubtitle">Usuario: Cargando...</div>
+    </div>
+    <div style="display: flex; gap: 6px;">
+      <button class="btn alt" style="width: auto; margin:0; padding: 6px 10px; font-size: 11px;" onclick="switchProfile()">🔄 Cambiar</button>
+      <button class="btn alt" style="width: auto; margin:0; padding: 6px 10px; font-size: 11px;" onclick="resetAllData()">⚙️</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard')">📊 Resumen</button>
+    <button class="tab" onclick="switchTab('expenses')">💸 Gastos</button>
+    <button class="tab" onclick="switchTab('pool')">📦 Caja</button>
+    <button class="tab" onclick="switchTab('balances')">⚖️ Saldos</button>
+  </div>
+
+  <div id="view-dashboard" class="section-view active">
+    <!-- PANEL DE COTIZACIONES (ADMINISTRABLE) -->
+    <div class="card" style="background: linear-gradient(135deg, #fef3c7, #fffbeb); border: 1px solid #fde68a;">
+      <div class="card-title" style="color: #92400e; margin-bottom:6px;">
+        <span>💱 Cotización de Monedas (Admin)</span>
+        <span id="adminBadge" class="pill admin-tag" style="display:none;">Modo Admin Activo</span>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label style="margin-top:0;">Dólar (USD a ARS)</label>
+          <input id="rateUsd" type="number" value="1200" onchange="updateRates()" style="background:#fff;" disabled>
+        </div>
+        <div>
+          <label style="margin-top:0;">Real (BRL a ARS)</label>
+          <input id="rateBrl" type="number" value="230" onchange="updateRates()" style="background:#fff;" disabled>
+        </div>
+      </div>
+      <div id="adminNotice" class="muted" style="font-size: 11px; margin-top: 8px; color: #b45309;">
+        ℹ️ Solo el administrador puede modificar las cotizaciones.
+      </div>
+    </div>
+
+    <div class="card" style="background: linear-gradient(135deg, #ffffff, #f1f5f9); border: 1px solid #cbd5e1;">
+      <div class="card-title">💰 Gasto Total del Viaje (Convertido a ARS)</div>
+      <div id="totalTripExpense" class="metric-value" style="color: var(--text); font-size: 28px;">$0</div>
+      <div class="muted" style="font-size: 11px; margin-top: 4px;" id="totalTripUsd">Equivalente aprox: USD 0</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card" style="border-left: 4px solid var(--pool);">
+        <div class="card-title">📦 Fondo Caja Común</div>
+        <div id="poolBalanceCard" class="metric-value" style="color: var(--pool);">$0</div>
+        <div class="muted" style="font-size: 10px; margin-top: 2px;">Disponible en pozo</div>
+      </div>
+      <div class="card" style="border-left: 4px solid var(--primary);">
+        <div class="card-title">👥 Participantes</div>
+        <div class="metric-value" style="color: var(--primary);">6 Amigos</div>
+        <div class="muted" style="font-size: 10px; margin-top: 2px;">Ore, Lau, Limón, Eze, Seba, Paco</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💡 ¿Quién le paga a quién? (Saldar en 1 click)</div>
+      <div id="quickSettlementList"></div>
+    </div>
+  </div>
+
+  <div id="view-expenses" class="section-view">
+    <div class="card">
+      <div class="card-title">💸 Registrar Nuevo Gasto</div>
+      
+      <label>Descripción del gasto</label>
+      <input id="expDesc" placeholder="Ej. Supermercado, Almuerzo, Nafta...">
+
+      <div class="grid-3">
+        <div>
+          <label>Monto</label>
+          <input id="expAmount" type="number" placeholder="0">
+        </div>
+        <div>
+          <label>Moneda</label>
+          <select id="expCurrency">
+            <option value="ARS">Pesos ($)</option>
+            <option value="USD">Dólares (US$)</option>
+            <option value="BRL">Reales (R$)</option>
+          </select>
+        </div>
+        <div>
+          <label>¿Quién pagó?</label>
+          <select id="expPayer"></select>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 4px;">
+        <div>
+          <label>Origen de los fondos</label>
+          <select id="expSource">
+            <option value="personal">Bolsillo personal</option>
+            <option value="pool">📦 Caja Común (Pozo)</option>
+          </select>
+        </div>
+        <div>
+          <label>Fecha</label>
+          <input id="expDate" type="date">
+        </div>
+      </div>
+
+      <div style="margin-top: 12px;">
+        <label>¿Entre quiénes se divide? (Seleccionar participantes)</label>
+        <div style="display:flex; gap:8px; margin-bottom:6px;">
+          <button class="btn alt" style="margin:0; padding:6px; font-size:11px;" onclick="toggleAllSplit(true)">Marcar Todos</button>
+          <button class="btn alt" style="margin:0; padding:6px; font-size:11px;" onclick="toggleAllSplit(false)">Desmarcar Todos</button>
+        </div>
+        <div id="splitCheckboxes" class="checkbox-grid"></div>
+      </div>
+
+      <button class="btn green" onclick="addExpense()">Guardar Gasto</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📜 Historial de Gastos</div>
+      <div id="expensesHistoryList"></div>
+    </div>
+  </div>
+
+  <div id="view-pool" class="section-view">
+    <div class="card" style="background: linear-gradient(135deg, #ede9fe, #ffffff); border: 1px solid #c4b5fd;">
+      <div class="card-title" style="color: var(--pool);">📦 Estado de la Caja Común</div>
+      <div id="poolTotalDisp" class="metric-value" style="color: var(--pool); font-size: 28px;">$0</div>
+      <div class="muted" style="font-size: 11px; margin-top: 4px;">Dinero aportado menos gastos pagados con el pozo</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💵 Registrar Depósito a la Caja</div>
+      <div class="grid-2">
+        <div>
+          <label>Monto</label>
+          <input id="poolAmount" type="number" placeholder="Ej. 100000">
+        </div>
+        <div>
+          <label>Moneda</label>
+          <select id="poolCurrency">
+            <option value="ARS">Pesos ($)</option>
+            <option value="USD">Dólares (US$)</option>
+            <option value="BRL">Reales (R$)</option>
+          </select>
+        </div>
+      </div>
+
+      <label>¿Quién pone el dinero?</label>
+      <select id="poolDepositor"></select>
+
+      <label>Nota / Comentario (Opcional)</label>
+      <input id="poolNote" placeholder="Ej. Aporte inicial">
+
+      <button class="btn pool" onclick="addPoolDeposit()">Registrar Depósito</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📜 Historial de Aportes a la Caja</div>
+      <div id="poolDepositsList"></div>
+    </div>
+  </div>
+
+  <div id="view-balances" class="section-view">
+    <div class="card">
+      <div class="card-title">👥 Resumen por Participante (Bolsillo Personal)</div>
+      <div id="participantsSummaryList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⏳ Pagos Pendientes de Confirmación</div>
+      <div class="muted" style="font-size: 11px; margin-bottom: 8px;">Avisos enviados que esperan que el receptor confirme:</div>
+      <div id="pendingPaymentsList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🤝 Liquidación y Pagos Directos</div>
+      <div class="muted" style="font-size: 11px; margin-bottom: 12px;">Hacé click en "✓ Ya le pagué" para notificar al receptor:</div>
+      <div id="settlementsList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📜 Historial de Pagos Confirmados</div>
+      <div id="paymentsHistoryList"></div>
+    </div>
+  </div>
+</main>
+
 <script>
-    let usuarioActual = null;
-    let inscritos = 3;
+const TRIP_PASSWORD = '1234'; 
+const ADMIN_USER_ID = 'ore'; // Ore es el Administrador principal
 
-    function simularLogin() {
-        const email = document.getElementById('loginEmail').value;
-        if (!email) {
-            alert('Por favor ingresá un correo.');
-            return;
-        }
+// ==========================================
+// CONFIGURACIÓN DE FIREBASE
+// ==========================================
+const firebaseConfig = {
+  apiKey: "AIzaSyDHmLff0WyF8BSMt5A1olfsBLjApx4Ur8M",
+  authDomain: "brasil-2027-vatos.firebaseapp.com",
+  projectId: "brasil-2027-vatos",
+  storageBucket: "brasil-2027-vatos.appfirebasestorage.app",
+  messagingSenderId: "240534627982",
+  appId: "1:240534627982:web:cf0d9f4db6b2c99fcf0bdf",
+  measurementId: "G-MREVVJ359E"
+};
 
-        usuarioActual = { email: email, paid: false, stravaLinked: false };
-        
-        document.getElementById('authSection').classList.add('hidden');
-        document.getElementById('dashboardSection').classList.remove('hidden');
-        document.getElementById('welcomeUser').innerText = `Hola, ${email.split('@')[0]}`;
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const DEFAULT_FRIENDS = [
+  { id: 'ore', name: 'Ore', pin: '1111' },
+  { id: 'lau', name: 'Lau', pin: '2222' },
+  { id: 'limon', name: 'Limón', pin: '3333' },
+  { id: 'eze', name: 'Eze', pin: '4444' },
+  { id: 'seba', name: 'Seba', pin: '5555' },
+  { id: 'paco', name: 'Paco', pin: '6666' }
+];
+
+const AUTH_KEY = 'brasil_trip_2027_auth';
+const USER_KEY = 'brasil_trip_2027_current_user';
+
+let AppData = {
+  friends: DEFAULT_FRIENDS,
+  expenses: [],
+  poolDeposits: [],
+  payments: [],
+  rates: { usd: 1200, brl: 230 }
+};
+
+let currentUserId = null;
+let pendingSelectedUserId = null;
+
+const $ = id => document.getElementById(id);
+const fmt = n => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
+
+function checkPassword() {
+  let entered = $('lockPasswordInput').value.trim();
+  if(entered === TRIP_PASSWORD) {
+    localStorage.setItem(AUTH_KEY, 'true');
+    $('lock-screen').style.display = 'none';
+    checkUserProfile();
+  } else {
+    alert('Contraseña incorrecta.');
+    $('lockPasswordInput').value = '';
+  }
+}
+
+function checkUserProfile() {
+  let savedUser = localStorage.getItem(USER_KEY);
+  if(savedUser && DEFAULT_FRIENDS.some(f => f.id === savedUser)) {
+    currentUserId = savedUser;
+    $('profile-screen').style.display = 'none';
+    $('profile-pin-screen').style.display = 'none';
+    initApp();
+  } else {
+    renderProfileSelector();
+    $('profile-screen').style.display = 'flex';
+  }
+}
+
+function renderProfileSelector() {
+  let html = '';
+  DEFAULT_FRIENDS.forEach(f => {
+    let tag = f.id === ADMIN_USER_ID ? ' <span style="font-size:10px; color:var(--green); background:rgba(22,163,74,0.1); padding:2px 6px; border-radius:4px;">Admin</span>' : '';
+    html += `
+      <div class="profile-option" onclick="prepareProfileSelect('${f.id}')">
+        <span>${f.name}${tag}</span>
+        <span style="color:var(--muted); font-size:12px;">Ingresar clave →</span>
+      </div>
+    `;
+  });
+  $('profileListContainer').innerHTML = html;
+}
+
+function prepareProfileSelect(id) {
+  pendingSelectedUserId = id;
+  let friendObj = DEFAULT_FRIENDS.find(f => f.id === id);
+  
+  $('pinProfileTitle').textContent = `Clave de ${friendObj.name}`;
+  $('pinProfileSubtitle').textContent = `Ingresá la contraseña personal de ${friendObj.name}`;
+  $('profilePinInput').value = '';
+  
+  $('profile-screen').style.display = 'none';
+  $('profile-pin-screen').style.display = 'flex';
+  $('profilePinInput').focus();
+}
+
+function verifyProfilePin() {
+  let enteredPin = $('profilePinInput').value.trim();
+  let friendObj = DEFAULT_FRIENDS.find(f => f.id === pendingSelectedUserId);
+  
+  if(friendObj && enteredPin === friendObj.pin) {
+    localStorage.setItem(USER_KEY, friendObj.id);
+    currentUserId = friendObj.id;
+    $('profile-pin-screen').style.display = 'none';
+    initApp();
+  } else {
+    alert('Contraseña personal incorrecta.');
+    $('profilePinInput').value = '';
+  }
+}
+
+function backToProfileSelector() {
+  $('profile-pin-screen').style.display = 'none';
+  $('profile-screen').style.display = 'flex';
+}
+
+function switchProfile() {
+  localStorage.removeItem(USER_KEY);
+  renderProfileSelector();
+  $('profile-pin-screen').style.display = 'none';
+  $('profile-screen').style.display = 'flex';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  if(localStorage.getItem(AUTH_KEY) === 'true') {
+    $('lock-screen').style.display = 'none';
+    checkUserProfile();
+  }
+  
+  $('lockPasswordInput').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') checkPassword();
+  });
+  
+  $('profilePinInput').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') verifyProfilePin();
+  });
+});
+
+function initApp() {
+  let userObj = DEFAULT_FRIENDS.find(f => f.id === currentUserId);
+  let isAdmin = currentUserId === ADMIN_USER_ID;
+  
+  $('headerUserSubtitle').textContent = `Usuario: ${userObj ? userObj.name : 'Invitado'} ${isAdmin ? '⭐ (Admin)' : ''}`;
+  
+  if(isAdmin) {
+    $('rateUsd').removeAttribute('disabled');
+    $('rateBrl').removeAttribute('disabled');
+    $('adminBadge').style.display = 'inline-block';
+    $('adminNotice').style.display = 'none';
+  } else {
+    $('rateUsd').setAttribute('disabled', 'true');
+    $('rateBrl').setAttribute('disabled', 'true');
+    $('adminBadge').style.display = 'none';
+    $('adminNotice').style.display = 'block';
+  }
+
+  initFormDropdowns();
+  
+  db.collection("viaje").doc("brasil2027").onSnapshot((doc) => {
+    if (doc.exists) {
+      AppData = doc.data();
+      if(!AppData.rates) AppData.rates = { usd: 1200, brl: 230 };
+      if(!AppData.payments) AppData.payments = [];
+      
+      if(document.activeElement !== $('rateUsd')) $('rateUsd').value = AppData.rates.usd;
+      if(document.activeElement !== $('rateBrl')) $('rateBrl').value = AppData.rates.brl;
+      
+      renderAll();
+    } else {
+      saveToFirebase();
+    }
+  });
+}
+
+function saveToFirebase() {
+  db.collection("viaje").doc("brasil2027").set(AppData)
+    .then(() => {
+      renderAll();
+    })
+    .catch((error) => {
+      console.error("Error al guardar en Firebase: ", error);
+    });
+}
+
+function updateRates() {
+  if(currentUserId !== ADMIN_USER_ID) return;
+  let u = +$('rateUsd').value;
+  let b = +$('rateBrl').value;
+  if(u <= 0 || b <= 0) return;
+  
+  AppData.rates = { usd: u, brl: b };
+  saveToFirebase();
+}
+
+function convertToArs(amount, currency) {
+  let u = AppData.rates ? AppData.rates.usd : 1200;
+  let b = AppData.rates ? AppData.rates.brl : 230;
+  if(currency === 'USD') return amount * u;
+  if(currency === 'BRL') return amount * b;
+  return amount;
+}
+
+function formatOriginal(amount, currency) {
+  if(currency === 'USD') return `US$ ${amount.toLocaleString()}`;
+  if(currency === 'BRL') return `R$ ${amount.toLocaleString()}`;
+  return fmt(amount);
+}
+
+function switchTab(tabName) {
+  document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  
+  if(tabName === 'dashboard') {
+    $('view-dashboard').classList.add('active');
+    document.querySelectorAll('.tab')[0].classList.add('active');
+  } else if(tabName === 'expenses') {
+    $('view-expenses').classList.add('active');
+    document.querySelectorAll('.tab')[1].classList.add('active');
+  } else if(tabName === 'pool') {
+    $('view-pool').classList.add('active');
+    document.querySelectorAll('.tab')[2].classList.add('active');
+  } else if(tabName === 'balances') {
+    $('view-balances').classList.add('active');
+    document.querySelectorAll('.tab')[3].classList.add('active');
+  }
+}
+
+function initFormDropdowns() {
+  let payerOpts = '';
+  let depositorOpts = '';
+  let checkboxesHtml = '';
+
+  DEFAULT_FRIENDS.forEach(f => {
+    let selectedAttr = f.id === currentUserId ? ' selected' : '';
+    payerOpts += `<option value="${f.id}"${selectedAttr}>${f.name}</option>`;
+    depositorOpts += `<option value="${f.id}"${selectedAttr}>${f.name}</option>`;
+    checkboxesHtml += `<label class="checkbox-label"><input type="checkbox" name="split_user" value="${f.id}" checked> ${f.name}</label>`;
+  });
+
+  $('expPayer').innerHTML = payerOpts;
+  $('poolDepositor').innerHTML = depositorOpts;
+  $('splitCheckboxes').innerHTML = checkboxesHtml;
+
+  let today = new Date().toISOString().substring(0, 10);
+  if(!$('expDate').value) $('expDate').value = today;
+}
+
+function toggleAllSplit(check) {
+  document.querySelectorAll('input[name="split_user"]').forEach(cb => cb.checked = check);
+}
+
+function addExpense() {
+  let desc = $('expDesc').value.trim() || 'Gasto compartido';
+  let amount = +$('expAmount').value;
+  let currency = $('expCurrency').value;
+  let payerId = $('expPayer').value;
+  let source = $('expSource').value;
+  let date = $('expDate').value || new Date().toISOString().substring(0, 10);
+
+  let splitWith = [];
+  document.querySelectorAll('input[name="split_user"]:checked').forEach(cb => {
+    splitWith.push(cb.value);
+  });
+
+  if(amount <= 0) {
+    alert('Por favor ingresá un monto válido.');
+    return;
+  }
+  if(splitWith.length === 0) {
+    alert('Seleccioná al menos un participante para dividir el gasto.');
+    return;
+  }
+
+  let amountArs = convertToArs(amount, currency);
+
+  if(source === 'pool') {
+    let totalPoolDepositsArs = (AppData.poolDeposits || []).reduce((acc, d) => acc + convertToArs(d.amount, d.currency || 'ARS'), 0);
+    let totalPoolExpensesArs = (AppData.expenses || []).filter(e => e.source === 'pool').reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
+    let currentPoolBalanceArs = totalPoolDepositsArs - totalPoolExpensesArs;
+
+    if(amountArs > currentPoolBalanceArs) {
+      alert(`No hay suficiente dinero en la Caja Común. Saldo actual disponible: ${fmt(currentPoolBalanceArs)}`);
+      return;
+    }
+  }
+
+  if(!AppData.expenses) AppData.expenses = [];
+  AppData.expenses.push({
+    id: Date.now(),
+    desc,
+    amount,
+    currency,
+    payerId,
+    source,
+    date,
+    splitWith
+  });
+
+  $('expDesc').value = '';
+  $('expAmount').value = '';
+  saveToFirebase();
+  alert('¡Gasto registrado con éxito!');
+}
+
+function deleteExpense(id) {
+  // RESTRICCIÓN DE ADMIN: Solo 'ore' puede eliminar gastos
+  if(currentUserId !== ADMIN_USER_ID) {
+    alert('🔒 Acción restringida: Solo el administrador puede eliminar gastos.');
+    return;
+  }
+
+  if(confirm('¿Eliminar este gasto?')) {
+    AppData.expenses = AppData.expenses.filter(e => e.id !== id);
+    saveToFirebase();
+  }
+}
+
+function addPoolDeposit() {
+  let depositorId = $('poolDepositor').value;
+  let amount = +$('poolAmount').value;
+  let currency = $('poolCurrency').value;
+  let note = $('poolNote').value.trim() || 'Aporte a la caja';
+  let date = new Date().toISOString().substring(0, 10);
+
+  if(amount <= 0) {
+    alert('Por favor ingresá un monto válido.');
+    return;
+  }
+
+  if(!AppData.poolDeposits) AppData.poolDeposits = [];
+  AppData.poolDeposits.push({
+    id: Date.now(),
+    depositorId,
+    amount,
+    currency,
+    note,
+    date
+  });
+
+  $('poolAmount').value = '';
+  $('poolNote').value = '';
+  saveToFirebase();
+  alert('¡Depósito registrado en la caja común!');
+}
+
+function deletePoolDeposit(id) {
+  // RESTRICCIÓN DE ADMIN: Solo 'ore' puede eliminar aportes a la caja
+  if(currentUserId !== ADMIN_USER_ID) {
+    alert('🔒 Acción restringida: Solo el administrador puede eliminar aportes a la caja.');
+    return;
+  }
+
+  if(confirm('¿Eliminar este aporte a la caja?')) {
+    AppData.poolDeposits = AppData.poolDeposits.filter(d => d.id !== id);
+    saveToFirebase();
+  }
+}
+
+// 1. Enviar aviso de pago (Con validación anti-duplicados)
+function requestPayment(fromId, toId, amount) {
+  if(currentUserId !== fromId) {
+    let senderName = DEFAULT_FRIENDS.find(f => f.id === fromId)?.name || fromId;
+    alert(`Estás logueado como otro usuario. Para registrar este pago, debés iniciar sesión como ${senderName}.`);
+    return;
+  }
+
+  // VALIDACIÓN ANTI-DUPLICADOS: Verificamos si ya existe un pago pendiente exacto entre ambos
+  let alreadyPending = (AppData.payments || []).some(p => p.fromId === fromId && p.toId === toId && p.amount === amount && p.status === 'pending');
+  if(alreadyPending) {
+    alert('Ya existe un aviso de pago pendiente idéntico enviado a este usuario. Esperá a que lo confirme o revisá los pendientes.');
+    return;
+  }
+
+  let toName = DEFAULT_FRIENDS.find(f => f.id === toId)?.name || toId;
+
+  if(confirm(`¿Avisar a ${toName} que le enviaste ${fmt(amount)}? Quedará pendiente hasta que ${toName} lo confirme.`)) {
+    if(!AppData.payments) AppData.payments = [];
+    AppData.payments.push({
+      id: Date.now(),
+      fromId,
+      toId,
+      amount,
+      status: 'pending',
+      date: new Date().toISOString().substring(0, 10)
+    });
+    saveToFirebase();
+  }
+}
+
+// 2. El receptor confirma el pago
+function confirmPayment(id) {
+  let payment = (AppData.payments || []).find(p => p.id === id);
+  if(!payment) return;
+
+  if(currentUserId !== payment.toId) {
+    alert('Solo la persona que figura como receptora de este dinero puede confirmar su recepción.');
+    return;
+  }
+
+  let fromName = DEFAULT_FRIENDS.find(f => f.id === payment.fromId)?.name || payment.fromId;
+
+  if(confirm(`¿Confirmar que recibiste ${fmt(payment.amount)} de parte de ${fromName}?`)) {
+    payment.status = 'confirmed';
+    saveToFirebase();
+  }
+}
+
+// 3. El receptor rechaza el pago
+function rejectPayment(id) {
+  let payment = (AppData.payments || []).find(p => p.id === id);
+  if(!payment) return;
+
+  if(currentUserId !== payment.toId && currentUserId !== payment.fromId) {
+    alert('No tenés permisos para rechazar este aviso.');
+    return;
+  }
+
+  if(confirm('¿Rechazar este aviso de pago? Se eliminará de la lista.')) {
+    AppData.payments = AppData.payments.filter(p => p.id !== id);
+    saveToFirebase();
+  }
+}
+
+// 4. Borrar pago histórico confirmado (Solo Admin)
+function deletePayment(id) {
+  if(currentUserId !== ADMIN_USER_ID) {
+    alert('🔒 Acción restringida: Solo el administrador puede eliminar registros de pagos confirmados.');
+    return;
+  }
+
+  if(confirm('¿Eliminar este registro de pago confirmado?')) {
+    AppData.payments = AppData.payments.filter(p => p.id !== id);
+    saveToFirebase();
+  }
+}
+
+function resetAllData() {
+  if(currentUserId !== ADMIN_USER_ID) {
+    alert('🔒 Acción restringida: Solo el administrador puede reiniciar los datos del viaje.');
+    return;
+  }
+
+  if(confirm('¿Estás seguro de reiniciar todos los datos del viaje para todos?')) {
+    localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(USER_KEY);
+    AppData = {
+      friends: DEFAULT_FRIENDS,
+      expenses: [],
+      poolDeposits: [],
+      payments: [],
+      rates: { usd: 1200, brl: 230 }
+    };
+    saveToFirebase();
+    location.reload();
+  }
+}
+
+function renderAll() {
+  let isAdmin = currentUserId === ADMIN_USER_ID;
+
+  let totalPoolDepositsArs = (AppData.poolDeposits || []).reduce((acc, d) => acc + convertToArs(d.amount, d.currency || 'ARS'), 0);
+  let totalPoolExpensesArs = (AppData.expenses || []).filter(e => e.source === 'pool').reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
+  let currentPoolBalanceArs = totalPoolDepositsArs - totalPoolExpensesArs;
+
+  $('poolBalanceCard').textContent = fmt(currentPoolBalanceArs);
+  $('poolTotalDisp').textContent = fmt(currentPoolBalanceArs);
+
+  let personalExpenses = (AppData.expenses || []).filter(e => e.source === 'personal');
+  let totalTripExpenseArs = personalExpenses.reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
+  
+  $('totalTripExpense').textContent = fmt(totalTripExpenseArs);
+  let usdRate = AppData.rates ? AppData.rates.usd : 1200;
+  $('totalTripUsd').textContent = `Equivalente aprox: USD ${(totalTripExpenseArs / usdRate).toFixed(0)} (referencia)`;
+
+  let expHtml = '';
+  [...(AppData.expenses || [])].reverse().forEach(e => {
+    let payer = DEFAULT_FRIENDS.find(f => f.id === e.payerId)?.name || 'Desconocido';
+    let sourceTag = e.source === 'pool' ? '<span class="pill pool-tag">Caja Común</span>' : '<span class="pill personal-tag">Personal</span>';
+    let curr = e.currency || 'ARS';
+    let currTag = curr !== 'ARS' ? `<span class="pill currency-tag">${curr}</span>` : '';
+    let payerInfo = e.source === 'pool' ? 'Pagado del Pozo' : `Pagó: ${payer}`;
+    let convertedText = curr !== 'ARS' ? `<br><span class="muted" style="font-size:10px;">Equiv: ${fmt(convertToArs(e.amount, curr))}</span>` : '';
+
+    // Botón de eliminar visible solo para el admin
+    let deleteBtnHtml = isAdmin ? `<button class="del-btn" onclick="deleteExpense(${e.id})">✕</button>` : '';
+
+    expHtml += `
+      <div class="row">
+        <div>
+          <b>${e.desc}</b> ${sourceTag} ${currTag}<br>
+          <span class="muted" style="font-size:11px;">${payerInfo} (${e.date}) • División: ${e.splitWith.length} amigos</span>
+          ${convertedText}
+        </div>
+        <div style="display:flex; align-items:center;">
+          <div style="text-align:right;">
+            <b style="color:var(--primary);">${formatOriginal(e.amount, curr)}</b>
+          </div>
+          ${deleteBtnHtml}
+        </div>
+      </div>
+    `;
+  });
+  $('expensesHistoryList').innerHTML = expHtml || '<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay gastos registrados aún.</div>';
+
+  let poolHtml = '';
+  [...(AppData.poolDeposits || [])].reverse().forEach(d => {
+    let depositor = DEFAULT_FRIENDS.find(f => f.id === d.depositorId)?.name || 'Desconocido';
+    let curr = d.currency || 'ARS';
+    let convertedText = curr !== 'ARS' ? ` (Equiv: ${fmt(convertToArs(d.amount, curr))})` : '';
+    
+    let deletePoolBtnHtml = isAdmin ? `<button class="del-btn" onclick="deletePoolDeposit(${d.id})">✕</button>` : '';
+
+    poolHtml += `
+      <div class="row">
+        <div>
+          <b>${depositor}</b><br>
+          <span class="muted" style="font-size:11px;">${d.note} (${d.date})${convertedText}</span>
+        </div>
+        <div style="display:flex; align-items:center;">
+          <b style="color:var(--green);">+${formatOriginal(d.amount, curr)}</b>
+          ${deletePoolBtnHtml}
+        </div>
+      </div>
+    `;
+  });
+  $('poolDepositsList').innerHTML = poolHtml || '<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay aportes a la caja común aún.</div>';
+
+  let balances = {};
+  DEFAULT_FRIENDS.forEach(f => {
+    balances[f.id] = {
+      name: f.name,
+      paidOutPocket: 0,
+      consumed: 0,
+      paymentsSent: 0,
+      paymentsReceived: 0
+    };
+  });
+
+  personalExpenses.forEach(e => {
+    let arsVal = convertToArs(e.amount, e.currency || 'ARS');
+    if(balances[e.payerId]) {
+      balances[e.payerId].paidOutPocket += arsVal;
+    }
+    let share = arsVal / e.splitWith.length;
+    e.splitWith.forEach(userId => {
+      if(balances[userId]) {
+        balances[userId].consumed += share;
+      }
+    });
+  });
+
+  if(AppData.payments) {
+    AppData.payments.forEach(p => {
+      if(p.status === 'confirmed') {
+        if(balances[p.fromId]) balances[p.fromId].paymentsSent += p.amount;
+        if(balances[p.toId]) balances[p.toId].paymentsReceived += p.amount;
+      }
+    });
+  }
+
+  let netBalances = [];
+  DEFAULT_FRIENDS.forEach(f => {
+    let b = balances[f.id];
+    let net = (b.paidOutPocket + b.paymentsSent) - (b.consumed + b.paymentsReceived);
+    netBalances.push({
+      id: f.id,
+      name: f.name,
+      contributed: b.paidOutPocket + b.paymentsSent,
+      consumed: b.consumed + b.paymentsReceived,
+      net: net
+    });
+  });
+
+  let summaryHtml = '';
+  netBalances.forEach(nb => {
+    summaryHtml += `
+      <div class="row">
+        <div>
+          <b>${nb.name}</b><br>
+          <span class="muted" style="font-size:11px;">A favor: ${fmt(nb.contributed)} • Consumió/Debe: ${fmt(nb.consumed)}</span>
+        </div>
+        <div>
+          <b class="${nb.net >= 0 ? 'ok' : 'bad'}">${nb.net >= 0 ? '+' : ''}${fmt(nb.net)}</b>
+        </div>
+      </div>
+    `;
+  });
+  $('participantsSummaryList').innerHTML = summaryHtml;
+
+  // Renderizar Pagos Pendientes
+  let pendingHtml = '';
+  let pendingPayments = (AppData.payments || []).filter(p => p.status === 'pending');
+  pendingPayments.forEach(p => {
+    let fromName = DEFAULT_FRIENDS.find(f => f.id === p.fromId)?.name || p.fromId;
+    let toName = DEFAULT_FRIENDS.find(f => f.id === p.toId)?.name || p.toId;
+    
+    let isReceiver = (p.toId === currentUserId);
+    let isSender = (p.fromId === currentUserId);
+    let actionButtons = '';
+    
+    if(isReceiver) {
+      actionButtons = `
+        <div style="margin-top:8px;">
+          <button class="confirm-btn" onclick="confirmPayment(${p.id})">✓ Confirmar que lo recibí</button>
+          <button class="reject-btn" onclick="rejectPayment(${p.id})">✕ Rechazar</button>
+        </div>
+      `;
+    } else if(isSender) {
+      actionButtons = `<div style="font-size:11px; color:var(--yellow); margin-top:4px;">⏳ Le avisaste a ${toName}. Esperando su confirmación...</div>`;
+    } else {
+      actionButtons = `<div style="font-size:11px; color:var(--muted); margin-top:4px;">Esperando que ${toName} confirme la recepción.</div>`;
     }
 
-    function cerrarSesion() {
-        usuarioActual = null;
-        document.getElementById('authSection').classList.remove('hidden');
-        document.getElementById('dashboardSection').classList.add('hidden');
-        document.getElementById('paymentSuccessSection').classList.add('hidden');
-        document.getElementById('paymentSection').classList.remove('hidden');
-        document.getElementById('stravaConnected').classList.add('hidden');
-        document.getElementById('stravaNotConnected').classList.remove('hidden');
-        document.getElementById('resultadoValidacion').innerText = '';
+    pendingHtml += `
+      <div class="row" style="flex-direction: column; align-items: flex-start;">
+        <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <b>${fromName}</b> le pagó a <b>${toName}</b> <span class="pill pending-tag">Pendiente</span>
+          </div>
+          <b style="color:var(--yellow);">${fmt(p.amount)}</b>
+        </div>
+        ${actionButtons}
+      </div>
+    `;
+  });
+  $('pendingPaymentsList').innerHTML = pendingHtml || '<div class="muted" style="text-align:center; padding:12px; font-size:12px;">No hay pagos pendientes de confirmación.</div>';
+
+  let debtors = netBalances.filter(x => x.net < -1).map(x => ({ ...x, net: Math.abs(x.net) }));
+  let creditors = netBalances.filter(x => x.net > 1).map(x => ({ ...x }));
+
+  let settlements = [];
+  let dIdx = 0, cIdx = 0;
+
+  while(dIdx < debtors.length && cIdx < creditors.length) {
+    let debtor = debtors[dIdx];
+    let creditor = creditors[cIdx];
+
+    let amount = Math.min(debtor.net, creditor.net);
+    if(amount > 1) {
+      settlements.push({
+        fromId: debtor.id,
+        from: debtor.name,
+        toId: creditor.id,
+        to: creditor.name,
+        amount: amount
+      });
     }
 
-    function pagarBuyIn() {
-        alert("Redirigiendo al checkout seguro de Mercado Pago...");
-        setTimeout(() => {
-            usuarioActual.paid = true;
-            inscritos++;
-            document.getElementById('inscritosCount').innerText = inscritos;
-            document.getElementById('paymentSection').classList.add('hidden');
-            document.getElementById('paymentSuccessSection').classList.remove('hidden');
-            alert("¡Pago aprobado! Ya podés vincular tu cuenta deportiva.");
-        }, 1200);
+    debtor.net -= amount;
+    creditor.net -= amount;
+
+    if(debtor.net <= 1) dIdx++;
+    if(creditor.net <= 1) cIdx++;
+  }
+
+  let settleHtml = '';
+  settlements.forEach(s => {
+    let canPay = (currentUserId === s.fromId);
+    
+    let alreadySent = (AppData.payments || []).some(p => p.fromId === s.fromId && p.toId === s.toId && p.amount === s.amount && p.status === 'pending');
+
+    let actionBtn = '';
+    if(!canPay) {
+      actionBtn = `<span style="font-size:11px; color:var(--muted); margin-left:6px;">(Esperando a ${s.from})</span>`;
+    } else if(alreadySent) {
+      actionBtn = `<button class="pay-action-btn" disabled>⏳ Ya avisado (Pendiente)</button>`;
+    } else {
+      actionBtn = `<button class="pay-action-btn" onclick="requestPayment('${s.fromId}', '${s.toId}', ${s.amount})">✓ Ya le pagué</button>`;
     }
 
-    function conectarStrava() {
-        alert("Redirigiendo a Strava para autorizar permisos...");
-        setTimeout(() => {
-            usuarioActual.stravaLinked = true;
-            document.getElementById('stravaNotConnected').classList.add('hidden');
-            document.getElementById('stravaConnected').classList.remove('hidden');
-            alert("¡Strava conectado correctamente!");
-        }, 1000);
-    }
+    settleHtml += `
+      <div class="row" style="flex-wrap: wrap; gap: 6px;">
+        <div><b>${s.from}</b> le debe a <b>${s.to}</b>: <b style="color:var(--yellow);">${fmt(s.amount)}</b></div>
+        ${actionBtn}
+      </div>
+    `;
+  });
 
-    function verificarProgresoStrava() {
-        const cajaRes = document.getElementById('resultadoValidacion');
-        cajaRes.style.color = "#f59e0b";
-        cajaRes.innerText = "Consultando API oficial de Strava...";
+  let settleMessage = settleHtml || '<div class="muted" style="text-align:center; padding:15px; font-size:12px;">¡Todas las cuentas de bolsillo están saldadas! 🎉</div>';
+  $('settlementsList').innerHTML = settleMessage;
+  $('quickSettlementList').innerHTML = settleMessage;
 
-        setTimeout(() => {
-            const distanciaSimulada = 10.4; 
-            if (distanciaSimulada >= 10) {
-                cajaRes.style.color = "#34d399";
-                cajaRes.innerText = `✅ ¡Reto cumplido! Actividad registrada: ${distanciaSimulada} km. Quedás habilitado para el pozo.`;
-            } else {
-                cajaRes.style.color = "#ef4444";
-                cajaRes.innerText = `❌ Actividad insuficiente: ${distanciaSimulada} km (Necesitás llegar a 10 km).`;
-            }
-        }, 1500);
-    }
+  let paymentsHtml = '';
+  let confirmedPayments = (AppData.payments || []).filter(p => p.status === 'confirmed');
+  if(confirmedPayments.length > 0) {
+    [...confirmedPayments].reverse().forEach(p => {
+      let fromName = DEFAULT_FRIENDS.find(f => f.id === p.fromId)?.name || p.fromId;
+      let toName = DEFAULT_FRIENDS.find(f => f.id === p.toId)?.name || p.toId;
+      
+      let deletePaymentBtnHtml = isAdmin ? `<button class="del-btn" onclick="deletePayment(${p.id})">✕</button>` : '';
+
+      paymentsHtml += `
+        <div class="row">
+          <div>
+            <b>${fromName}</b> le pagó a <b>${toName}</b> <span class="pill admin-tag">Confirmado</span><br>
+            <span class="muted" style="font-size:11px;">${p.date}</span>
+          </div>
+          <div style="display:flex; align-items:center;">
+            <b style="color:var(--green);">${fmt(p.amount)}</b>
+            ${deletePaymentBtnHtml}
+          </div>
+        </div>
+      `;
+    });
+  }
+  $('paymentsHistoryList').innerHTML = paymentsHtml || '<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay pagos confirmados aún.</div>';
+}
 </script>
-
 </body>
 </html>
