@@ -656,6 +656,12 @@ function addExpense() {
 }
 
 function deleteExpense(id) {
+  // RESTRICCIÓN DE ADMIN: Solo 'ore' puede eliminar gastos
+  if(currentUserId !== ADMIN_USER_ID) {
+    alert('🔒 Acción restringida: Solo el administrador puede eliminar gastos.');
+    return;
+  }
+
   if(confirm('¿Eliminar este gasto?')) {
     AppData.expenses = AppData.expenses.filter(e => e.id !== id);
     saveToFirebase();
@@ -691,6 +697,12 @@ function addPoolDeposit() {
 }
 
 function deletePoolDeposit(id) {
+  // RESTRICCIÓN DE ADMIN: Solo 'ore' puede eliminar aportes a la caja
+  if(currentUserId !== ADMIN_USER_ID) {
+    alert('🔒 Acción restringida: Solo el administrador puede eliminar aportes a la caja.');
+    return;
+  }
+
   if(confirm('¿Eliminar este aporte a la caja?')) {
     AppData.poolDeposits = AppData.poolDeposits.filter(d => d.id !== id);
     saveToFirebase();
@@ -762,8 +774,13 @@ function rejectPayment(id) {
   }
 }
 
-// 4. Borrar pago histórico confirmado
+// 4. Borrar pago histórico confirmado (Solo Admin)
 function deletePayment(id) {
+  if(currentUserId !== ADMIN_USER_ID) {
+    alert('🔒 Acción restringida: Solo el administrador puede eliminar registros de pagos confirmados.');
+    return;
+  }
+
   if(confirm('¿Eliminar este registro de pago confirmado?')) {
     AppData.payments = AppData.payments.filter(p => p.id !== id);
     saveToFirebase();
@@ -771,6 +788,11 @@ function deletePayment(id) {
 }
 
 function resetAllData() {
+  if(currentUserId !== ADMIN_USER_ID) {
+    alert('🔒 Acción restringida: Solo el administrador puede reiniciar los datos del viaje.');
+    return;
+  }
+
   if(confirm('¿Estás seguro de reiniciar todos los datos del viaje para todos?')) {
     localStorage.removeItem(AUTH_KEY);
     localStorage.removeItem(USER_KEY);
@@ -787,6 +809,8 @@ function resetAllData() {
 }
 
 function renderAll() {
+  let isAdmin = currentUserId === ADMIN_USER_ID;
+
   let totalPoolDepositsArs = (AppData.poolDeposits || []).reduce((acc, d) => acc + convertToArs(d.amount, d.currency || 'ARS'), 0);
   let totalPoolExpensesArs = (AppData.expenses || []).filter(e => e.source === 'pool').reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
   let currentPoolBalanceArs = totalPoolDepositsArs - totalPoolExpensesArs;
@@ -810,6 +834,9 @@ function renderAll() {
     let payerInfo = e.source === 'pool' ? 'Pagado del Pozo' : `Pagó: ${payer}`;
     let convertedText = curr !== 'ARS' ? `<br><span class="muted" style="font-size:10px;">Equiv: ${fmt(convertToArs(e.amount, curr))}</span>` : '';
 
+    // Botón de eliminar visible solo para el admin
+    let deleteBtnHtml = isAdmin ? `<button class="del-btn" onclick="deleteExpense(${e.id})">✕</button>` : '';
+
     expHtml += `
       <div class="row">
         <div>
@@ -821,7 +848,7 @@ function renderAll() {
           <div style="text-align:right;">
             <b style="color:var(--primary);">${formatOriginal(e.amount, curr)}</b>
           </div>
-          <button class="del-btn" onclick="deleteExpense(${e.id})">✕</button>
+          ${deleteBtnHtml}
         </div>
       </div>
     `;
@@ -833,6 +860,9 @@ function renderAll() {
     let depositor = DEFAULT_FRIENDS.find(f => f.id === d.depositorId)?.name || 'Desconocido';
     let curr = d.currency || 'ARS';
     let convertedText = curr !== 'ARS' ? ` (Equiv: ${fmt(convertToArs(d.amount, curr))})` : '';
+    
+    let deletePoolBtnHtml = isAdmin ? `<button class="del-btn" onclick="deletePoolDeposit(${d.id})">✕</button>` : '';
+
     poolHtml += `
       <div class="row">
         <div>
@@ -841,7 +871,7 @@ function renderAll() {
         </div>
         <div style="display:flex; align-items:center;">
           <b style="color:var(--green);">+${formatOriginal(d.amount, curr)}</b>
-          <button class="del-btn" onclick="deletePoolDeposit(${d.id})">✕</button>
+          ${deletePoolBtnHtml}
         </div>
       </div>
     `;
@@ -980,7 +1010,6 @@ function renderAll() {
   settlements.forEach(s => {
     let canPay = (currentUserId === s.fromId);
     
-    // Verificamos si ya hay un pago pendiente exactamente igual para deshabilitar el botón visualmente también
     let alreadySent = (AppData.payments || []).some(p => p.fromId === s.fromId && p.toId === s.toId && p.amount === s.amount && p.status === 'pending');
 
     let actionBtn = '';
@@ -1010,6 +1039,9 @@ function renderAll() {
     [...confirmedPayments].reverse().forEach(p => {
       let fromName = DEFAULT_FRIENDS.find(f => f.id === p.fromId)?.name || p.fromId;
       let toName = DEFAULT_FRIENDS.find(f => f.id === p.toId)?.name || p.toId;
+      
+      let deletePaymentBtnHtml = isAdmin ? `<button class="del-btn" onclick="deletePayment(${p.id})">✕</button>` : '';
+
       paymentsHtml += `
         <div class="row">
           <div>
@@ -1018,7 +1050,7 @@ function renderAll() {
           </div>
           <div style="display:flex; align-items:center;">
             <b style="color:var(--green);">${fmt(p.amount)}</b>
-            <button class="del-btn" onclick="deletePayment(${p.id})">✕</button>
+            ${deletePaymentBtnHtml}
           </div>
         </div>
       `;
