@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Brasil 2027 - Gastos, Caja Común & Pagos</title>
+<title>Brasil 2027 - Admin, Monedas & Gastos</title>
 <!-- SDK de Firebase (Firestore) -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -43,6 +43,7 @@
   .card-title { font-size: 12px; font-weight: 700; letter-spacing: 0.5px; color: var(--muted); text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
   
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   .metric-value { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-top: 2px; }
   
   label { display: block; font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 6px; margin-top: 12px; }
@@ -53,6 +54,7 @@
     color: var(--text); padding: 11px 13px; border-radius: 12px; font-size: 13px; outline: none; transition: all 0.2s;
   }
   input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15); }
+  input:disabled { background: #e2e8f0; color: #64748b; cursor: not-allowed; }
   
   .btn {
     width: 100%; border: 0; border-radius: 12px; padding: 12px; font-weight: 700; font-size: 13px;
@@ -67,6 +69,9 @@
   
   .pay-action-btn { background: var(--green); color: white; border: 0; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 8px; }
   .pay-action-btn:active { transform: scale(0.98); }
+
+  .confirm-btn { background: var(--green); color: white; border: 0; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer; }
+  .reject-btn { background: rgba(220, 38, 38, 0.1); color: var(--red); border: 0; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 4px; }
   
   .tabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
   .tab {
@@ -83,6 +88,9 @@
   .pill { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
   .pill.pool-tag { background: rgba(124, 58, 237, 0.1); color: var(--pool); }
   .pill.personal-tag { background: rgba(2, 132, 199, 0.1); color: var(--primary); }
+  .pill.currency-tag { background: rgba(217, 119, 6, 0.1); color: var(--yellow); }
+  .pill.admin-tag { background: rgba(22, 163, 74, 0.1); color: var(--green); }
+  .pill.pending-tag { background: rgba(217, 119, 6, 0.1); color: var(--yellow); }
 
   .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
   .checkbox-label {
@@ -97,7 +105,7 @@
   .section-view { display: none; }
   .section-view.active { display: block; }
 
-  #lock-screen {
+  #lock-screen, #profile-screen, #profile-pin-screen {
     position: fixed; inset: 0; background: var(--bg); z-index: 999;
     display: flex; align-items: center; justify-content: center; padding: 16px;
   }
@@ -105,17 +113,48 @@
     background: var(--card); border: 1px solid var(--card-border); border-radius: 20px;
     padding: 24px; width: 100%; max-width: 360px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center;
   }
+  .profile-option {
+    background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 12px;
+    margin-bottom: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: all 0.2s;
+    display: flex; justify-content: space-between; align-items: center; text-align: left;
+  }
+  .profile-option:hover { border-color: var(--primary); background: #f0f9ff; color: var(--primary); }
 </style>
 </head>
 <body>
 
+<!-- PANTALLA 1: CONTRASEÑA GENERAL -->
 <div id="lock-screen">
   <div class="lock-card">
     <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
     <h2 style="margin: 0 0 6px 0; font-size: 18px;">Brasil 2027</h2>
-    <div class="muted" style="font-size: 12px; margin-bottom: 16px;">Ingresá la contraseña para ver los gastos</div>
+    <div class="muted" style="font-size: 12px; margin-bottom: 16px;">Ingresá la contraseña del grupo</div>
     <input id="lockPasswordInput" type="password" placeholder="Contraseña..." style="text-align: center; font-size: 16px; letter-spacing: 2px;">
     <button class="btn primary" onclick="checkPassword()">Ingresar</button>
+  </div>
+</div>
+
+<!-- PANTALLA 2: SELECCIÓN DE PERFIL -->
+<div id="profile-screen" style="display: none;">
+  <div class="lock-card" style="max-width: 400px; text-align: left;">
+    <div style="text-align: center; margin-bottom: 14px;">
+      <div style="font-size: 32px; margin-bottom: 4px;">👤</div>
+      <h2 style="margin: 0; font-size: 18px;">¿Quién sos?</h2>
+      <div class="muted" style="font-size: 11px; margin-top: 2px;">Seleccioná tu perfil para ingresar con tu clave</div>
+    </div>
+    <div id="profileListContainer"></div>
+  </div>
+</div>
+
+<!-- PANTALLA 3: CONTRASEÑA PERSONAL DEL PERFIL -->
+<div id="profile-pin-screen" style="display: none;">
+  <div class="lock-card">
+    <div style="font-size: 32px; margin-bottom: 8px;" id="pinProfileIcon">🔑</div>
+    <h2 style="margin: 0 0 6px 0; font-size: 18px;" id="pinProfileTitle">Contraseña de Usuario</h2>
+    <div class="muted" style="font-size: 12px; margin-bottom: 16px;" id="pinProfileSubtitle">Ingresá tu clave personal</div>
+    <input id="profilePinInput" type="password" placeholder="Clave personal..." style="text-align: center; font-size: 16px; letter-spacing: 2px;">
+    <button class="btn primary" onclick="verifyProfilePin()">Confirmar Clave</button>
+    <button class="btn alt" onclick="backToProfileSelector()" style="margin-top: 8px;">← Elegir otro perfil</button>
   </div>
 </div>
 
@@ -123,9 +162,12 @@
   <div class="header-content">
     <div>
       <h1>🇧🇷 Brasil 2027 🌴</h1>
-      <div class="subtitle">Gastos, Caja Común y Liquidación en 1 click (Sincronizado)</div>
+      <div class="subtitle" id="headerUserSubtitle">Usuario: Cargando...</div>
     </div>
-    <button class="btn alt" style="width: auto; margin:0; padding: 6px 10px; font-size: 11px;" onclick="resetAllData()">⚙️ Reiniciar</button>
+    <div style="display: flex; gap: 6px;">
+      <button class="btn alt" style="width: auto; margin:0; padding: 6px 10px; font-size: 11px;" onclick="switchProfile()">🔄 Cambiar</button>
+      <button class="btn alt" style="width: auto; margin:0; padding: 6px 10px; font-size: 11px;" onclick="resetAllData()">⚙️</button>
+    </div>
   </div>
 </header>
 
@@ -134,12 +176,33 @@
     <button class="tab active" onclick="switchTab('dashboard')">📊 Resumen</button>
     <button class="tab" onclick="switchTab('expenses')">💸 Gastos</button>
     <button class="tab" onclick="switchTab('pool')">📦 Caja</button>
-    <button class="tab" onclick="switchTab('balances')">⚖️ Saldos & Pagos</button>
+    <button class="tab" onclick="switchTab('balances')">⚖️ Saldos</button>
   </div>
 
   <div id="view-dashboard" class="section-view active">
+    <!-- PANEL DE COTIZACIONES (ADMINISTRABLE) -->
+    <div class="card" style="background: linear-gradient(135deg, #fef3c7, #fffbeb); border: 1px solid #fde68a;">
+      <div class="card-title" style="color: #92400e; margin-bottom:6px;">
+        <span>💱 Cotización de Monedas (Admin)</span>
+        <span id="adminBadge" class="pill admin-tag" style="display:none;">Modo Admin Activo</span>
+      </div>
+      <div class="grid-2">
+        <div>
+          <label style="margin-top:0;">Dólar (USD a ARS)</label>
+          <input id="rateUsd" type="number" value="1200" onchange="updateRates()" style="background:#fff;" disabled>
+        </div>
+        <div>
+          <label style="margin-top:0;">Real (BRL a ARS)</label>
+          <input id="rateBrl" type="number" value="230" onchange="updateRates()" style="background:#fff;" disabled>
+        </div>
+      </div>
+      <div id="adminNotice" class="muted" style="font-size: 11px; margin-top: 8px; color: #b45309;">
+        ℹ️ Solo el administrador puede modificar las cotizaciones.
+      </div>
+    </div>
+
     <div class="card" style="background: linear-gradient(135deg, #ffffff, #f1f5f9); border: 1px solid #cbd5e1;">
-      <div class="card-title">💰 Gasto Total de Bolsillo Personal</div>
+      <div class="card-title">💰 Gasto Total del Viaje (Convertido a ARS)</div>
       <div id="totalTripExpense" class="metric-value" style="color: var(--text); font-size: 28px;">$0</div>
       <div class="muted" style="font-size: 11px; margin-top: 4px;" id="totalTripUsd">Equivalente aprox: USD 0</div>
     </div>
@@ -161,14 +224,6 @@
       <div class="card-title">💡 ¿Quién le paga a quién? (Saldar en 1 click)</div>
       <div id="quickSettlementList"></div>
     </div>
-
-    <div class="card">
-      <div class="card-title">⚡ Acciones Rápidas</div>
-      <div class="grid-2">
-        <button class="btn primary" onclick="switchTab('expenses')" style="margin-top:0;">+ Cargar Gasto</button>
-        <button class="btn pool" onclick="switchTab('pool')" style="margin-top:0;">+ Depositar a Caja</button>
-      </div>
-    </div>
   </div>
 
   <div id="view-expenses" class="section-view">
@@ -176,15 +231,23 @@
       <div class="card-title">💸 Registrar Nuevo Gasto</div>
       
       <label>Descripción del gasto</label>
-      <input id="expDesc" placeholder="Ej. Supermercado, Comida en la playa, Nafta...">
+      <input id="expDesc" placeholder="Ej. Supermercado, Almuerzo, Nafta...">
 
-      <div class="grid-2">
+      <div class="grid-3">
         <div>
-          <label>Monto ($)</label>
+          <label>Monto</label>
           <input id="expAmount" type="number" placeholder="0">
         </div>
         <div>
-          <label>¿Quién lo pagó?</label>
+          <label>Moneda</label>
+          <select id="expCurrency">
+            <option value="ARS">Pesos ($)</option>
+            <option value="USD">Dólares (US$)</option>
+            <option value="BRL">Reales (R$)</option>
+          </select>
+        </div>
+        <div>
+          <label>¿Quién pagó?</label>
           <select id="expPayer"></select>
         </div>
       </div>
@@ -229,15 +292,27 @@
     </div>
 
     <div class="card">
-      <div class="card-title">💵 Registrar Depósito al Pozo Común</div>
+      <div class="card-title">💵 Registrar Depósito a la Caja</div>
+      <div class="grid-2">
+        <div>
+          <label>Monto</label>
+          <input id="poolAmount" type="number" placeholder="Ej. 100000">
+        </div>
+        <div>
+          <label>Moneda</label>
+          <select id="poolCurrency">
+            <option value="ARS">Pesos ($)</option>
+            <option value="USD">Dólares (US$)</option>
+            <option value="BRL">Reales (R$)</option>
+          </select>
+        </div>
+      </div>
+
       <label>¿Quién pone el dinero?</label>
       <select id="poolDepositor"></select>
 
-      <label>Monto aportado ($)</label>
-      <input id="poolAmount" type="number" placeholder="Ej. 100000">
-
       <label>Nota / Comentario (Opcional)</label>
-      <input id="poolNote" placeholder="Ej. Aporte inicial de 100k">
+      <input id="poolNote" placeholder="Ej. Aporte inicial">
 
       <button class="btn pool" onclick="addPoolDeposit()">Registrar Depósito</button>
     </div>
@@ -255,23 +330,30 @@
     </div>
 
     <div class="card">
+      <div class="card-title">⏳ Pagos Pendientes de Confirmación</div>
+      <div class="muted" style="font-size: 11px; margin-bottom: 8px;">Avisos enviados que esperan que el receptor confirme:</div>
+      <div id="pendingPaymentsList"></div>
+    </div>
+
+    <div class="card">
       <div class="card-title">🤝 Liquidación y Pagos Directos</div>
-      <div class="muted" style="font-size: 11px; margin-bottom: 12px;">Hacé click en "✓ Te pagué" para saldar la deuda al instante:</div>
+      <div class="muted" style="font-size: 11px; margin-bottom: 12px;">Hacé click en "✓ Ya le pagué" para notificar al receptor:</div>
       <div id="settlementsList"></div>
     </div>
 
     <div class="card">
-      <div class="card-title">📜 Historial de Pagos Realizados</div>
+      <div class="card-title">📜 Historial de Pagos Confirmados</div>
       <div id="paymentsHistoryList"></div>
     </div>
   </div>
 </main>
 
 <script>
-const TRIP_PASSWORD = 'ale688060'; 
+const TRIP_PASSWORD = '1234'; 
+const ADMIN_USER_ID = 'ore'; // Ore es el Administrador principal
 
 // ==========================================
-// CONFIGURACIÓN DE FIREBASE (Tus credenciales reales)
+// CONFIGURACIÓN DE FIREBASE
 // ==========================================
 const firebaseConfig = {
   apiKey: "AIzaSyDHmLff0WyF8BSMt5A1olfsBLjApx4Ur8M",
@@ -287,21 +369,27 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 const DEFAULT_FRIENDS = [
-  { id: 'ore', name: 'Ore' },
-  { id: 'lau', name: 'Lau' },
-  { id: 'limon', name: 'Limón' },
-  { id: 'eze', name: 'Eze' },
-  { id: 'seba', name: 'Seba' },
-  { id: 'paco', name: 'Paco' }
+  { id: 'ore', name: 'Ore', pin: '1111' },
+  { id: 'lau', name: 'Lau', pin: '2222' },
+  { id: 'limon', name: 'Limón', pin: '3333' },
+  { id: 'eze', name: 'Eze', pin: '4444' },
+  { id: 'seba', name: 'Seba', pin: '5555' },
+  { id: 'paco', name: 'Paco', pin: '6666' }
 ];
 
 const AUTH_KEY = 'brasil_trip_2027_auth';
+const USER_KEY = 'brasil_trip_2027_current_user';
+
 let AppData = {
   friends: DEFAULT_FRIENDS,
   expenses: [],
   poolDeposits: [],
-  payments: []
+  payments: [],
+  rates: { usd: 1200, brl: 230 }
 };
+
+let currentUserId = null;
+let pendingSelectedUserId = null;
 
 const $ = id => document.getElementById(id);
 const fmt = n => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
@@ -311,30 +399,124 @@ function checkPassword() {
   if(entered === TRIP_PASSWORD) {
     localStorage.setItem(AUTH_KEY, 'true');
     $('lock-screen').style.display = 'none';
-    initApp();
+    checkUserProfile();
   } else {
     alert('Contraseña incorrecta.');
     $('lockPasswordInput').value = '';
   }
 }
 
+function checkUserProfile() {
+  let savedUser = localStorage.getItem(USER_KEY);
+  if(savedUser && DEFAULT_FRIENDS.some(f => f.id === savedUser)) {
+    currentUserId = savedUser;
+    $('profile-screen').style.display = 'none';
+    $('profile-pin-screen').style.display = 'none';
+    initApp();
+  } else {
+    renderProfileSelector();
+    $('profile-screen').style.display = 'flex';
+  }
+}
+
+function renderProfileSelector() {
+  let html = '';
+  DEFAULT_FRIENDS.forEach(f => {
+    let tag = f.id === ADMIN_USER_ID ? ' <span style="font-size:10px; color:var(--green); background:rgba(22,163,74,0.1); padding:2px 6px; border-radius:4px;">Admin</span>' : '';
+    html += `
+      <div class="profile-option" onclick="prepareProfileSelect('${f.id}')">
+        <span>${f.name}${tag}</span>
+        <span style="color:var(--muted); font-size:12px;">Ingresar clave →</span>
+      </div>
+    `;
+  });
+  $('profileListContainer').innerHTML = html;
+}
+
+function prepareProfileSelect(id) {
+  pendingSelectedUserId = id;
+  let friendObj = DEFAULT_FRIENDS.find(f => f.id === id);
+  
+  $('pinProfileTitle').textContent = `Clave de ${friendObj.name}`;
+  $('pinProfileSubtitle').textContent = `Ingresá la contraseña personal de ${friendObj.name}`;
+  $('profilePinInput').value = '';
+  
+  $('profile-screen').style.display = 'none';
+  $('profile-pin-screen').style.display = 'flex';
+  $('profilePinInput').focus();
+}
+
+function verifyProfilePin() {
+  let enteredPin = $('profilePinInput').value.trim();
+  let friendObj = DEFAULT_FRIENDS.find(f => f.id === pendingSelectedUserId);
+  
+  if(friendObj && enteredPin === friendObj.pin) {
+    localStorage.setItem(USER_KEY, friendObj.id);
+    currentUserId = friendObj.id;
+    $('profile-pin-screen').style.display = 'none';
+    initApp();
+  } else {
+    alert('Contraseña personal incorrecta.');
+    $('profilePinInput').value = '';
+  }
+}
+
+function backToProfileSelector() {
+  $('profile-pin-screen').style.display = 'none';
+  $('profile-screen').style.display = 'flex';
+}
+
+function switchProfile() {
+  localStorage.removeItem(USER_KEY);
+  renderProfileSelector();
+  $('profile-pin-screen').style.display = 'none';
+  $('profile-screen').style.display = 'flex';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   if(localStorage.getItem(AUTH_KEY) === 'true') {
     $('lock-screen').style.display = 'none';
-    initApp();
+    checkUserProfile();
   }
   
   $('lockPasswordInput').addEventListener('keypress', (e) => {
     if(e.key === 'Enter') checkPassword();
   });
+  
+  $('profilePinInput').addEventListener('keypress', (e) => {
+    if(e.key === 'Enter') verifyProfilePin();
+  });
 });
 
 function initApp() {
+  let userObj = DEFAULT_FRIENDS.find(f => f.id === currentUserId);
+  let isAdmin = currentUserId === ADMIN_USER_ID;
+  
+  $('headerUserSubtitle').textContent = `Usuario: ${userObj ? userObj.name : 'Invitado'} ${isAdmin ? '⭐ (Admin)' : ''}`;
+  
+  if(isAdmin) {
+    $('rateUsd').removeAttribute('disabled');
+    $('rateBrl').removeAttribute('disabled');
+    $('adminBadge').style.display = 'inline-block';
+    $('adminNotice').style.display = 'none';
+  } else {
+    $('rateUsd').setAttribute('disabled', 'true');
+    $('rateBrl').setAttribute('disabled', 'true');
+    $('adminBadge').style.display = 'none';
+    $('adminNotice').style.display = 'block';
+  }
+
   initFormDropdowns();
   
   db.collection("viaje").doc("brasil2027").onSnapshot((doc) => {
     if (doc.exists) {
       AppData = doc.data();
+      if(!AppData.rates) AppData.rates = { usd: 1200, brl: 230 };
+      if(!AppData.payments) AppData.payments = [];
+      
+      if(document.activeElement !== $('rateUsd')) $('rateUsd').value = AppData.rates.usd;
+      if(document.activeElement !== $('rateBrl')) $('rateBrl').value = AppData.rates.brl;
+      
       renderAll();
     } else {
       saveToFirebase();
@@ -350,6 +532,30 @@ function saveToFirebase() {
     .catch((error) => {
       console.error("Error al guardar en Firebase: ", error);
     });
+}
+
+function updateRates() {
+  if(currentUserId !== ADMIN_USER_ID) return;
+  let u = +$('rateUsd').value;
+  let b = +$('rateBrl').value;
+  if(u <= 0 || b <= 0) return;
+  
+  AppData.rates = { usd: u, brl: b };
+  saveToFirebase();
+}
+
+function convertToArs(amount, currency) {
+  let u = AppData.rates ? AppData.rates.usd : 1200;
+  let b = AppData.rates ? AppData.rates.brl : 230;
+  if(currency === 'USD') return amount * u;
+  if(currency === 'BRL') return amount * b;
+  return amount;
+}
+
+function formatOriginal(amount, currency) {
+  if(currency === 'USD') return `US$ ${amount.toLocaleString()}`;
+  if(currency === 'BRL') return `R$ ${amount.toLocaleString()}`;
+  return fmt(amount);
 }
 
 function switchTab(tabName) {
@@ -377,8 +583,9 @@ function initFormDropdowns() {
   let checkboxesHtml = '';
 
   DEFAULT_FRIENDS.forEach(f => {
-    payerOpts += `<option value="${f.id}">${f.name}</option>`;
-    depositorOpts += `<option value="${f.id}">${f.name}</option>`;
+    let selectedAttr = f.id === currentUserId ? ' selected' : '';
+    payerOpts += `<option value="${f.id}"${selectedAttr}>${f.name}</option>`;
+    depositorOpts += `<option value="${f.id}"${selectedAttr}>${f.name}</option>`;
     checkboxesHtml += `<label class="checkbox-label"><input type="checkbox" name="split_user" value="${f.id}" checked> ${f.name}</label>`;
   });
 
@@ -397,6 +604,7 @@ function toggleAllSplit(check) {
 function addExpense() {
   let desc = $('expDesc').value.trim() || 'Gasto compartido';
   let amount = +$('expAmount').value;
+  let currency = $('expCurrency').value;
   let payerId = $('expPayer').value;
   let source = $('expSource').value;
   let date = $('expDate').value || new Date().toISOString().substring(0, 10);
@@ -415,13 +623,15 @@ function addExpense() {
     return;
   }
 
-  if(source === 'pool') {
-    let totalPoolDeposits = (AppData.poolDeposits || []).reduce((acc, d) => acc + d.amount, 0);
-    let totalPoolExpenses = (AppData.expenses || []).filter(e => e.source === 'pool').reduce((acc, e) => acc + e.amount, 0);
-    let currentPoolBalance = totalPoolDeposits - totalPoolExpenses;
+  let amountArs = convertToArs(amount, currency);
 
-    if(amount > currentPoolBalance) {
-      alert(`No hay suficiente dinero en la Caja Común. Saldo actual: ${fmt(currentPoolBalance)}`);
+  if(source === 'pool') {
+    let totalPoolDepositsArs = (AppData.poolDeposits || []).reduce((acc, d) => acc + convertToArs(d.amount, d.currency || 'ARS'), 0);
+    let totalPoolExpensesArs = (AppData.expenses || []).filter(e => e.source === 'pool').reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
+    let currentPoolBalanceArs = totalPoolDepositsArs - totalPoolExpensesArs;
+
+    if(amountArs > currentPoolBalanceArs) {
+      alert(`No hay suficiente dinero en la Caja Común. Saldo actual disponible: ${fmt(currentPoolBalanceArs)}`);
       return;
     }
   }
@@ -431,6 +641,7 @@ function addExpense() {
     id: Date.now(),
     desc,
     amount,
+    currency,
     payerId,
     source,
     date,
@@ -453,6 +664,7 @@ function deleteExpense(id) {
 function addPoolDeposit() {
   let depositorId = $('poolDepositor').value;
   let amount = +$('poolAmount').value;
+  let currency = $('poolCurrency').value;
   let note = $('poolNote').value.trim() || 'Aporte a la caja';
   let date = new Date().toISOString().substring(0, 10);
 
@@ -466,6 +678,7 @@ function addPoolDeposit() {
     id: Date.now(),
     depositorId,
     amount,
+    currency,
     note,
     date
   });
@@ -483,25 +696,48 @@ function deletePoolDeposit(id) {
   }
 }
 
-function registerPayment(fromId, toId, amount) {
+// 1. Enviar aviso de pago (Queda pendiente hasta que el otro confirme)
+function requestPayment(fromId, toId, amount) {
   let fromName = DEFAULT_FRIENDS.find(f => f.id === fromId)?.name || fromId;
   let toName = DEFAULT_FRIENDS.find(f => f.id === toId)?.name || toId;
 
-  if(confirm(`¿Confirmar que ${fromName} le pagó ${fmt(amount)} a ${toName}?`)) {
+  if(confirm(`¿Avisar a ${toName} que le enviaste ${fmt(amount)}? Quedará pendiente de su confirmación.`)) {
     if(!AppData.payments) AppData.payments = [];
     AppData.payments.push({
       id: Date.now(),
       fromId,
       toId,
       amount,
+      status: 'pending', // pending o confirmed
       date: new Date().toISOString().substring(0, 10)
     });
     saveToFirebase();
   }
 }
 
+// 2. El receptor confirma el pago
+function confirmPayment(id) {
+  let payment = (AppData.payments || []).find(p => p.id === id);
+  if(!payment) return;
+  let fromName = DEFAULT_FRIENDS.find(f => f.id === payment.fromId)?.name || payment.fromId;
+
+  if(confirm(`¿Confirmar que recibiste ${fmt(payment.amount)} de parte de ${fromName}?`)) {
+    payment.status = 'confirmed';
+    saveToFirebase();
+  }
+}
+
+// 3. El receptor rechaza el pago
+function rejectPayment(id) {
+  if(confirm('¿Rechazar este aviso de pago? Se eliminará de la lista.')) {
+    AppData.payments = AppData.payments.filter(p => p.id !== id);
+    saveToFirebase();
+  }
+}
+
+// 4. Borrar pago histórico confirmado
 function deletePayment(id) {
-  if(confirm('¿Eliminar este registro de pago?')) {
+  if(confirm('¿Eliminar este registro de pago confirmado?')) {
     AppData.payments = AppData.payments.filter(p => p.id !== id);
     saveToFirebase();
   }
@@ -510,11 +746,13 @@ function deletePayment(id) {
 function resetAllData() {
   if(confirm('¿Estás seguro de reiniciar todos los datos del viaje para todos?')) {
     localStorage.removeItem(AUTH_KEY);
+    localStorage.removeItem(USER_KEY);
     AppData = {
       friends: DEFAULT_FRIENDS,
       expenses: [],
       poolDeposits: [],
-      payments: []
+      payments: [],
+      rates: { usd: 1200, brl: 230 }
     };
     saveToFirebase();
     location.reload();
@@ -522,31 +760,40 @@ function resetAllData() {
 }
 
 function renderAll() {
-  let totalPoolDeposits = (AppData.poolDeposits || []).reduce((acc, d) => acc + d.amount, 0);
-  let totalPoolExpenses = (AppData.expenses || []).filter(e => e.source === 'pool').reduce((acc, e) => acc + e.amount, 0);
-  let currentPoolBalance = totalPoolDeposits - totalPoolExpenses;
+  let totalPoolDepositsArs = (AppData.poolDeposits || []).reduce((acc, d) => acc + convertToArs(d.amount, d.currency || 'ARS'), 0);
+  let totalPoolExpensesArs = (AppData.expenses || []).filter(e => e.source === 'pool').reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
+  let currentPoolBalanceArs = totalPoolDepositsArs - totalPoolExpensesArs;
 
-  $('poolBalanceCard').textContent = fmt(currentPoolBalance);
-  $('poolTotalDisp').textContent = fmt(currentPoolBalance);
+  $('poolBalanceCard').textContent = fmt(currentPoolBalanceArs);
+  $('poolTotalDisp').textContent = fmt(currentPoolBalanceArs);
 
   let personalExpenses = (AppData.expenses || []).filter(e => e.source === 'personal');
-  let totalTripExpense = personalExpenses.reduce((acc, e) => acc + e.amount, 0);
-  $('totalTripExpense').textContent = fmt(totalTripExpense);
-  $('totalTripUsd').textContent = `Equivalente aprox: USD ${(totalTripExpense / 600).toFixed(0)} (referencia)`;
+  let totalTripExpenseArs = personalExpenses.reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
+  
+  $('totalTripExpense').textContent = fmt(totalTripExpenseArs);
+  let usdRate = AppData.rates ? AppData.rates.usd : 1200;
+  $('totalTripUsd').textContent = `Equivalente aprox: USD ${(totalTripExpenseArs / usdRate).toFixed(0)} (referencia)`;
 
   let expHtml = '';
   [...(AppData.expenses || [])].reverse().forEach(e => {
     let payer = DEFAULT_FRIENDS.find(f => f.id === e.payerId)?.name || 'Desconocido';
     let sourceTag = e.source === 'pool' ? '<span class="pill pool-tag">Caja Común</span>' : '<span class="pill personal-tag">Personal</span>';
+    let curr = e.currency || 'ARS';
+    let currTag = curr !== 'ARS' ? `<span class="pill currency-tag">${curr}</span>` : '';
     let payerInfo = e.source === 'pool' ? 'Pagado del Pozo' : `Pagó: ${payer}`;
+    let convertedText = curr !== 'ARS' ? `<br><span class="muted" style="font-size:10px;">Equiv: ${fmt(convertToArs(e.amount, curr))}</span>` : '';
+
     expHtml += `
       <div class="row">
         <div>
-          <b>${e.desc}</b> ${sourceTag}<br>
+          <b>${e.desc}</b> ${sourceTag} ${currTag}<br>
           <span class="muted" style="font-size:11px;">${payerInfo} (${e.date}) • División: ${e.splitWith.length} amigos</span>
+          ${convertedText}
         </div>
         <div style="display:flex; align-items:center;">
-          <b style="color:var(--primary);">${fmt(e.amount)}</b>
+          <div style="text-align:right;">
+            <b style="color:var(--primary);">${formatOriginal(e.amount, curr)}</b>
+          </div>
           <button class="del-btn" onclick="deleteExpense(${e.id})">✕</button>
         </div>
       </div>
@@ -557,14 +804,16 @@ function renderAll() {
   let poolHtml = '';
   [...(AppData.poolDeposits || [])].reverse().forEach(d => {
     let depositor = DEFAULT_FRIENDS.find(f => f.id === d.depositorId)?.name || 'Desconocido';
+    let curr = d.currency || 'ARS';
+    let convertedText = curr !== 'ARS' ? ` (Equiv: ${fmt(convertToArs(d.amount, curr))})` : '';
     poolHtml += `
       <div class="row">
         <div>
           <b>${depositor}</b><br>
-          <span class="muted" style="font-size:11px;">${d.note} (${d.date})</span>
+          <span class="muted" style="font-size:11px;">${d.note} (${d.date})${convertedText}</span>
         </div>
         <div style="display:flex; align-items:center;">
-          <b style="color:var(--green);">+${fmt(d.amount)}</b>
+          <b style="color:var(--green);">+${formatOriginal(d.amount, curr)}</b>
           <button class="del-btn" onclick="deletePoolDeposit(${d.id})">✕</button>
         </div>
       </div>
@@ -584,10 +833,11 @@ function renderAll() {
   });
 
   personalExpenses.forEach(e => {
+    let arsVal = convertToArs(e.amount, e.currency || 'ARS');
     if(balances[e.payerId]) {
-      balances[e.payerId].paidOutPocket += e.amount;
+      balances[e.payerId].paidOutPocket += arsVal;
     }
-    let share = e.amount / e.splitWith.length;
+    let share = arsVal / e.splitWith.length;
     e.splitWith.forEach(userId => {
       if(balances[userId]) {
         balances[userId].consumed += share;
@@ -595,10 +845,13 @@ function renderAll() {
     });
   });
 
+  // Solo suman/restan a los saldos los pagos que ya están CONFIRMADOS
   if(AppData.payments) {
     AppData.payments.forEach(p => {
-      if(balances[p.fromId]) balances[p.fromId].paymentsSent += p.amount;
-      if(balances[p.toId]) balances[p.toId].paymentsReceived += p.amount;
+      if(p.status === 'confirmed') {
+        if(balances[p.fromId]) balances[p.fromId].paymentsSent += p.amount;
+        if(balances[p.toId]) balances[p.toId].paymentsReceived += p.amount;
+      }
     });
   }
 
@@ -630,6 +883,41 @@ function renderAll() {
     `;
   });
   $('participantsSummaryList').innerHTML = summaryHtml;
+
+  // Renderizar Pagos Pendientes
+  let pendingHtml = '';
+  let pendingPayments = (AppData.payments || []).filter(p => p.status === 'pending');
+  pendingPayments.forEach(p => {
+    let fromName = DEFAULT_FRIENDS.find(f => f.id === p.fromId)?.name || p.fromId;
+    let toName = DEFAULT_FRIENDS.find(f => f.id === p.toId)?.name || p.toId;
+    
+    let isReceiver = p.toId === currentUserId;
+    let actionButtons = '';
+    
+    if(isReceiver) {
+      actionButtons = `
+        <div style="margin-top:6px;">
+          <button class="confirm-btn" onclick="confirmPayment(${p.id})">✓ Confirmar recibido</button>
+          <button class="reject-btn" onclick="rejectPayment(${p.id})">✕ Rechazar</button>
+        </div>
+      `;
+    } else {
+      actionButtons = `<div style="font-size:11px; color:var(--yellow); margin-top:2px;">Esperando que ${toName} confirme...</div>`;
+    }
+
+    pendingHtml += `
+      <div class="row" style="flex-direction: column; align-items: flex-start;">
+        <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <b>${fromName}</b> le avisó a <b>${toName}</b> <span class="pill pending-tag">Pendiente</span>
+          </div>
+          <b style="color:var(--yellow);">${fmt(p.amount)}</b>
+        </div>
+        ${actionButtons}
+      </div>
+    `;
+  });
+  $('pendingPaymentsList').innerHTML = pendingHtml || '<div class="muted" style="text-align:center; padding:12px; font-size:12px;">No hay pagos pendientes de confirmación.</div>';
 
   let debtors = netBalances.filter(x => x.net < -1).map(x => ({ ...x, net: Math.abs(x.net) }));
   let creditors = netBalances.filter(x => x.net > 1).map(x => ({ ...x }));
@@ -664,7 +952,7 @@ function renderAll() {
     settleHtml += `
       <div class="row" style="flex-wrap: wrap; gap: 6px;">
         <div><b>${s.from}</b> le debe a <b>${s.to}</b>: <b style="color:var(--yellow);">${fmt(s.amount)}</b></div>
-        <button class="pay-action-btn" onclick="registerPayment('${s.fromId}', '${s.toId}', ${s.amount})">✓ Te pagué</button>
+        <button class="pay-action-btn" onclick="requestPayment('${s.fromId}', '${s.toId}', ${s.amount})">✓ Ya le pagué</button>
       </div>
     `;
   });
@@ -674,14 +962,15 @@ function renderAll() {
   $('quickSettlementList').innerHTML = settleMessage;
 
   let paymentsHtml = '';
-  if(AppData.payments && AppData.payments.length > 0) {
-    [...(AppData.payments)].reverse().forEach(p => {
+  let confirmedPayments = (AppData.payments || []).filter(p => p.status === 'confirmed');
+  if(confirmedPayments.length > 0) {
+    [...confirmedPayments].reverse().forEach(p => {
       let fromName = DEFAULT_FRIENDS.find(f => f.id === p.fromId)?.name || p.fromId;
       let toName = DEFAULT_FRIENDS.find(f => f.id === p.toId)?.name || p.toId;
       paymentsHtml += `
         <div class="row">
           <div>
-            <b>${fromName}</b> le pagó a <b>${toName}</b><br>
+            <b>${fromName}</b> le pagó a <b>${toName}</b> <span class="pill admin-tag">Confirmado</span><br>
             <span class="muted" style="font-size:11px;">${p.date}</span>
           </div>
           <div style="display:flex; align-items:center;">
@@ -692,7 +981,7 @@ function renderAll() {
       `;
     });
   }
-  $('paymentsHistoryList').innerHTML = paymentsHtml || '<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay pagos registrados aún.</div>';
+  $('paymentsHistoryList').innerHTML = paymentsHtml || '<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay pagos confirmados aún.</div>';
 }
 </script>
 </body>
