@@ -3,48 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Control Financiero</title>
+<title>Lavo Todo - Control Financiero</title>
 <style>
   :root {
-    --bg: #f2f4f8;
+    --bg: #f8fafc;
     --card-bg: #ffffff;
-    --text: #1e293b;
+    --text: #0f172a;
     --muted: #64748b;
     --primary: #0f172a;
     --accent: #2563eb;
     --green: #10b981;
     --red: #ef4444;
     --border: #e2e8f0;
+    --cash: #059669;
+    --transfer: #0284c7;
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding-bottom: 50px; }
-  header { background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; padding: 28px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  header { background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; padding: 28px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; }
   main { max-width: 760px; margin: auto; padding: 16px; }
   h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
   .subtitle { opacity: .75; font-size: 13px; margin-top: 4px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin: 12px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(226, 232, 240, 0.6); page-break-inside: avoid; break-inside: avoid; }
-  .big { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-top: 4px; }
-  .btn { border: 0; border-radius: 14px; padding: 14px; background: var(--primary); color: #fff; font-weight: 700; width: 100%; margin-top: 10px; font-size: 15px; cursor: pointer; transition: transform 0.1s ease, opacity 0.2s; }
+  .grid-quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .card { background: var(--card-bg); border-radius: 20px; padding: 20px; margin: 12px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(226, 232, 240, 0.8); }
+  .big { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-top: 4px; }
+  .btn { border: 0; border-radius: 14px; padding: 14px; background: var(--primary); color: #fff; font-weight: 700; width: 100%; margin-top: 10px; font-size: 15px; cursor: pointer; transition: transform 0.1s ease, opacity 0.2s; box-shadow: 0 4px 12px rgba(15,23,42,0.15); }
   .btn:active { transform: scale(0.98); }
-  .btn.alt { background: #e2e8f0; color: var(--text); }
+  .btn.alt { background: #e2e8f0; color: var(--text); box-shadow: none; }
   .btn.green { background: var(--green); }
   .btn.red { background: var(--red); }
+  .btn-quick { background: #f8fafc; border: 1px solid var(--border); color: var(--primary); border-radius: 12px; padding: 12px 8px; font-weight: 700; font-size: 13px; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .btn-quick:active { background: #e2e8f0; transform: scale(0.96); }
   .del-btn { background: #fee2e2; color: var(--red); border: 0; border-radius: 8px; padding: 6px 10px; font-size: 12px; margin-left: 8px; cursor: pointer; font-weight: bold; }
-  input, select { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 14px; font-size: 16px; margin: 8px 0 14px; background: #f8fafc; color: var(--text); outline: none; }
+  input, select { width: 100%; max-width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 14px; font-size: 16px; margin: 8px 0 14px; background: #f8fafc; color: var(--text); outline: none; transition: border-color 0.2s; }
   input:focus, select:focus { border-color: var(--accent); background: #fff; }
   .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
   .row:last-child { border-bottom: 0; }
   .ok { color: var(--green); }
   .bad { color: var(--red); }
-  .badge { background: #eff6ff; color: var(--accent); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-  .bar-container { background: var(--border); border-radius: 10px; height: 12px; width: 100%; display: flex; overflow: hidden; margin: 12px 0 6px; }
-  .bar-cash { background: #3b82f6; height: 100%; transition: width 0.4s; }
-  .bar-mp { background: #8b5cf6; height: 100%; transition: width 0.4s; }
+  .bar-container { background: var(--border); border-radius: 10px; height: 10px; width: 100%; display: flex; overflow: hidden; margin: 14px 0 6px; }
+  .bar-cash { background: var(--cash); height: 100%; transition: width 0.4s; }
+  .bar-tr { background: var(--transfer); height: 100%; transition: width 0.4s; }
   .filter-pill { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; }
   .filter-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-  /* Pantalla de bloqueo de contraseña */
   #lockScreen {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: var(--primary); display: flex; justify-content: center; align-items: center;
@@ -54,22 +57,15 @@
     background: var(--card-bg); width: 100%; max-width: 380px; padding: 30px;
     border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center;
   }
-  
-  @media print {
-    body { background: #fff; padding: 0; }
-    .btn, .del-btn, input, select, .filter-pill { display: none !important; }
-    .card { box-shadow: none; border: 1px solid #ccc; }
-  }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
 <!-- PANTALLA DE ACCESO CON CONTRASEÑA -->
 <div id="lockScreen">
   <div class="lock-card">
-    <h2 style="margin-top:0; color:var(--primary);">🔒 Acceso Privado</h2>
-    <p class="muted" style="font-size:13px; margin-bottom:20px;">Ingresá tu contraseña para ver el panel financiero</p>
+    <h2 style="margin-top:0; color:var(--primary);">🔒 Lavo Todo</h2>
+    <p class="muted" style="font-size:13px; margin-bottom:20px;">Ingresá tu contraseña para acceder</p>
     <input type="password" id="passInput" placeholder="Contraseña" style="text-align:center; font-weight:bold; letter-spacing:2px;" onkeypress="if(event.key === 'Enter') checkPassword()">
     <button class="btn" onclick="checkPassword()">Ingresar</button>
   </div>
@@ -77,160 +73,134 @@
 
 <div id="mainContent" style="display: none;">
   <header>
-    <h1>Control Financiero</h1>
-    <div class="subtitle">Gestión de Ingresos, Gastos & Rendimiento Mensual</div>
+    <h1>Lavo Todo</h1>
+    <div class="subtitle">Panel de Control & Ingresos</div>
   </header>
   <main>
     <div class="card" style="background: #1e293b; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px;">
       <div>
-        <div style="font-size: 12px; opacity: 0.8; font-weight: 600;">📅 PERÍODO EN VISUALIZACIÓN</div>
-        <div id="activeMonthLabel" style="font-size: 18px; font-weight: 800; text-transform: capitalize;">Mes actual</div>
+        <div style="font-size: 11px; opacity: 0.8; font-weight: 600; letter-spacing: 0.5px;">📅 MES EN VISUALIZACIÓN</div>
+        <div id="activeMonthLabel" style="font-size: 17px; font-weight: 800; text-transform: capitalize;">Mes actual</div>
       </div>
-      <select id="monthSelector" onchange="changeMonth()" style="width: auto; margin: 0; padding: 8px 12px; font-size: 14px; background: #334155; color: #fff; border: 1px solid #475569;">
+      <select id="monthSelector" onchange="changeMonth()" style="width: auto; margin: 0; padding: 8px 12px; font-size: 14px; background: #334155; color: #fff; border: 1px solid #475569; border-radius: 10px;">
       </select>
     </div>
 
     <div class="grid">
-      <div class="card" style="border-left: 5px solid #3b82f6;">
-        <div class="muted" style="font-weight: 600; font-size: 12px;">💵 EFECTIVO HISTÓRICO</div>
-        <div id="cash" class="big" style="color: #2563eb;">$0</div>
+      <div class="card" style="border-left: 5px solid var(--cash);">
+        <div class="muted" style="font-weight: 600; font-size: 11px;">💵 EFECTIVO</div>
+        <div id="cash" class="big" style="color: var(--cash);">$0</div>
       </div>
-      <div class="card" style="border-left: 5px solid #8b5cf6;">
-        <div class="muted" style="font-weight: 600; font-size: 12px;">📱 MERCADO PAGO HISTÓRICO</div>
-        <div id="mp" class="big" style="color: #7c3aed;">$0</div>
+      <div class="card" style="border-left: 5px solid var(--transfer);">
+        <div class="muted" style="font-weight: 600; font-size: 11px;">🏦 TRANSFERENCIA</div>
+        <div id="tr" class="big" style="color: var(--transfer);">$0</div>
       </div>
     </div>
     
     <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div class="muted" style="font-weight: 600; font-size: 12px;">💰 CAJA TOTAL EN MANO</div>
-        <span id="healthBadge" class="badge" style="background:#dcfce7; color:#166534;">Saludable</span>
-      </div>
+      <div class="muted" style="font-weight: 600; font-size: 11px;">💰 TOTAL ACUMULADO DEL MES</div>
       <div id="total" class="big" style="color: var(--primary);">$0</div>
       
-      <div style="margin-top: 14px;">
-        <div style="display:flex; justify-content:space-between; font-size:12px;" class="muted">
+      <div style="margin-top: 10px;">
+        <div style="display:flex; justify-content:space-between; font-size:11px;" class="muted">
           <span id="labelCash">Efectivo: 0%</span>
-          <span id="labelMp">Mercado Pago: 0%</span>
+          <span id="labelTr">Transferencia: 0%</span>
         </div>
         <div class="bar-container">
           <div id="barCash" class="bar-cash" style="width: 50%;"></div>
-          <div id="barMp" class="bar-mp" style="width: 50%;"></div>
+          <div id="barTr" class="bar-tr" style="width: 50%;"></div>
         </div>
       </div>
     </div>
 
-    <div class="card" style="background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #a7f3d0;">
-      <div class="muted" style="color: #065f46; font-weight: 800; font-size: 12px; letter-spacing: 0.5px;">🟢 DISPONIBLE REAL DEL MES SELECCIONADO</div>
-      <div id="disponible" class="big" style="color: #047857; margin-top: 6px;">$0</div>
-      <div class="muted" style="font-size: 12px; margin-top: 6px; color: #047857;" id="disponibleDetail">*Incluye saldo acumulado anterior menos compromisos fijos del mes.*</div>
-    </div>
-
     <div class="card">
-      <h3>📥 Cargar ingreso</h3>
-      <label class="muted" style="font-size: 13px;">Servicio frecuente</label>
-      <select id="quickService" onchange="fillServiceDesc()">
-        <option value="">-- Seleccionar servicio o escribir abajo --</option>
-        <option value="Lavado de frente">🏠 Lavado de frente</option>
-        <option value="Lavado de Autos">🚙🚘 Lavado de Auto</option>
-        <option value="Lavado de vereda / patio">🧹 Lavado de vereda / patio</option>
-        <option value="Limpieza de pileta">💧 Limpieza de pileta</option>
-        <option value="Pintura / Impermeabilización">🎨 Pintura / Impermeabilización</option>
-      </select>
-      <label class="muted" style="font-size: 13px;">Descripción / Detalle</label>
-      <input id="inDesc" placeholder="Ej. Servicio completo, trabajo extra...">
-      <label class="muted" style="font-size: 13px;">Monto ($)</label>
-      <input id="inAmt" type="number" placeholder="0">
-      <label class="muted" style="font-size: 13px;">Medio de cobro</label>
+      <h3 style="margin-top:0; font-size:16px;">🚗 Cargar Lavado Rápido</h3>
+      
+      <label class="muted" style="font-size: 12px;">Patente / Cliente (Opcional)</label>
+      <input id="quickClient" placeholder="Ej. ABC 123 o Juan Perez" style="margin-bottom:12px;">
+
+      <label class="muted" style="font-size: 12px; display:block; margin-bottom:8px;">Seleccioná el monto:</label>
+      <div class="grid-quick">
+        <button class="btn-quick" onclick="quickIncome(5000)">$5.000</button>
+        <button class="btn-quick" onclick="quickIncome(10000)">$10.000</button>
+        <button class="btn-quick" onclick="quickIncome(20000)">$20.000</button>
+        <button class="btn-quick" onclick="quickIncome(25000)">$25.000</button>
+        <button class="btn-quick" onclick="quickIncome(30000)">$30.000</button>
+        <button class="btn-quick" onclick="quickIncome(35000)">$35.000</button>
+      </div>
+
+      <label class="muted" style="font-size: 12px;">Medio de cobro</label>
       <select id="inMethod">
         <option value="cash">💵 Efectivo</option>
-        <option value="mp">📱 Mercado Pago</option>
+        <option value="tr">🏦 Transferencia</option>
       </select>
-      <button class="btn green" onclick="saveIncome()">Guardar Ingreso</button>
+
+      <label class="muted" style="font-size: 12px;">Fecha del movimiento</label>
+      <input id="inDate" type="date">
+
+      <hr style="border:0; border-top:1px solid var(--border); margin: 14px 0;">
+
+      <details style="font-size:13px;">
+        <summary style="cursor:pointer; color:var(--accent); font-weight:600;">+ Ingresar otro monto personalizado</summary>
+        <div style="margin-top:10px;">
+          <input id="customAmt" type="number" placeholder="Monto ej. 12500">
+          <input id="customDesc" placeholder="Descripción (ej. Camioneta extra)">
+          <button class="btn green" style="margin-top:0;" onclick="customIncome()">Guardar Ingreso Personalizado</button>
+        </div>
+      </details>
     </div>
 
     <div class="card">
-      <h3>💸 Cargar gasto</h3>
-      <label class="muted" style="font-size: 13px;">Categoría</label>
-      <select id="ec">
-        <option>🧴 Insumos / Productos</option>
-        <option>⛽ Combustible / Movilidad</option>
-        <option>🔧 Mantenimiento / Reparación</option>
-        <option>🛒 Herramientas / Equipos</option>
-        <option>💳 Tarjeta</option>
-        <option>📦 Otro</option>
-      </select>
-      <label class="muted" style="font-size: 13px;">Detalle</label>
-      <input id="ed" placeholder="Detalle del gasto">
-      <label class="muted" style="font-size: 13px;">Monto ($)</label>
+      <h3 style="margin-top:0; font-size:16px;">💸 Cargar gasto</h3>
+      <label class="muted" style="font-size: 12px;">Detalle</label>
+      <input id="ed" placeholder="Ej. Insumos, combustible...">
+      <label class="muted" style="font-size: 12px;">Monto ($)</label>
       <input id="ea" type="number" placeholder="0">
-      <label class="muted" style="font-size: 13px;">Medio de pago</label>
+      <label class="muted" style="font-size: 12px;">Medio de pago</label>
       <select id="em">
         <option value="cash">💵 Efectivo</option>
-        <option value="mp">📱 Mercado Pago</option>
+        <option value="tr">🏦 Transferencia</option>
       </select>
+      <label class="muted" style="font-size: 12px;">Fecha del gasto</label>
+      <input id="expDate" type="date">
       <button class="btn red" onclick="expense()">Guardar Gasto</button>
     </div>
 
     <div class="card">
-      <h3>📊 Resumen de rendimiento</h3>
-      <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 6px;">
-        <button class="btn alt" style="margin-top:0;" onclick="summary('d')">Hoy</button>
-        <button class="btn alt" style="margin-top:0;" onclick="summary('w')">Semana</button>
-        <button class="btn alt" style="margin-top:0;" onclick="summary('m')">Mes</button>
+      <h3 style="margin-top:0; font-size:16px;">📊 Resumen por Período</h3>
+      <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 14px;">
+        <button class="filter-pill active" id="sumBtnD" onclick="summary('d')">Hoy</button>
+        <button class="filter-pill" id="sumBtnW" onclick="summary('w')">Semana</button>
+        <button class="filter-pill" id="sumBtnM" onclick="summary('m')">Mes</button>
       </div>
-      <div id="sum" style="margin-top: 14px;"></div>
-      <button class="btn alt" onclick="copySummary()" style="margin-top: 12px; font-size:14px;">📋 Copiar resumen para WhatsApp</button>
+      <div id="sumContent"></div>
     </div>
 
     <div class="card">
-      <h3>🎯 Compromisos Fijos </h3>
-      <label class="muted" style="font-size: 13px;">Dólar de referencia ($)</label>
-      <input id="usd" type="number" value="1550" onchange="settings()">
-      
-      <div class="row">
-        <span> 💵 Ahorro</span>
-        <b style="color: var(--accent);">USD 300 (~$<span id="vacationPesos">465.000</span>)</b>
-      </div>
-
-      <div class="row">
-        <span>💳 Gasto Fijo Mensual</span>
-        <b style="color: var(--accent);">$600.000</b>
-      </div>
-      <div class="muted" style="font-size: 11px; margin-top: 8px; color: var(--muted);">*Los compromisos fijos se aplican de forma estricta al mes seleccionado.*</div>
-    </div>
-
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 style="margin:0;">📜 Historial</h3>
-        <div style="display:flex; gap:6px;">
-          <button class="filter-pill active" id="filtAll" onclick="setFilter('all')">Todos</button>
-          <button class="filter-pill" id="filtIn" onclick="setFilter('in')">Ingresos</button>
-          <button class="filter-pill" id="filtOut" onclick="setFilter('out')">Gastos</button>
-        </div>
-      </div>
-      <div class="muted" style="margin-bottom:12px; font-size:12px;">Toca la ✕ para borrar cualquier error:</div>
+      <h3 style="margin-top:0; font-size:16px;">📜 Actividad de Hoy</h3>
+      <div class="muted" style="margin-bottom:12px; font-size:11px;">Los movimientos anteriores quedan guardados en el total del mes pero no se muestran aquí:</div>
       <div id="hist"></div>
     </div>
 
-    <div class="card">
-      <button class="btn alt" onclick="exportPDF()">📄 Descargar Reporte en PDF</button>
-      <button class="btn alt" onclick="wipeLocalData()" style="color:var(--red);">Borrar Todos los Datos</button>
+    <div class="card" style="text-align: center; display:flex; gap:10px;">
+      <button class="btn alt" onclick="exportToCSV()" style="color:var(--accent); font-size:13px; padding:10px; flex:1;">📥 Exportar a Excel</button>
+      <button class="btn alt" onclick="wipeLocalData()" style="color:var(--red); font-size:13px; padding:10px; flex:1;">Borrar Datos</button>
     </div>
   </main>
 </div>
 
 <script>
 // ==================== CONFIGURACIÓN DE CONTRASEÑA ====================
-const CLAVE_SECRETA = '688060'; // Cambiá '1234' por la contraseña que quieras usar
+const CLAVE_SECRETA = '1234'; // Cambiá '1234' por tu contraseña si querés
 
 function checkPassword() {
   let ing = document.getElementById('passInput').value;
   if(ing === CLAVE_SECRETA) {
     document.getElementById('lockScreen').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
+    initDates();
     render();
-    summary('m');
+    summary('d');
   } else {
     alert('Contraseña incorrecta.');
     document.getElementById('passInput').value = '';
@@ -238,81 +208,139 @@ function checkPassword() {
 }
 // ======================================================================
 
-const K='control_financiero_v17';
-let D=JSON.parse(localStorage.getItem(K)||'null')||{moves:[],usd:1550};
-let currentFilter = 'all';
+const K = 'control_lavo_todo_v4';
+let D = JSON.parse(localStorage.getItem(K) || 'null') || { moves: [] };
+
+const getTodayDateStr = () => {
+  let d = new Date();
+  let m = d.getMonth() + 1;
+  let day = d.getDate();
+  return `${d.getFullYear()}-${m < 10 ? '0' + m : m}-${day < 10 ? '0' + day : day}`;
+};
 
 const getYearMonthStr = (d = new Date()) => {
   let m = d.getMonth() + 1;
   return `${d.getFullYear()}-${m < 10 ? '0' + m : m}`;
 };
 
-let selectedMonth = getYearMonthStr();
-const $=id=>document.getElementById(id),fmt=n=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(n);
+function initDates() {
+  let today = getTodayDateStr();
+  $('inDate').value = today;
+  $('expDate').value = today;
+}
 
-function save(){
-  localStorage.setItem(K,JSON.stringify(D));
+let selectedMonth = getYearMonthStr();
+let currentSummaryType = 'd';
+const $ = id => document.getElementById(id), fmt = n => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(n);
+
+function save() {
+  localStorage.setItem(K, JSON.stringify(D));
   render();
   summary(currentSummaryType);
 }
 
-function fillServiceDesc(){
-  let val = $('quickService').value;
-  if(val) $('inDesc').value = val;
-}
+function quickIncome(amount) {
+  let method = $('inMethod').value;
+  let client = $('quickClient').value.trim();
+  let dateVal = $('inDate').value || getTodayDateStr();
+  let desc = `Lavado ($${amount.toLocaleString('es-AR')})`;
+  if(client) desc += ` - ${client}`;
 
-function add(type,amount,method,cat,desc){
-  D.moves.push({id: Date.now(), date:new Date().toISOString(), type, amount, method, cat, desc});
+  D.moves.push({
+    id: Date.now(),
+    date: `${dateVal}T12:00:00.000Z`,
+    type: 'in',
+    amount: amount,
+    method: method,
+    desc: desc
+  });
+  $('quickClient').value = '';
   save();
 }
 
-function saveIncome(){
-  let a=+$('inAmt').value;
-  let desc=$('inDesc').value.trim()||'Ingreso general';
-  if(a>0){
-    add('in', a, $('inMethod').value, 'Ingreso', desc);
-    $('inAmt').value=''; $('inDesc').value=''; $('quickService').value='';
+function customIncome() {
+  let a = +$('customAmt').value;
+  let desc = $('customDesc').value.trim() || 'Ingreso personalizado';
+  let method = $('inMethod').value;
+  let dateVal = $('inDate').value || getTodayDateStr();
+  if (a > 0) {
+    D.moves.push({
+      id: Date.now(),
+      date: `${dateVal}T12:00:00.000Z`,
+      type: 'in',
+      amount: a,
+      method: method,
+      desc: desc
+    });
+    $('customAmt').value = '';
+    $('customDesc').value = '';
+    save();
   } else {
     alert('Por favor ingresá un monto válido.');
   }
 }
 
-function expense(){
-  let a=+$('ea').value;
-  if(a>0){
-    add('out', a, $('em').value, $('ec').value, $('ed').value||$('ec').value);
-    $('ea').value=''; $('ed').value='';
+function expense() {
+  let a = +$('ea').value;
+  let desc = $('ed').value.trim() || 'Gasto general';
+  let dateVal = $('expDate').value || getTodayDateStr();
+  if (a > 0) {
+    D.moves.push({
+      id: Date.now(),
+      date: `${dateVal}T12:00:00.000Z`,
+      type: 'out',
+      amount: a,
+      method: $('em').value,
+      desc: desc
+    });
+    $('ea').value = '';
+    $('ed').value = '';
+    save();
   } else {
     alert('Por favor ingresá un monto válido.');
   }
 }
 
-function removeMove(id){
-  if(confirm('¿Eliminar este movimiento?')){
+function removeMove(id) {
+  if (confirm('¿Eliminar este movimiento?')) {
     D.moves = D.moves.filter(x => x.id !== id);
     save();
   }
 }
 
-function wipeLocalData(){
-  if(confirm('¿Estás seguro de borrar todos los datos del sistema?')){
-    localStorage.removeItem(K);
-    D={moves:[],usd:1550};
+function wipeLocalData() {
+  if (confirm('¿Estás seguro de borrar todos los datos guardados?')) {
+    localStorage.clear();
+    D = { moves: [] };
     save();
-    alert('Datos borrados correctamente.');
+    alert('Todos los datos fueron borrados correctamente.');
+    location.reload();
   }
 }
 
-function setFilter(f){
-  currentFilter = f;
-  ['filtAll','filtIn','filtOut'].forEach(id=>$(id).classList.remove('active'));
-  if(f==='all')$('filtAll').classList.add('active');
-  if(f==='in')$('filtIn').classList.add('active');
-  if(f==='out')$('filtOut').classList.add('active');
-  renderHist();
+function exportToCSV() {
+  if (D.moves.length === 0) {
+    alert('No hay movimientos para exportar.');
+    return;
+  }
+  let csv = 'Fecha,Tipo,Descripcion,Medio,Monto\n';
+  D.moves.forEach(m => {
+    let dateOnly = m.date.substring(0, 10);
+    let tipo = m.type === 'in' ? 'Ingreso' : 'Gasto';
+    let desc = `"${m.desc.replace(/"/g, '""')}"`;
+    let medio = m.method === 'cash' ? 'Efectivo' : 'Transferencia';
+    csv += `${dateOnly},${tipo},${desc},${medio},${m.amount}\n`;
+  });
+
+  let blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement('a');
+  a.href = url;
+  a.download = `lavo_todo_reporte_${getTodayDateStr()}.csv`;
+  a.click();
 }
 
-function updateMonthSelector(){
+function updateMonthSelector() {
   let monthsSet = new Set();
   monthsSet.add(getYearMonthStr());
   D.moves.forEach(x => {
@@ -334,204 +362,97 @@ function updateMonthSelector(){
   $('activeMonthLabel').textContent = activeObj.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
 }
 
-function changeMonth(){
+function changeMonth() {
   selectedMonth = $('monthSelector').value;
   render();
   summary(currentSummaryType);
 }
 
-let currentSummaryType = 'd';
-function calc(kind){
-  let now=new Date(),s=new Date(now);
-  if(kind==='d')s.setHours(0,0,0,0);
-  if(kind==='w'){let d=(now.getDay()+6)%7;s.setDate(now.getDate()-d);s.setHours(0,0,0,0)}
-  if(kind==='m'){
+function calcSummary(kind) {
+  currentSummaryType = kind;
+  ['sumBtnD', 'sumBtnW', 'sumBtnM'].forEach(id => $(id).classList.remove('active'));
+  if (kind === 'd') $('sumBtnD').classList.add('active');
+  if (kind === 'w') $('sumBtnW').classList.add('active');
+  if (kind === 'm') $('sumBtnM').classList.add('active');
+
+  let now = new Date(), s = new Date(now);
+  if (kind === 'd') s.setHours(0, 0, 0, 0);
+  if (kind === 'w') {
+    let d = (now.getDay() + 6) % 7;
+    s.setDate(now.getDate() - d);
+    s.setHours(0, 0, 0, 0);
+  }
+  if (kind === 'm') {
     let [y, m] = selectedMonth.split('-');
     s = new Date(y, m - 1, 1);
   }
-  
-  let a = D.moves.filter(x => {
-    if(kind === 'm'){
+
+  let filtered = D.moves.filter(x => {
+    if (kind === 'm') {
       return x.date.startsWith(selectedMonth);
     }
-    return new Date(x.date) >= s;
+    return new Date(x.date.substring(0, 10)) >= s;
   });
 
-  let i=a.filter(x=>x.type==='in').reduce((z,x)=>z+x.amount,0);
-  let o=a.filter(x=>x.type==='out').reduce((z,x)=>z+x.amount,0);
-  return [a, i, o, i-o];
+  let income = filtered.filter(x => x.type === 'in').reduce((acc, x) => acc + x.amount, 0);
+  let outcome = filtered.filter(x => x.type === 'out').reduce((acc, x) => acc + x.amount, 0);
+  let net = income - outcome;
+
+  let title = kind === 'd' ? 'Hoy' : kind === 'w' ? 'Esta semana' : $('activeMonthLabel').textContent;
+
+  $('sumContent').innerHTML = `
+    <div style="font-size:11px; font-weight:bold; color:var(--muted); margin-bottom:8px;">PERÍODO: ${title.toUpperCase()}</div>
+    <div class="row"><span>Ingresos</span><b class="ok">+${fmt(income)}</b></div>
+    <div class="row"><span>Gastos</span><b class="bad">-${fmt(outcome)}</b></div>
+    <div class="row" style="border-top:2px solid var(--border); margin-top:4px; padding-top:8px;">
+      <span>Neto del período</span>
+      <b class="${net >= 0 ? 'ok' : 'bad'}">${fmt(net)}</b>
+    </div>
+  `;
 }
 
-function summary(k){
-  currentSummaryType = k;
-  let [a, i, o, n] = calc(k);
-  let title = k==='d'?'Hoy':k==='w'?'Esta semana':$('activeMonthLabel').textContent;
-  
-  let expensesMap = {};
-  a.filter(x=>x.type==='out').forEach(x => {
-    expensesMap[x.cat] = (expensesMap[x.cat] || 0) + x.amount;
-  });
-  let expHtml = '';
-  for(let cat in expensesMap){
-    expHtml += '<div class="row" style="color:var(--muted);"><span>↳ ' + cat + '</span><b>' + fmt(expensesMap[cat]) + '</b></div>';
-  }
-
-  let projectionHtml = '';
-  if(k === 'm') {
-    let now = new Date();
-    let [selY, selM] = selectedMonth.split('-');
-    let isCurrentMonth = (now.getFullYear() == selY && (now.getMonth() + 1) == selM);
-    
-    if(isCurrentMonth) {
-      let dayNum = now.getDate();
-      let totalDays = new Date(selY, selM, 0).getDate();
-      if(dayNum > 0) {
-        let dailyAverage = i / dayNum;
-        let projectedTotal = Math.round(dailyAverage * totalDays);
-        projectionHtml = '<div class="row" style="background:#f8fafc; padding:8px 10px; border-radius:8px; margin-top:8px; border:none;"><span>🔮 Proyección cierre de mes</span><b style="color:var(--accent);">' + fmt(projectedTotal) + '</b></div>';
-      }
-    }
-  }
-
-  $('sum').innerHTML='<div class="muted" style="margin-bottom:6px;font-weight:bold;font-size:12px;">PERÍODO: '+title.toUpperCase()+'</div>'+
-    '<div class="row"><span>Ingresos</span><b>'+fmt(i)+'</b></div>'+
-    '<div class="row"><span>Gastos</span><b>'+fmt(o)+'</b></div>'+
-    expHtml +
-    '<div class="row" style="border-top:2px solid var(--border); margin-top:6px; padding-top:8px;"><span>Neto del período</span><b class="'+(n>=0?'ok':'bad')+'">'+fmt(n)+'</b></div>' +
-    projectionHtml;
+function summary(k) {
+  calcSummary(k);
 }
 
-function copySummary(){
-  let [, i, o, n] = calc(currentSummaryType);
-  let title = currentSummaryType==='d'?'Hoy':currentSummaryType==='w'?'Esta semana':$('activeMonthLabel').textContent;
-  let text = `📊 *Resumen Financiero - Lavo Todo (${title})*\n` +
-             `💵 Ingresos: ${fmt(i)}\n` +
-             `💸 Gastos: ${fmt(o)}\n` +
-             `📈 Neto: ${fmt(n)}`;
-  navigator.clipboard.writeText(text).then(() => {
-    alert('¡Resumen copiado al portapapeles para WhatsApp!');
-  });
-}
-
-function settings(){
-  D.usd=+$('usd').value||1550;
-  save();
-}
-
-function render(){
+function render() {
   updateMonthSelector();
 
-  let c=0,m=0;
-  D.moves.forEach(x=>{
-    let v=x.type==='in'?x.amount:-x.amount;
-    if(x.method==='cash')c+=v; else m+=v;
-  });
-  let totalCaja = c + m;
-  $('cash').textContent=fmt(c);
-  $('mp').textContent=fmt(m);
-  $('total').textContent=fmt(totalCaja);
+  let monthMoves = D.moves.filter(x => x.date.startsWith(selectedMonth));
 
-  let pCash = totalCaja > 0 ? Math.max(0, Math.min(100, Math.round((c / totalCaja) * 100))) : 50;
-  let pMp = totalCaja > 0 ? (100 - pCash) : 50;
-  if(totalCaja === 0) { pCash = 50; pMp = 50; }
+  let cashTotal = 0, trTotal = 0;
+  monthMoves.forEach(x => {
+    let val = x.type === 'in' ? x.amount : -x.amount;
+    if (x.method === 'cash') cashTotal += val;
+    else if (x.method === 'tr') trTotal += val;
+  });
+
+  let totalCaja = cashTotal + trTotal;
+  $('cash').textContent = fmt(cashTotal);
+  $('tr').textContent = fmt(trTotal);
+  $('total').textContent = fmt(totalCaja);
+
+  let pCash = totalCaja > 0 ? Math.max(0, Math.min(100, Math.round((cashTotal / totalCaja) * 100))) : 50;
+  let pTr = totalCaja > 0 ? (100 - pCash) : 50;
+  if (totalCaja === 0) { pCash = 50; pTr = 50; }
   $('barCash').style.width = pCash + '%';
-  $('barMp').style.width = pMp + '%';
+  $('barTr').style.width = pTr + '%';
   $('labelCash').textContent = `Efectivo: ${pCash}%`;
-  $('labelMp').textContent = `Mercado Pago: ${pMp}%`;
+  $('labelTr').textContent = `Transferencia: ${pTr}%`;
 
-  let vacationPesos = 300 * D.usd;
-  $('vacationPesos').textContent = new Intl.NumberFormat('es-AR').format(vacationPesos);
-  let fixedCard = 600000;
-  let totalFixedMonth = fixedCard + vacationPesos;
-
-  let [selY, selM] = selectedMonth.split('-').map(Number);
-  
-  let pastMoves = D.moves.filter(x => {
-    let xDate = new Date(x.date);
-    let xY = xDate.getFullYear();
-    let xM = xDate.getMonth() + 1;
-    return (xY < selY) || (xY === selY && xM < selM);
-  });
-
-  let pastIn = pastMoves.filter(x => x.type === 'in').reduce((z, x) => z + x.amount, 0);
-  let pastOut = pastMoves.filter(x => x.type === 'out').reduce((z, x) => z + x.amount, 0);
-  let accumulatedCarryOver = pastIn - pastOut;
-
-  let monthMoves = D.moves.filter(x => x.date.startsWith(selectedMonth));
-  let monthIn = monthMoves.filter(x => x.type === 'in').reduce((z, x) => z + x.amount, 0);
-  let monthOut = monthMoves.filter(x => x.type === 'out').reduce((z, x) => z + x.amount, 0);
-
-  let disponibleMes = accumulatedCarryOver + monthIn - monthOut - totalFixedMonth;
-
-  $('disponible').textContent = fmt(disponibleMes);
-  $('usd').value = D.usd;
-
-  let detailText = `*Arrastre anterior: ${fmt(accumulatedCarryOver)} + Mes: ${fmt(monthIn - monthOut)} - Fijos: ${fmt(totalFixedMonth)}*`;
-  $('disponibleDetail').textContent = detailText;
-
-  let badge = $('healthBadge');
-  if(disponibleMes > 200000) {
-    badge.textContent = 'Excelente';
-    badge.style.background = '#dcfce7'; badge.style.color = '#166534';
-  } else if(disponibleMes > 0) {
-    badge.textContent = 'Saludable';
-    badge.style.background = '#e0f2fe'; badge.style.color = '#0369a1';
-  } else {
-    badge.textContent = 'Comprometido';
-    badge.style.background = '#fee2e2'; badge.style.color = '#991b1b';
-  }
-
-  renderHist();
-}
-
-function renderHist(){
-  let monthMoves = D.moves.filter(x => x.date.startsWith(selectedMonth));
-  
-  let filteredMoves = monthMoves.slice().reverse().filter(x => {
-    if(currentFilter === 'in') return x.type === 'in';
-    if(currentFilter === 'out') return x.type === 'out';
-    return true;
-  });
-
-  let groups = {};
-  filteredMoves.forEach(x => {
-    let dateStr = new Date(x.date).toLocaleDateString('es-AR');
-    if(!groups[dateStr]) groups[dateStr] = [];
-    groups[dateStr].push(x);
-  });
+  let todayStr = getTodayDateStr();
+  let todayMoves = monthMoves.filter(x => x.date.startsWith(todayStr)).slice().reverse();
 
   let htmlHist = '';
-  for(let date in groups){
-    let dayMoves = groups[date];
-    let dayIn = dayMoves.filter(x=>x.type==='in').reduce((z,x)=>z+x.amount,0);
-    let dayOut = dayMoves.filter(x=>x.type==='out').reduce((z,x)=>z+x.amount,0);
-    let dayNet = dayIn - dayOut;
+  todayMoves.forEach(x => {
+    let methodText = x.method === 'cash' ? 'Efectivo' : 'Transferencia';
+    htmlHist += `<div class="row">` +
+      `<span><b>${x.desc}</b> <small class="muted">(${methodText})</small></span>` +
+      `<div style="display:flex; align-items:center;"><b class="${x.type === 'in' ? 'ok' : 'bad'}">${x.type === 'in' ? '+' : '-'}${fmt(x.amount)}</b>` +
+      `<button class="del-btn" onclick="removeMove(${x.id})">✕</button></div></div>`;
+  });
 
-    htmlHist += '<div style="background:#f8fafc; border-radius:14px; padding:14px; margin-bottom:12px; border:1px solid var(--border);">' +
-      '<div style="font-weight:700; font-size:13px; margin-bottom:8px; display:flex; justify-content:space-between; color:var(--muted);"><span>📅 ' + date + '</span><span class="'+(dayNet>=0?'ok':'bad')+'">Neto: '+fmt(dayNet)+'</span></div>';
-    
-    dayMoves.forEach(x => {
-      htmlHist += '<div class="row">' +
-        '<span><b>' + x.desc + '</b> <small class="muted">(' + (x.method==='cash'?'Efectivo':'MP') + ')</small></span>' +
-        '<div style="display:flex; align-items:center;"><b class="'+(x.type==='in'?'ok':'bad')+'">' + (x.type==='in'?'+':'-') + fmt(x.amount) + '</b>' +
-        '<button class="del-btn" onclick="removeMove(' + x.id + ')">✕</button></div></div>';
-    });
-    htmlHist += '</div>';
-  }
-
-  $('hist').innerHTML = htmlHist || '<div class="muted" style="text-align:center; padding:15px;">No hay movimientos registrados para este mes.</div>';
-}
-
-function exportPDF(){
-  let element = document.querySelector('main');
-  let opt = {
-    margin:       5,
-    filename:     `Reporte-Financiero-${selectedMonth}.pdf`,
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 1.3, useCORS: true, letterRendering: true },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-  html2canvas().from(element).set(opt).save();
+  $('hist').innerHTML = htmlHist || '<div class="muted" style="text-align:center; padding:15px;">No hay movimientos cargados hoy.</div>';
 }
 </script>
 </body>
