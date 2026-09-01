@@ -97,7 +97,6 @@
   .section-view { display: none; }
   .section-view.active { display: block; }
 
-  /* Pantalla de bloqueo */
   #lock-screen {
     position: fixed; inset: 0; background: var(--bg); z-index: 999;
     display: flex; align-items: center; justify-content: center; padding: 16px;
@@ -110,7 +109,6 @@
 </head>
 <body>
 
-<!-- PANTALLA DE CONTRASEÑA -->
 <div id="lock-screen">
   <div class="lock-card">
     <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
@@ -132,7 +130,6 @@
 </header>
 
 <main>
-  <!-- NAVEGACIÓN PESTAÑAS -->
   <div class="tabs">
     <button class="tab active" onclick="switchTab('dashboard')">📊 Resumen</button>
     <button class="tab" onclick="switchTab('expenses')">💸 Gastos</button>
@@ -140,7 +137,6 @@
     <button class="tab" onclick="switchTab('balances')">⚖️ Saldos & Pagos</button>
   </div>
 
-  <!-- VISTA 1: DASHBOARD / GENERAL -->
   <div id="view-dashboard" class="section-view active">
     <div class="card" style="background: linear-gradient(135deg, #ffffff, #f1f5f9); border: 1px solid #cbd5e1;">
       <div class="card-title">💰 Gasto Total de Bolsillo Personal</div>
@@ -175,7 +171,6 @@
     </div>
   </div>
 
-  <!-- VISTA 2: GASTOS -->
   <div id="view-expenses" class="section-view">
     <div class="card">
       <div class="card-title">💸 Registrar Nuevo Gasto</div>
@@ -226,7 +221,6 @@
     </div>
   </div>
 
-  <!-- VISTA 3: CAJA COMÚN -->
   <div id="view-pool" class="section-view">
     <div class="card" style="background: linear-gradient(135deg, #ede9fe, #ffffff); border: 1px solid #c4b5fd;">
       <div class="card-title" style="color: var(--pool);">📦 Estado de la Caja Común</div>
@@ -254,7 +248,6 @@
     </div>
   </div>
 
-  <!-- VISTA 4: SALDOS Y PAGOS -->
   <div id="view-balances" class="section-view">
     <div class="card">
       <div class="card-title">👥 Resumen por Participante (Bolsillo Personal)</div>
@@ -275,19 +268,19 @@
 </main>
 
 <script>
-// CONFIGURÁ TU CONTRASEÑA ACÁ:
 const TRIP_PASSWORD = '1234'; 
 
 // ==========================================
-// CONFIGURACIÓN DE FIREBASE (PEGAR TUS DATOS ACÁ)
+// CONFIGURACIÓN DE FIREBASE (Tus credenciales reales)
 // ==========================================
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "tu-proyecto.firebaseapp.com",
-  projectId: "tu-proyecto",
-  storageBucket: "tu-proyecto.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyDHmLff0WyF8BSMt5A1olfsBLjApx4Ur8M",
+  authDomain: "brasil-2027-vatos.firebaseapp.com",
+  projectId: "brasil-2027-vatos",
+  storageBucket: "brasil-2027-vatos.appfirebasestorage.app",
+  messagingSenderId: "240534627982",
+  appId: "1:240534627982:web:cf0d9f4db6b2c99fcf0bdf",
+  measurementId: "G-MREVVJ359E"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -336,17 +329,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Sincronización en tiempo real con Firestore
 function initApp() {
   initFormDropdowns();
   
-  // Escucha cambios en tiempo real desde la nube de Firebase
   db.collection("viaje").doc("brasil2027").onSnapshot((doc) => {
     if (doc.exists) {
       AppData = doc.data();
       renderAll();
     } else {
-      // Si no existe el documento, lo crea inicial vacio
       saveToFirebase();
     }
   });
