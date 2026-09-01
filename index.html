@@ -69,9 +69,10 @@
   
   .pay-action-btn { background: var(--green); color: white; border: 0; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 8px; }
   .pay-action-btn:active { transform: scale(0.98); }
+  .pay-action-btn:disabled { background: #cbd5e1; color: #64748b; cursor: not-allowed; }
 
-  .confirm-btn { background: var(--green); color: white; border: 0; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer; }
-  .reject-btn { background: rgba(220, 38, 38, 0.1); color: var(--red); border: 0; border-radius: 8px; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 4px; }
+  .confirm-btn { background: var(--green); color: white; border: 0; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; }
+  .reject-btn { background: rgba(220, 38, 38, 0.1); color: var(--red); border: 0; border-radius: 8px; padding: 6px 12px; font-size: 11px; font-weight: bold; cursor: pointer; margin-left: 6px; }
   
   .tabs { display: flex; gap: 6px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
   .tab {
@@ -696,19 +697,31 @@ function deletePoolDeposit(id) {
   }
 }
 
-// 1. Enviar aviso de pago (Queda pendiente hasta que el otro confirme)
+// 1. Enviar aviso de pago (Con validación anti-duplicados)
 function requestPayment(fromId, toId, amount) {
-  let fromName = DEFAULT_FRIENDS.find(f => f.id === fromId)?.name || fromId;
+  if(currentUserId !== fromId) {
+    let senderName = DEFAULT_FRIENDS.find(f => f.id === fromId)?.name || fromId;
+    alert(`Estás logueado como otro usuario. Para registrar este pago, debés iniciar sesión como ${senderName}.`);
+    return;
+  }
+
+  // VALIDACIÓN ANTI-DUPLICADOS: Verificamos si ya existe un pago pendiente exacto entre ambos
+  let alreadyPending = (AppData.payments || []).some(p => p.fromId === fromId && p.toId === toId && p.amount === amount && p.status === 'pending');
+  if(alreadyPending) {
+    alert('Ya existe un aviso de pago pendiente idéntico enviado a este usuario. Esperá a que lo confirme o revisá los pendientes.');
+    return;
+  }
+
   let toName = DEFAULT_FRIENDS.find(f => f.id === toId)?.name || toId;
 
-  if(confirm(`¿Avisar a ${toName} que le enviaste ${fmt(amount)}? Quedará pendiente de su confirmación.`)) {
+  if(confirm(`¿Avisar a ${toName} que le enviaste ${fmt(amount)}? Quedará pendiente hasta que ${toName} lo confirme.`)) {
     if(!AppData.payments) AppData.payments = [];
     AppData.payments.push({
       id: Date.now(),
       fromId,
       toId,
       amount,
-      status: 'pending', // pending o confirmed
+      status: 'pending',
       date: new Date().toISOString().substring(0, 10)
     });
     saveToFirebase();
@@ -719,6 +732,12 @@ function requestPayment(fromId, toId, amount) {
 function confirmPayment(id) {
   let payment = (AppData.payments || []).find(p => p.id === id);
   if(!payment) return;
+
+  if(currentUserId !== payment.toId) {
+    alert('Solo la persona que figura como receptora de este dinero puede confirmar su recepción.');
+    return;
+  }
+
   let fromName = DEFAULT_FRIENDS.find(f => f.id === payment.fromId)?.name || payment.fromId;
 
   if(confirm(`¿Confirmar que recibiste ${fmt(payment.amount)} de parte de ${fromName}?`)) {
@@ -729,6 +748,14 @@ function confirmPayment(id) {
 
 // 3. El receptor rechaza el pago
 function rejectPayment(id) {
+  let payment = (AppData.payments || []).find(p => p.id === id);
+  if(!payment) return;
+
+  if(currentUserId !== payment.toId && currentUserId !== payment.fromId) {
+    alert('No tenés permisos para rechazar este aviso.');
+    return;
+  }
+
   if(confirm('¿Rechazar este aviso de pago? Se eliminará de la lista.')) {
     AppData.payments = AppData.payments.filter(p => p.id !== id);
     saveToFirebase();
@@ -845,7 +872,6 @@ function renderAll() {
     });
   });
 
-  // Solo suman/restan a los saldos los pagos que ya están CONFIRMADOS
   if(AppData.payments) {
     AppData.payments.forEach(p => {
       if(p.status === 'confirmed') {
@@ -891,25 +917,28 @@ function renderAll() {
     let fromName = DEFAULT_FRIENDS.find(f => f.id === p.fromId)?.name || p.fromId;
     let toName = DEFAULT_FRIENDS.find(f => f.id === p.toId)?.name || p.toId;
     
-    let isReceiver = p.toId === currentUserId;
+    let isReceiver = (p.toId === currentUserId);
+    let isSender = (p.fromId === currentUserId);
     let actionButtons = '';
     
     if(isReceiver) {
       actionButtons = `
-        <div style="margin-top:6px;">
-          <button class="confirm-btn" onclick="confirmPayment(${p.id})">✓ Confirmar recibido</button>
+        <div style="margin-top:8px;">
+          <button class="confirm-btn" onclick="confirmPayment(${p.id})">✓ Confirmar que lo recibí</button>
           <button class="reject-btn" onclick="rejectPayment(${p.id})">✕ Rechazar</button>
         </div>
       `;
+    } else if(isSender) {
+      actionButtons = `<div style="font-size:11px; color:var(--yellow); margin-top:4px;">⏳ Le avisaste a ${toName}. Esperando su confirmación...</div>`;
     } else {
-      actionButtons = `<div style="font-size:11px; color:var(--yellow); margin-top:2px;">Esperando que ${toName} confirme...</div>`;
+      actionButtons = `<div style="font-size:11px; color:var(--muted); margin-top:4px;">Esperando que ${toName} confirme la recepción.</div>`;
     }
 
     pendingHtml += `
       <div class="row" style="flex-direction: column; align-items: flex-start;">
         <div style="width:100%; display:flex; justify-content:space-between; align-items:center;">
           <div>
-            <b>${fromName}</b> le avisó a <b>${toName}</b> <span class="pill pending-tag">Pendiente</span>
+            <b>${fromName}</b> le pagó a <b>${toName}</b> <span class="pill pending-tag">Pendiente</span>
           </div>
           <b style="color:var(--yellow);">${fmt(p.amount)}</b>
         </div>
@@ -949,10 +978,24 @@ function renderAll() {
 
   let settleHtml = '';
   settlements.forEach(s => {
+    let canPay = (currentUserId === s.fromId);
+    
+    // Verificamos si ya hay un pago pendiente exactamente igual para deshabilitar el botón visualmente también
+    let alreadySent = (AppData.payments || []).some(p => p.fromId === s.fromId && p.toId === s.toId && p.amount === s.amount && p.status === 'pending');
+
+    let actionBtn = '';
+    if(!canPay) {
+      actionBtn = `<span style="font-size:11px; color:var(--muted); margin-left:6px;">(Esperando a ${s.from})</span>`;
+    } else if(alreadySent) {
+      actionBtn = `<button class="pay-action-btn" disabled>⏳ Ya avisado (Pendiente)</button>`;
+    } else {
+      actionBtn = `<button class="pay-action-btn" onclick="requestPayment('${s.fromId}', '${s.toId}', ${s.amount})">✓ Ya le pagué</button>`;
+    }
+
     settleHtml += `
       <div class="row" style="flex-wrap: wrap; gap: 6px;">
         <div><b>${s.from}</b> le debe a <b>${s.to}</b>: <b style="color:var(--yellow);">${fmt(s.amount)}</b></div>
-        <button class="pay-action-btn" onclick="requestPayment('${s.fromId}', '${s.toId}', ${s.amount})">✓ Ya le pagué</button>
+        ${actionBtn}
       </div>
     `;
   });
