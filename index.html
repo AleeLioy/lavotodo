@@ -64,6 +64,7 @@
   .btn.primary { background: var(--primary); color: #ffffff; }
   .btn.green { background: var(--green); color: #ffffff; }
   .btn.pool { background: var(--pool); color: #ffffff; }
+  .btn.whatsapp { background: #25d366; color: #ffffff; }
   .btn.alt { background: #e2e8f0; color: var(--text); border: 1px solid var(--card-border); }
   .btn.red { background: var(--red); color: #ffffff; }
   
@@ -84,6 +85,9 @@
   .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
   .row:last-child { border-bottom: 0; }
   
+  .date-group-header { font-size: 12px; font-weight: 700; color: var(--primary); background: #f0f9ff; padding: 6px 10px; border-radius: 8px; margin-top: 12px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
+  .date-group-header:first-of-type { margin-top: 0; }
+
   .del-btn { background: rgba(220, 38, 38, 0.1); color: var(--red); border: 0; border-radius: 8px; padding: 5px 9px; font-size: 11px; margin-left: 8px; cursor: pointer; font-weight: bold; }
   
   .pill { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
@@ -224,6 +228,7 @@
     <div class="card">
       <div class="card-title">💡 ¿Quién le paga a quién? (Saldar en 1 click)</div>
       <div id="quickSettlementList"></div>
+      <button class="btn whatsapp" onclick="exportToWhatsApp()" style="margin-top: 14px;">💬 Compartir Resumen en WhatsApp</button>
     </div>
   </div>
 
@@ -280,7 +285,7 @@
     </div>
 
     <div class="card">
-      <div class="card-title">📜 Historial de Gastos</div>
+      <div class="card-title">📜 Historial de Gastos (Solo pendientes / Hoy)</div>
       <div id="expensesHistoryList"></div>
     </div>
   </div>
@@ -292,34 +297,37 @@
       <div class="muted" style="font-size: 11px; margin-top: 4px;">Dinero aportado menos gastos pagados con el pozo</div>
     </div>
 
-    <div class="card">
-      <div class="card-title">💵 Registrar Depósito a la Caja</div>
-      <div class="grid-2">
-        <div>
-          <label>Monto</label>
-          <input id="poolAmount" type="number" placeholder="Ej. 100000">
-        </div>
-        <div>
-          <label>Moneda</label>
-          <select id="poolCurrency">
-            <option value="ARS">Pesos ($)</option>
-            <option value="USD">Dólares (US$)</option>
-            <option value="BRL">Reales (R$)</option>
-          </select>
-        </div>
+    <!-- SECCIÓN DE DEPÓSITO EXCLUSIVA PARA ADMIN -->
+    <div class="card" id="poolDepositCardContainer">
+      <div class="card-title">💵 Registrar Depósito General a la Caja</div>
+      <div id="adminOnlyPoolNotice" class="muted" style="font-size: 12px; margin-bottom: 8px; color: var(--red); display:none;">
+        🔒 Solo el administrador puede registrar ingresos de dinero en la caja común.
       </div>
+      <div id="poolFormElements">
+        <div class="grid-2">
+          <div>
+            <label>Monto</label>
+            <input id="poolAmount" type="number" placeholder="Ej. 100000">
+          </div>
+          <div>
+            <label>Moneda</label>
+            <select id="poolCurrency">
+              <option value="ARS">Pesos ($)</option>
+              <option value="USD">Dólares (US$)</option>
+              <option value="BRL">Reales (R$)</option>
+            </select>
+          </div>
+        </div>
 
-      <label>¿Quién pone el dinero?</label>
-      <select id="poolDepositor"></select>
+        <label>Nota / Comentario (Opcional)</label>
+        <input id="poolNote" placeholder="Ej. Aporte general del grupo">
 
-      <label>Nota / Comentario (Opcional)</label>
-      <input id="poolNote" placeholder="Ej. Aporte inicial">
-
-      <button class="btn pool" onclick="addPoolDeposit()">Registrar Depósito</button>
+        <button class="btn pool" onclick="addPoolDeposit()">Registrar Depósito General</button>
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-title">📜 Historial de Aportes a la Caja</div>
+      <div class="card-title">📜 Historial de Aportes a la Caja (Solo recientes)</div>
       <div id="poolDepositsList"></div>
     </div>
   </div>
@@ -343,7 +351,7 @@
     </div>
 
     <div class="card">
-      <div class="card-title">📜 Historial de Pagos Confirmados</div>
+      <div class="card-title">📜 Pagos Confirmados Recientes</div>
       <div id="paymentsHistoryList"></div>
     </div>
   </div>
@@ -500,11 +508,17 @@ function initApp() {
     $('rateBrl').removeAttribute('disabled');
     $('adminBadge').style.display = 'inline-block';
     $('adminNotice').style.display = 'none';
+    
+    $('poolFormElements').style.display = 'block';
+    $('adminOnlyPoolNotice').style.display = 'none';
   } else {
     $('rateUsd').setAttribute('disabled', 'true');
     $('rateBrl').setAttribute('disabled', 'true');
     $('adminBadge').style.display = 'none';
     $('adminNotice').style.display = 'block';
+    
+    $('poolFormElements').style.display = 'none';
+    $('adminOnlyPoolNotice').style.display = 'block';
   }
 
   initFormDropdowns();
@@ -580,18 +594,15 @@ function switchTab(tabName) {
 
 function initFormDropdowns() {
   let payerOpts = '';
-  let depositorOpts = '';
   let checkboxesHtml = '';
 
   DEFAULT_FRIENDS.forEach(f => {
     let selectedAttr = f.id === currentUserId ? ' selected' : '';
     payerOpts += `<option value="${f.id}"${selectedAttr}>${f.name}</option>`;
-    depositorOpts += `<option value="${f.id}"${selectedAttr}>${f.name}</option>`;
     checkboxesHtml += `<label class="checkbox-label"><input type="checkbox" name="split_user" value="${f.id}" checked> ${f.name}</label>`;
   });
 
   $('expPayer').innerHTML = payerOpts;
-  $('poolDepositor').innerHTML = depositorOpts;
   $('splitCheckboxes').innerHTML = checkboxesHtml;
 
   let today = new Date().toISOString().substring(0, 10);
@@ -656,7 +667,6 @@ function addExpense() {
 }
 
 function deleteExpense(id) {
-  // RESTRICCIÓN DE ADMIN: Solo 'ore' puede eliminar gastos
   if(currentUserId !== ADMIN_USER_ID) {
     alert('🔒 Acción restringida: Solo el administrador puede eliminar gastos.');
     return;
@@ -669,10 +679,14 @@ function deleteExpense(id) {
 }
 
 function addPoolDeposit() {
-  let depositorId = $('poolDepositor').value;
+  if(currentUserId !== ADMIN_USER_ID) {
+    alert('🔒 Acción restringida: Solo el administrador puede ingresar dinero a la caja común.');
+    return;
+  }
+
   let amount = +$('poolAmount').value;
   let currency = $('poolCurrency').value;
-  let note = $('poolNote').value.trim() || 'Aporte a la caja';
+  let note = $('poolNote').value.trim() || 'Aporte general a la caja';
   let date = new Date().toISOString().substring(0, 10);
 
   if(amount <= 0) {
@@ -683,7 +697,6 @@ function addPoolDeposit() {
   if(!AppData.poolDeposits) AppData.poolDeposits = [];
   AppData.poolDeposits.push({
     id: Date.now(),
-    depositorId,
     amount,
     currency,
     note,
@@ -693,11 +706,10 @@ function addPoolDeposit() {
   $('poolAmount').value = '';
   $('poolNote').value = '';
   saveToFirebase();
-  alert('¡Depósito registrado en la caja común!');
+  alert('¡Depósito general registrado en la caja común!');
 }
 
 function deletePoolDeposit(id) {
-  // RESTRICCIÓN DE ADMIN: Solo 'ore' puede eliminar aportes a la caja
   if(currentUserId !== ADMIN_USER_ID) {
     alert('🔒 Acción restringida: Solo el administrador puede eliminar aportes a la caja.');
     return;
@@ -709,15 +721,13 @@ function deletePoolDeposit(id) {
   }
 }
 
-// 1. Enviar aviso de pago (Con validación anti-duplicados)
 function requestPayment(fromId, toId, amount) {
   if(currentUserId !== fromId) {
     let senderName = DEFAULT_FRIENDS.find(f => f.id === fromId)?.name || fromId;
-    alert(`Estás logueado como otro usuario. Para registrar este pago, debés iniciar sesión como ${senderName}.`);
+    alert(`Estás logueado como otro usuario. Para registrar هذا pago, debés iniciar sesión como ${senderName}.`);
     return;
   }
 
-  // VALIDACIÓN ANTI-DUPLICADOS: Verificamos si ya existe un pago pendiente exacto entre ambos
   let alreadyPending = (AppData.payments || []).some(p => p.fromId === fromId && p.toId === toId && p.amount === amount && p.status === 'pending');
   if(alreadyPending) {
     alert('Ya existe un aviso de pago pendiente idéntico enviado a este usuario. Esperá a que lo confirme o revisá los pendientes.');
@@ -740,7 +750,6 @@ function requestPayment(fromId, toId, amount) {
   }
 }
 
-// 2. El receptor confirma el pago
 function confirmPayment(id) {
   let payment = (AppData.payments || []).find(p => p.id === id);
   if(!payment) return;
@@ -758,7 +767,6 @@ function confirmPayment(id) {
   }
 }
 
-// 3. El receptor rechaza el pago
 function rejectPayment(id) {
   let payment = (AppData.payments || []).find(p => p.id === id);
   if(!payment) return;
@@ -774,7 +782,6 @@ function rejectPayment(id) {
   }
 }
 
-// 4. Borrar pago histórico confirmado (Solo Admin)
 function deletePayment(id) {
   if(currentUserId !== ADMIN_USER_ID) {
     alert('🔒 Acción restringida: Solo el administrador puede eliminar registros de pagos confirmados.');
@@ -808,8 +815,35 @@ function resetAllData() {
   }
 }
 
+function exportToWhatsApp() {
+  let totalPoolDepositsArs = (AppData.poolDeposits || []).reduce((acc, d) => acc + convertToArs(d.amount, d.currency || 'ARS'), 0);
+  let totalPoolExpensesArs = (AppData.expenses || []).filter(e => e.source === 'pool').reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
+  let currentPoolBalanceArs = totalPoolDepositsArs - totalPoolExpensesArs;
+  let allExpenses = AppData.expenses || [];
+  let totalTripExpenseArs = allExpenses.reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
+
+  let text = `🌴 *BRASIL 2027 - RESUMEN DE GASTOS* 🇧🇷\n\n`;
+  text += `💰 Gasto Total: *${fmt(totalTripExpenseArs)}*\n`;
+  text += `📦 Fondo Caja Común: *${fmt(currentPoolBalanceArs)}*\n\n`;
+  text += `¡Entren a la app para ver los detalles y saldar cuentas!`;
+
+  let encoded = encodeURIComponent(text);
+  window.open(`https://wa.me/?text=${encoded}`, '_blank');
+}
+
+function groupByDate(items, dateField) {
+  let groups = {};
+  items.forEach(item => {
+    let d = item[dateField] || 'Sin fecha';
+    if(!groups[d]) groups[d] = [];
+    groups[d].push(item);
+  });
+  return groups;
+}
+
 function renderAll() {
   let isAdmin = currentUserId === ADMIN_USER_ID;
+  let todayStr = new Date().toISOString().substring(0, 10);
 
   let totalPoolDepositsArs = (AppData.poolDeposits || []).reduce((acc, d) => acc + convertToArs(d.amount, d.currency || 'ARS'), 0);
   let totalPoolExpensesArs = (AppData.expenses || []).filter(e => e.source === 'pool').reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
@@ -818,66 +852,80 @@ function renderAll() {
   $('poolBalanceCard').textContent = fmt(currentPoolBalanceArs);
   $('poolTotalDisp').textContent = fmt(currentPoolBalanceArs);
 
-  let personalExpenses = (AppData.expenses || []).filter(e => e.source === 'personal');
-  let totalTripExpenseArs = personalExpenses.reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
+  let allExpenses = AppData.expenses || [];
+  let totalTripExpenseArs = allExpenses.reduce((acc, e) => acc + convertToArs(e.amount, e.currency || 'ARS'), 0);
   
   $('totalTripExpense').textContent = fmt(totalTripExpenseArs);
   let usdRate = AppData.rates ? AppData.rates.usd : 1200;
-  $('totalTripUsd').textContent = `Equivalente aprox: USD ${(totalTripExpenseArs / usdRate).toFixed(0)} (referencia)`;
+  $('totalTripUsd').textContent = `Equivalente aprox: USD ${Math.round(totalTripExpenseArs / usdRate).toLocaleString()}`;
 
+  // --- RENDER GASTOS (Oculta del historial lo que sea de días anteriores para limpiar la vista diaria) ---
+  let recentExpenses = allExpenses.filter(e => e.date === todayStr);
+  let sortedExpenses = [...recentExpenses].sort((a,b) => new Date(b.date) - new Date(a.date));
+  let groupedExpenses = groupByDate(sortedExpenses, 'date');
   let expHtml = '';
-  [...(AppData.expenses || [])].reverse().forEach(e => {
-    let payer = DEFAULT_FRIENDS.find(f => f.id === e.payerId)?.name || 'Desconocido';
-    let sourceTag = e.source === 'pool' ? '<span class="pill pool-tag">Caja Común</span>' : '<span class="pill personal-tag">Personal</span>';
-    let curr = e.currency || 'ARS';
-    let currTag = curr !== 'ARS' ? `<span class="pill currency-tag">${curr}</span>` : '';
-    let payerInfo = e.source === 'pool' ? 'Pagado del Pozo' : `Pagó: ${payer}`;
-    let convertedText = curr !== 'ARS' ? `<br><span class="muted" style="font-size:10px;">Equiv: ${fmt(convertToArs(e.amount, curr))}</span>` : '';
 
-    // Botón de eliminar visible solo para el admin
-    let deleteBtnHtml = isAdmin ? `<button class="del-btn" onclick="deleteExpense(${e.id})">✕</button>` : '';
+  Object.keys(groupedExpenses).sort((a,b) => new Date(b) - new Date(a)).forEach(dateStr => {
+    expHtml += `<div class="date-group-header"><span>📅 ${dateStr}</span><span>${groupedExpenses[dateStr].length} gastos</span></div>`;
+    groupedExpenses[dateStr].forEach(e => {
+      let payer = DEFAULT_FRIENDS.find(f => f.id === e.payerId)?.name || 'Desconocido';
+      let sourceTag = e.source === 'pool' ? '<span class="pill pool-tag">Caja Común</span>' : '<span class="pill personal-tag">Personal</span>';
+      let curr = e.currency || 'ARS';
+      let currTag = curr !== 'ARS' ? `<span class="pill currency-tag">${curr}</span>` : '';
+      let payerInfo = e.source === 'pool' ? 'Pagado del Pozo' : `Pagó: ${payer}`;
+      let convertedText = curr !== 'ARS' ? `<br><span class="muted" style="font-size:10px;">Equiv: ${fmt(convertToArs(e.amount, curr))}</span>` : '';
+      let deleteBtnHtml = isAdmin ? `<button class="del-btn" onclick="deleteExpense(${e.id})">✕</button>` : '';
 
-    expHtml += `
-      <div class="row">
-        <div>
-          <b>${e.desc}</b> ${sourceTag} ${currTag}<br>
-          <span class="muted" style="font-size:11px;">${payerInfo} (${e.date}) • División: ${e.splitWith.length} amigos</span>
-          ${convertedText}
-        </div>
-        <div style="display:flex; align-items:center;">
-          <div style="text-align:right;">
-            <b style="color:var(--primary);">${formatOriginal(e.amount, curr)}</b>
+      expHtml += `
+        <div class="row">
+          <div>
+            <b>${e.desc}</b> ${sourceTag} ${currTag}<br>
+            <span class="muted" style="font-size:11px;">${payerInfo} • División: ${e.splitWith.length} amigos</span>
+            ${convertedText}
           </div>
-          ${deleteBtnHtml}
+          <div style="display:flex; align-items:center;">
+            <div style="text-align:right;">
+              <b style="color:var(--primary);">${formatOriginal(e.amount, curr)}</b>
+            </div>
+            ${deleteBtnHtml}
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    });
   });
-  $('expensesHistoryList').innerHTML = expHtml || '<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay gastos registrados aún.</div>';
+  $('expensesHistoryList').innerHTML = expHtml || `<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay gastos nuevos registrados hoy (los anteriores están guardados de forma interna).</div>`;
 
+  // --- RENDER APORTES A LA CAJA (Solo del día de hoy) ---
+  let allPoolDeposits = AppData.poolDeposits || [];
+  let recentPool = allPoolDeposits.filter(d => d.date === todayStr);
+  let sortedPool = [...recentPool].sort((a,b) => new Date(b.date) - new Date(a.date));
+  let groupedPool = groupByDate(sortedPool, 'date');
   let poolHtml = '';
-  [...(AppData.poolDeposits || [])].reverse().forEach(d => {
-    let depositor = DEFAULT_FRIENDS.find(f => f.id === d.depositorId)?.name || 'Desconocido';
-    let curr = d.currency || 'ARS';
-    let convertedText = curr !== 'ARS' ? ` (Equiv: ${fmt(convertToArs(d.amount, curr))})` : '';
-    
-    let deletePoolBtnHtml = isAdmin ? `<button class="del-btn" onclick="deletePoolDeposit(${d.id})">✕</button>` : '';
 
-    poolHtml += `
-      <div class="row">
-        <div>
-          <b>${depositor}</b><br>
-          <span class="muted" style="font-size:11px;">${d.note} (${d.date})${convertedText}</span>
+  Object.keys(groupedPool).sort((a,b) => new Date(b) - new Date(a)).forEach(dateStr => {
+    poolHtml += `<div class="date-group-header"><span>📅 ${dateStr}</span><span>${groupedPool[dateStr].length} aportes</span></div>`;
+    groupedPool[dateStr].forEach(d => {
+      let curr = d.currency || 'ARS';
+      let convertedText = curr !== 'ARS' ? ` (Equiv: ${fmt(convertToArs(d.amount, curr))})` : '';
+      let deletePoolBtnHtml = isAdmin ? `<button class="del-btn" onclick="deletePoolDeposit(${d.id})">✕</button>` : '';
+
+      poolHtml += `
+        <div class="row">
+          <div>
+            <b>Depósito General</b><br>
+            <span class="muted" style="font-size:11px;">${d.note}${convertedText}</span>
+          </div>
+          <div style="display:flex; align-items:center;">
+            <b style="color:var(--green);">+${formatOriginal(d.amount, curr)}</b>
+            ${deletePoolBtnHtml}
+          </div>
         </div>
-        <div style="display:flex; align-items:center;">
-          <b style="color:var(--green);">+${formatOriginal(d.amount, curr)}</b>
-          ${deletePoolBtnHtml}
-        </div>
-      </div>
-    `;
+      `;
+    });
   });
-  $('poolDepositsList').innerHTML = poolHtml || '<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay aportes a la caja común aún.</div>';
+  $('poolDepositsList').innerHTML = poolHtml || `<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay aportes nuevos hoy en la caja común.</div>`;
 
+  // --- SALDOS ---
   let balances = {};
   DEFAULT_FRIENDS.forEach(f => {
     balances[f.id] = {
@@ -889,6 +937,7 @@ function renderAll() {
     };
   });
 
+  let personalExpenses = allExpenses.filter(e => e.source === 'personal');
   personalExpenses.forEach(e => {
     let arsVal = convertToArs(e.amount, e.currency || 'ARS');
     if(balances[e.payerId]) {
@@ -940,9 +989,11 @@ function renderAll() {
   });
   $('participantsSummaryList').innerHTML = summaryHtml;
 
-  // Renderizar Pagos Pendientes
+  // --- PENDIENTES DE CONFIRMACIÓN (Siempre visibles porque requieren acción) ---
+  let allPayments = AppData.payments || [];
+  let pendingPayments = allPayments.filter(p => p.status === 'pending');
+
   let pendingHtml = '';
-  let pendingPayments = (AppData.payments || []).filter(p => p.status === 'pending');
   pendingPayments.forEach(p => {
     let fromName = DEFAULT_FRIENDS.find(f => f.id === p.fromId)?.name || p.fromId;
     let toName = DEFAULT_FRIENDS.find(f => f.id === p.toId)?.name || p.toId;
@@ -976,8 +1027,9 @@ function renderAll() {
       </div>
     `;
   });
-  $('pendingPaymentsList').innerHTML = pendingHtml || '<div class="muted" style="text-align:center; padding:12px; font-size:12px;">No hay pagos pendientes de confirmación.</div>';
+  $('pendingPaymentsList').innerHTML = pendingHtml || `<div class="muted" style="text-align:center; padding:12px; font-size:12px;">No hay pagos pendientes de confirmación.</div>`;
 
+  // --- LIQUIDACIÓN DIRECTA ---
   let debtors = netBalances.filter(x => x.net < -1).map(x => ({ ...x, net: Math.abs(x.net) }));
   let creditors = netBalances.filter(x => x.net > 1).map(x => ({ ...x }));
 
@@ -1009,8 +1061,7 @@ function renderAll() {
   let settleHtml = '';
   settlements.forEach(s => {
     let canPay = (currentUserId === s.fromId);
-    
-    let alreadySent = (AppData.payments || []).some(p => p.fromId === s.fromId && p.toId === s.toId && p.amount === s.amount && p.status === 'pending');
+    let alreadySent = allPayments.some(p => p.fromId === s.fromId && p.toId === s.toId && p.amount === s.amount && p.status === 'pending');
 
     let actionBtn = '';
     if(!canPay) {
@@ -1033,20 +1084,23 @@ function renderAll() {
   $('settlementsList').innerHTML = settleMessage;
   $('quickSettlementList').innerHTML = settleMessage;
 
+  // --- PAGOS CONFIRMADOS (Solo los del día actual para mantener limpio el historial) ---
+  let confirmedPayments = allPayments.filter(p => p.status === 'confirmed' && p.date === todayStr);
+  let sortedPayments = [...confirmedPayments].sort((a,b) => new Date(b.date) - new Date(a.date));
+  let groupedPayments = groupByDate(sortedPayments, 'date');
   let paymentsHtml = '';
-  let confirmedPayments = (AppData.payments || []).filter(p => p.status === 'confirmed');
-  if(confirmedPayments.length > 0) {
-    [...confirmedPayments].reverse().forEach(p => {
+
+  Object.keys(groupedPayments).sort((a,b) => new Date(b) - new Date(a)).forEach(dateStr => {
+    paymentsHtml += `<div class="date-group-header"><span>📅 ${dateStr}</span><span>${groupedPayments[dateStr].length} pagos</span></div>`;
+    groupedPayments[dateStr].forEach(p => {
       let fromName = DEFAULT_FRIENDS.find(f => f.id === p.fromId)?.name || p.fromId;
       let toName = DEFAULT_FRIENDS.find(f => f.id === p.toId)?.name || p.toId;
-      
       let deletePaymentBtnHtml = isAdmin ? `<button class="del-btn" onclick="deletePayment(${p.id})">✕</button>` : '';
 
       paymentsHtml += `
         <div class="row">
           <div>
-            <b>${fromName}</b> le pagó a <b>${toName}</b> <span class="pill admin-tag">Confirmado</span><br>
-            <span class="muted" style="font-size:11px;">${p.date}</span>
+            <b>${fromName}</b> le pagó a <b>${toName}</b> <span class="pill admin-tag">Confirmado</span>
           </div>
           <div style="display:flex; align-items:center;">
             <b style="color:var(--green);">${fmt(p.amount)}</b>
@@ -1055,8 +1109,8 @@ function renderAll() {
         </div>
       `;
     });
-  }
-  $('paymentsHistoryList').innerHTML = paymentsHtml || '<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay pagos confirmados aún.</div>';
+  });
+  $('paymentsHistoryList').innerHTML = paymentsHtml || `<div class="muted" style="text-align:center; padding:15px; font-size:12px;">No hay pagos confirmados hoy.</div>`;
 }
 </script>
 </body>
