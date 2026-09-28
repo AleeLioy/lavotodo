@@ -10,6 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
+
 * {
     box-sizing: border-box;
 }
@@ -115,23 +116,53 @@ body {
    LOGO
 ========================================= */
 
-.logo-upload-box {
+.logo-upload-box,
+.images-upload-box {
     border: 1px dashed #b8c0c8;
     border-radius: 8px;
     padding: 12px;
     background: #f9fafb;
 }
 
-.logo-upload-box input[type="file"] {
+.logo-upload-box input[type="file"],
+.images-upload-box input[type="file"] {
     width: 100%;
     font-size: 12px;
 }
 
-.logo-help {
+.logo-help,
+.images-help {
     margin-top: 6px;
     color: #6b7280;
     font-size: 11px;
     line-height: 1.4;
+}
+
+/* =========================================
+   MINIATURAS IMÁGENES
+========================================= */
+
+.uploaded-images {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+    margin-top: 10px;
+}
+
+.uploaded-image-thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #d1d5db;
+    background: #fff;
+}
+
+.uploaded-image-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 /* =========================================
@@ -351,7 +382,6 @@ body {
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0;
     border: 1px solid #d1d5db;
     margin-bottom: 18px;
 }
@@ -430,7 +460,7 @@ body {
 }
 
 /* =========================================
-   TABLA TRABAJOS
+   TABLA
 ========================================= */
 
 .work-table {
@@ -458,6 +488,39 @@ body {
 .work-table th:first-child,
 .work-table td:first-child {
     width: 100%;
+}
+
+/* =========================================
+   IMÁGENES ILUSTRATIVAS EN PRESUPUESTO
+========================================= */
+
+.illustrative-images {
+    margin-top: 16px;
+}
+
+.illustrative-images-title {
+    background: #111827;
+    color: white;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.illustrative-images-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding-top: 8px;
+}
+
+.illustrative-image {
+    width: 100%;
+    height: 125px;
+    object-fit: cover;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    display: block;
 }
 
 /* =========================================
@@ -538,7 +601,7 @@ body {
 }
 
 /* =========================================
-   CONTENEDOR PDF
+   PDF
 ========================================= */
 
 .pdf-render-container {
@@ -619,6 +682,7 @@ body {
         margin: 0 !important;
     }
 }
+
 </style>
 </head>
 
@@ -627,7 +691,7 @@ body {
 <div class="app">
 
     <!-- =====================================
-         PANEL DE CARGA
+         PANEL
     ====================================== -->
 
     <div class="panel">
@@ -651,20 +715,12 @@ body {
 
                 <div class="field">
                     <label>Número</label>
-
-                    <input
-                        type="text"
-                        id="numero"
-                    >
+                    <input type="text" id="numero">
                 </div>
 
                 <div class="field">
                     <label>Fecha</label>
-
-                    <input
-                        type="date"
-                        id="fecha"
-                    >
+                    <input type="date" id="fecha">
                 </div>
 
             </div>
@@ -774,9 +830,8 @@ body {
                 </div>
 
                 <div class="logo-help">
-                    Podés cargar PNG, JPG, WEBP o SVG.
                     El logo aparecerá en el encabezado
-                    y también en el PDF.
+                    y en el PDF.
                 </div>
 
             </div>
@@ -784,7 +839,7 @@ body {
         </div>
 
 
-        <!-- CLIENTE -->
+        <!-- DATOS CLIENTE -->
 
         <div class="form-section">
 
@@ -890,7 +945,7 @@ body {
         </div>
 
 
-        <!-- PRECIO GENERAL -->
+        <!-- PRECIO -->
 
         <div class="form-section">
 
@@ -926,6 +981,47 @@ body {
                     id="montoLetras"
                     placeholder="Se completa automáticamente"
                 >
+
+            </div>
+
+        </div>
+
+
+        <!-- IMAGENES -->
+
+        <div class="form-section">
+
+            <div class="section-title">
+                Imágenes ilustrativas
+            </div>
+
+            <div class="images-upload-box">
+
+                <div class="field">
+
+                    <label>
+                        Fotos del trabajo
+                    </label>
+
+                    <input
+                        type="file"
+                        id="imagesInput"
+                        accept="image/png,image/jpeg,image/webp"
+                        multiple
+                    >
+
+                </div>
+
+                <div class="images-help">
+                    Podés seleccionar varias imágenes.
+                    Se mostrarán como imágenes ilustrativas
+                    dentro del presupuesto.
+                </div>
+
+                <div
+                    class="uploaded-images"
+                    id="uploadedImages"
+                ></div>
 
             </div>
 
@@ -971,7 +1067,7 @@ body {
                 id="btnCompartir"
                 onclick="generarYCompartir()"
             >
-                Compartir por WhatsApp
+                Compartir PDF por WhatsApp
             </button>
 
         </div>
@@ -980,7 +1076,7 @@ body {
 
 
     <!-- =====================================
-         PREVISUALIZACIÓN DEL PRESUPUESTO
+         PREVISUALIZACIÓN
     ====================================== -->
 
     <div class="preview-area">
@@ -1056,7 +1152,7 @@ body {
             </div>
 
 
-            <!-- INFORMACIÓN DEL PRESUPUESTO -->
+            <!-- DATOS PRESUPUESTO -->
 
             <div class="info-grid">
 
@@ -1211,6 +1307,26 @@ body {
             </table>
 
 
+            <!-- IMÁGENES ILUSTRATIVAS -->
+
+            <div
+                class="illustrative-images"
+                id="prevIllustrativeImagesSection"
+                style="display:none;"
+            >
+
+                <div class="illustrative-images-title">
+                    Imágenes ilustrativas del trabajo
+                </div>
+
+                <div
+                    class="illustrative-images-grid"
+                    id="prevIllustrativeImages"
+                ></div>
+
+            </div>
+
+
             <!-- TOTAL -->
 
             <div class="total-box">
@@ -1234,7 +1350,7 @@ body {
             </div>
 
 
-            <!-- MONTO EN LETRAS -->
+            <!-- MONTO LETRAS -->
 
             <div class="amount-words">
 
@@ -1357,7 +1473,7 @@ function limpiarNombre(nombre) {
 
 
 /* =========================================================
-   NUMERO DE PRESUPUESTO
+   NUMERO PRESUPUESTO
 ========================================================= */
 
 function obtenerNumero() {
@@ -1610,7 +1726,7 @@ function numeroEnLetras(numero) {
 
 
 /* =========================================================
-   SEGURIDAD HTML
+   SEGURIDAD
 ========================================================= */
 
 function escapeHTML(valor) {
@@ -1689,13 +1805,9 @@ function agregarItem(
     );
 
 
-    const input =
-        fila.querySelector(
-            ".item-descripcion"
-        );
-
-
-    input.addEventListener(
+    fila.querySelector(
+        ".item-descripcion"
+    ).addEventListener(
         "input",
         actualizar
     );
@@ -1812,7 +1924,128 @@ function cargarLogo(event) {
 
 
 /* =========================================================
-   ACTUALIZAR PREVISUALIZACION
+   IMÁGENES ILUSTRATIVAS
+========================================================= */
+
+let imagenesIlustrativas = [];
+
+
+function cargarImagenes(event) {
+
+    const archivos =
+        Array.from(
+            event.target.files || []
+        );
+
+
+    if (!archivos.length) {
+        return;
+    }
+
+
+    archivos.forEach(archivo => {
+
+        if (
+            !archivo.type.startsWith(
+                "image/"
+            )
+        ) {
+            return;
+        }
+
+
+        const lector =
+            new FileReader();
+
+
+        lector.onload =
+            function(e) {
+
+                imagenesIlustrativas.push(
+                    e.target.result
+                );
+
+
+                actualizarMiniaturasImagenes();
+
+                actualizar();
+
+            };
+
+
+        lector.readAsDataURL(
+            archivo
+        );
+
+    });
+
+
+    /*
+       Permitimos volver a seleccionar
+       las mismas imágenes.
+    */
+
+    event.target.value = "";
+}
+
+
+function eliminarImagen(index) {
+
+    imagenesIlustrativas.splice(
+        index,
+        1
+    );
+
+
+    actualizarMiniaturasImagenes();
+
+    actualizar();
+}
+
+
+function actualizarMiniaturasImagenes() {
+
+    const contenedor =
+        $("uploadedImages");
+
+
+    contenedor.innerHTML = "";
+
+
+    imagenesIlustrativas.forEach(
+        (imagen, index) => {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.className =
+                "uploaded-image-thumb";
+
+
+            div.innerHTML = `
+
+                <img
+                    src="${imagen}"
+                    alt="Imagen ${index + 1}"
+                >
+
+            `;
+
+
+            contenedor.appendChild(
+                div
+            );
+
+        }
+    );
+}
+
+
+/* =========================================================
+   ACTUALIZAR PRESUPUESTO
 ========================================================= */
 
 function actualizar() {
@@ -1906,7 +2139,9 @@ function actualizar() {
     if (items.length === 0) {
 
         const tr =
-            document.createElement("tr");
+            document.createElement(
+                "tr"
+            );
 
 
         tr.innerHTML = `
@@ -1923,7 +2158,9 @@ function actualizar() {
         items.forEach(item => {
 
             const tr =
-                document.createElement("tr");
+                document.createElement(
+                    "tr"
+                );
 
 
             tr.innerHTML = `
@@ -1942,7 +2179,65 @@ function actualizar() {
     }
 
 
-    /* PRECIO GENERAL */
+    /* IMÁGENES */
+
+    const imagenesSeccion =
+        $("prevIllustrativeImagesSection");
+
+
+    const imagenesContenedor =
+        $("prevIllustrativeImages");
+
+
+    imagenesContenedor.innerHTML = "";
+
+
+    if (
+        imagenesIlustrativas.length > 0
+    ) {
+
+        imagenesSeccion.style.display =
+            "block";
+
+
+        imagenesIlustrativas.forEach(
+            (imagen, index) => {
+
+                const img =
+                    document.createElement(
+                        "img"
+                    );
+
+
+                img.className =
+                    "illustrative-image";
+
+
+                img.src =
+                    imagen;
+
+
+                img.alt =
+                    "Imagen ilustrativa " +
+                    (index + 1);
+
+
+                imagenesContenedor.appendChild(
+                    img
+                );
+
+            }
+        );
+
+    } else {
+
+        imagenesSeccion.style.display =
+            "none";
+
+    }
+
+
+    /* TOTAL */
 
     const total =
         Number(
@@ -2044,7 +2339,10 @@ function obtenerDatos() {
             $("observaciones").value,
 
         logo:
-            logoDataURL
+            logoDataURL,
+
+        imagenes:
+            imagenesIlustrativas
 
     };
 }
@@ -2060,10 +2358,21 @@ function guardarPresupuesto() {
         obtenerDatos();
 
 
-    localStorage.setItem(
-        "lavotodo_presupuesto_actual",
-        JSON.stringify(datos)
-    );
+    try {
+
+        localStorage.setItem(
+            "lavotodo_presupuesto_actual",
+            JSON.stringify(datos)
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "No se pudo guardar todo en localStorage.",
+            error
+        );
+
+    }
 }
 
 
@@ -2081,7 +2390,7 @@ function esperarRender() {
 
                 setTimeout(
                     resolve,
-                    150
+                    200
                 );
 
             });
@@ -2089,6 +2398,48 @@ function esperarRender() {
         });
 
     });
+}
+
+
+/* =========================================================
+   ESPERAR IMÁGENES
+========================================================= */
+
+function esperarImagenes(elemento) {
+
+    const imagenes =
+        Array.from(
+            elemento.querySelectorAll(
+                "img"
+            )
+        );
+
+
+    if (!imagenes.length) {
+        return Promise.resolve();
+    }
+
+
+    return Promise.all(
+        imagenes.map(img => {
+
+            if (img.complete) {
+                return Promise.resolve();
+            }
+
+
+            return new Promise(resolve => {
+
+                img.onload =
+                    resolve;
+
+                img.onerror =
+                    resolve;
+
+            });
+
+        })
+    );
 }
 
 
@@ -2103,7 +2454,9 @@ function crearElementoPDF() {
 
 
     const container =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
 
 
     container.className =
@@ -2111,7 +2464,9 @@ function crearElementoPDF() {
 
 
     const clone =
-        original.cloneNode(true);
+        original.cloneNode(
+            true
+        );
 
 
     clone.classList.add(
@@ -2119,7 +2474,9 @@ function crearElementoPDF() {
     );
 
 
-    clone.removeAttribute("id");
+    clone.removeAttribute(
+        "id"
+    );
 
 
     container.appendChild(
@@ -2162,9 +2519,13 @@ async function crearPDF() {
 
         await esperarRender();
 
+        await esperarImagenes(
+            pdf.elemento
+        );
+
 
         /*
-           Altura REAL del presupuesto.
+           Altura REAL.
         */
 
         const ancho =
@@ -2178,7 +2539,7 @@ async function crearPDF() {
 
 
         /*
-           Capturamos TODO el contenido.
+           Capturamos TODO.
         */
 
         const canvas =
@@ -2219,10 +2580,6 @@ async function crearPDF() {
             );
 
 
-        /*
-           JS PDF.
-        */
-
         const {
             jsPDF
         } = window.jspdf;
@@ -2246,10 +2603,6 @@ async function crearPDF() {
             });
 
 
-        /*
-           A4.
-        */
-
         const paginaAncho =
             210;
 
@@ -2257,10 +2610,6 @@ async function crearPDF() {
         const paginaAlto =
             297;
 
-
-        /*
-           Márgenes.
-        */
 
         const margen =
             6;
@@ -2277,7 +2626,8 @@ async function crearPDF() {
 
 
         /*
-           Escala automática.
+           Escala para que TODO
+           entre en una sola hoja.
         */
 
         const escalaAncho =
@@ -2307,10 +2657,6 @@ async function crearPDF() {
             escala;
 
 
-        /*
-           Centrado.
-        */
-
         const posicionX =
             (paginaAncho -
                 imagenAncho) / 2;
@@ -2321,14 +2667,10 @@ async function crearPDF() {
                 imagenAlto) / 2;
 
 
-        /*
-           Convertimos a imagen.
-        */
-
         const imagen =
             canvas.toDataURL(
                 "image/jpeg",
-                0.95
+                0.94
             );
 
 
@@ -2347,10 +2689,6 @@ async function crearPDF() {
             "FAST"
         );
 
-
-        /*
-           Nombre del archivo.
-        */
 
         const cliente =
             limpiarNombre(
@@ -2406,7 +2744,7 @@ async function crearPDF() {
 
 
 /* =========================================================
-   DESCARGAR PDF
+   DESCARGAR
 ========================================================= */
 
 function descargarBlob(
@@ -2501,7 +2839,7 @@ async function generarPDF() {
 
 
         alert(
-            "No se pudo generar el PDF. Revisá la consola del navegador."
+            "No se pudo generar el PDF."
         );
 
 
@@ -2519,7 +2857,7 @@ async function generarPDF() {
 
 
 /* =========================================================
-   WHATSAPP
+   MENSAJE WHATSAPP
 ========================================================= */
 
 function generarMensajeWhatsApp() {
@@ -2603,6 +2941,10 @@ function generarMensajeWhatsApp() {
 }
 
 
+/* =========================================================
+   WHATSAPP
+========================================================= */
+
 function normalizarWhatsApp(
     numero
 ) {
@@ -2661,7 +3003,84 @@ function abrirWhatsApp() {
 
 
 /* =========================================================
-   PDF + WHATSAPP
+   COMPARTIR PDF REAL
+========================================================= */
+
+async function compartirPDF(resultado) {
+
+    /*
+       Esta es la parte que intenta
+       enviar el PDF como ARCHIVO.
+
+       Los navegadores compatibles permiten
+       compartir el Blob como File.
+    */
+
+    if (
+        navigator.share &&
+        navigator.canShare
+    ) {
+
+        const archivo =
+            new File(
+                [resultado.blob],
+                resultado.filename,
+                {
+                    type:
+                        "application/pdf"
+                }
+            );
+
+
+        const datosCompartir = {
+            files: [archivo],
+            title:
+                "Presupuesto LavoTodo",
+            text:
+                "Presupuesto LavoTodo"
+        };
+
+
+        if (
+            navigator.canShare(
+                datosCompartir
+            )
+        ) {
+
+            await navigator.share(
+                datosCompartir
+            );
+
+            return true;
+        }
+
+    }
+
+
+    /*
+       Si el navegador no permite
+       compartir archivos:
+       descargamos el PDF y abrimos WhatsApp.
+    */
+
+    descargarBlob(
+        resultado.blob,
+        resultado.filename
+    );
+
+
+    setTimeout(
+        abrirWhatsApp,
+        700
+    );
+
+
+    return false;
+}
+
+
+/* =========================================================
+   GENERAR Y COMPARTIR
 ========================================================= */
 
 async function generarYCompartir() {
@@ -2681,7 +3100,7 @@ async function generarYCompartir() {
 
 
         boton.textContent =
-            "Preparando...";
+            "Preparando PDF...";
 
 
         guardarPresupuesto();
@@ -2691,30 +3110,56 @@ async function generarYCompartir() {
             await crearPDF();
 
 
-        descargarBlob(
-            resultado.blob,
-            resultado.filename
+        boton.textContent =
+            "Abriendo WhatsApp...";
+
+
+        await compartirPDF(
+            resultado
         );
-
-
-        setTimeout(() => {
-
-            abrirWhatsApp();
-
-        }, 500);
 
 
     } catch (error) {
 
         console.error(
-            "Error:",
+            "Error compartiendo PDF:",
             error
         );
 
 
-        alert(
-            "No se pudo generar el PDF."
-        );
+        /*
+           Si el usuario cancela
+           la ventana de compartir,
+           no hacemos nada.
+
+           Si realmente hubo otro error,
+           ofrecemos descarga.
+        */
+
+        if (
+            error &&
+            error.name ===
+            "AbortError"
+        ) {
+
+            return;
+        }
+
+
+        try {
+
+            descargarBlob(
+                resultado,
+                "Presupuesto_LavoTodo.pdf"
+            );
+
+        } catch (e) {
+
+            alert(
+                "No se pudo compartir el PDF."
+            );
+
+        }
 
 
     } finally {
@@ -2739,7 +3184,7 @@ document.addEventListener(
     function() {
 
         /*
-           Número automático.
+           Número.
         */
 
         $("numero").value =
@@ -2747,7 +3192,7 @@ document.addEventListener(
 
 
         /*
-           Fecha actual.
+           Fecha.
         */
 
         $("fecha").value =
@@ -2765,10 +3210,22 @@ document.addEventListener(
            Logo.
         */
 
-        $("logoInput").addEventListener(
-            "change",
-            cargarLogo
-        );
+        $("logoInput")
+            .addEventListener(
+                "change",
+                cargarLogo
+            );
+
+
+        /*
+           Imágenes.
+        */
+
+        $("imagesInput")
+            .addEventListener(
+                "change",
+                cargarImagenes
+            );
 
 
         /*
