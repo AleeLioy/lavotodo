@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Presupuesto - LavoTodo</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -33,6 +37,7 @@ body {
     grid-template-columns: 410px 1fr;
     min-height: 100vh;
 }
+
 
 /* =========================================
    PANEL
@@ -112,34 +117,9 @@ body {
     gap: 10px;
 }
 
-/* =========================================
-   LOGO
-========================================= */
-
-.logo-upload-box,
-.images-upload-box {
-    border: 1px dashed #b8c0c8;
-    border-radius: 8px;
-    padding: 12px;
-    background: #f9fafb;
-}
-
-.logo-upload-box input[type="file"],
-.images-upload-box input[type="file"] {
-    width: 100%;
-    font-size: 12px;
-}
-
-.logo-help,
-.images-help {
-    margin-top: 6px;
-    color: #6b7280;
-    font-size: 11px;
-    line-height: 1.4;
-}
 
 /* =========================================
-   MINIATURAS IMÁGENES
+   MINATURAS IMÁGENES
 ========================================= */
 
 .uploaded-images {
@@ -164,6 +144,7 @@ body {
     height: 100%;
     object-fit: cover;
 }
+
 
 /* =========================================
    TRABAJOS
@@ -212,6 +193,7 @@ body {
     color: #374151;
 }
 
+
 /* =========================================
    TOTAL
 ========================================= */
@@ -221,6 +203,7 @@ body {
     font-weight: bold;
     text-align: right;
 }
+
 
 /* =========================================
    BOTONES
@@ -261,6 +244,7 @@ body {
     cursor: wait;
 }
 
+
 /* =========================================
    PREVIEW
 ========================================= */
@@ -282,6 +266,7 @@ body {
     position: relative;
     color: #111827;
 }
+
 
 /* =========================================
    ENCABEZADO
@@ -318,10 +303,6 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    display: none;
-}
-
-.logo-icon.has-image img {
     display: block;
 }
 
@@ -375,6 +356,7 @@ body {
     color: #4b5563;
 }
 
+
 /* =========================================
    DATOS PRESUPUESTO
 ========================================= */
@@ -412,6 +394,7 @@ body {
     font-size: 12px;
     font-weight: 600;
 }
+
 
 /* =========================================
    CLIENTE
@@ -459,6 +442,7 @@ body {
     font-size: 12px;
 }
 
+
 /* =========================================
    TABLA
 ========================================= */
@@ -490,8 +474,9 @@ body {
     width: 100%;
 }
 
+
 /* =========================================
-   IMÁGENES ILUSTRATIVAS EN PRESUPUESTO
+   IMÁGENES ILUSTRATIVAS
 ========================================= */
 
 .illustrative-images {
@@ -523,6 +508,7 @@ body {
     display: block;
 }
 
+
 /* =========================================
    TOTAL
 ========================================= */
@@ -550,6 +536,7 @@ body {
     font-size: 17px;
 }
 
+
 /* =========================================
    MONTO EN LETRAS
 ========================================= */
@@ -561,6 +548,7 @@ body {
     border: 1px solid #e5e7eb;
     font-size: 11px;
 }
+
 
 /* =========================================
    OBSERVACIONES
@@ -587,6 +575,7 @@ body {
     white-space: pre-wrap;
 }
 
+
 /* =========================================
    FOOTER
 ========================================= */
@@ -599,6 +588,7 @@ body {
     font-size: 10px;
     color: #6b7280;
 }
+
 
 /* =========================================
    PDF
@@ -618,23 +608,17 @@ body {
     width: 794px !important;
     min-width: 794px !important;
     max-width: 794px !important;
-
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
-
     padding: 42px !important;
-
     margin: 0 !important;
-
     background: #ffffff !important;
-
     box-shadow: none !important;
-
     overflow: visible !important;
-
     position: relative !important;
 }
+
 
 /* =========================================
    RESPONSIVE
@@ -684,11 +668,14 @@ body {
 }
 
 </style>
+
 </head>
+
 
 <body>
 
 <div class="app">
+
 
     <!-- =====================================
          PANEL
@@ -714,16 +701,30 @@ body {
             <div class="grid-2">
 
                 <div class="field">
+
                     <label>Número</label>
-                    <input type="text" id="numero">
+
+                    <input
+                        type="text"
+                        id="numero"
+                    >
+
                 </div>
 
+
                 <div class="field">
+
                     <label>Fecha</label>
-                    <input type="date" id="fecha">
+
+                    <input
+                        type="date"
+                        id="fecha"
+                    >
+
                 </div>
 
             </div>
+
 
             <div class="field">
 
@@ -748,6 +749,7 @@ body {
                 Datos de LavoTodo
             </div>
 
+
             <div class="field">
 
                 <label>
@@ -761,6 +763,7 @@ body {
                 >
 
             </div>
+
 
             <div class="grid-2">
 
@@ -776,6 +779,7 @@ body {
 
                 </div>
 
+
                 <div class="field">
 
                     <label>Teléfono</label>
@@ -789,6 +793,7 @@ body {
                 </div>
 
             </div>
+
 
             <div class="field">
 
@@ -805,40 +810,6 @@ body {
         </div>
 
 
-        <!-- LOGO -->
-
-        <div class="form-section">
-
-            <div class="section-title">
-                Logo / Ícono
-            </div>
-
-            <div class="logo-upload-box">
-
-                <div class="field">
-
-                    <label>
-                        Agregar logo al presupuesto
-                    </label>
-
-                    <input
-                        type="file"
-                        id="logoInput"
-                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                    >
-
-                </div>
-
-                <div class="logo-help">
-                    El logo aparecerá en el encabezado
-                    y en el PDF.
-                </div>
-
-            </div>
-
-        </div>
-
-
         <!-- DATOS CLIENTE -->
 
         <div class="form-section">
@@ -846,6 +817,7 @@ body {
             <div class="section-title">
                 Datos del cliente
             </div>
+
 
             <div class="field">
 
@@ -858,6 +830,7 @@ body {
 
             </div>
 
+
             <div class="field">
 
                 <label>Dirección</label>
@@ -868,6 +841,7 @@ body {
                 >
 
             </div>
+
 
             <div class="grid-2">
 
@@ -882,6 +856,7 @@ body {
 
                 </div>
 
+
                 <div class="field">
 
                     <label>Código postal</label>
@@ -895,6 +870,7 @@ body {
 
             </div>
 
+
             <div class="grid-2">
 
                 <div class="field">
@@ -907,6 +883,7 @@ body {
                     >
 
                 </div>
+
 
                 <div class="field">
 
@@ -953,6 +930,7 @@ body {
                 Precio
             </div>
 
+
             <div class="field">
 
                 <label>
@@ -969,6 +947,7 @@ body {
                 >
 
             </div>
+
 
             <div class="field">
 
@@ -995,6 +974,7 @@ body {
                 Imágenes ilustrativas
             </div>
 
+
             <div class="images-upload-box">
 
                 <div class="field">
@@ -1012,11 +992,15 @@ body {
 
                 </div>
 
+
                 <div class="images-help">
+
                     Podés seleccionar varias imágenes.
                     Se mostrarán como imágenes ilustrativas
                     dentro del presupuesto.
+
                 </div>
+
 
                 <div
                     class="uploaded-images"
@@ -1035,6 +1019,7 @@ body {
             <div class="section-title">
                 Observaciones
             </div>
+
 
             <div class="field">
 
@@ -1061,6 +1046,7 @@ body {
                 Generar PDF
             </button>
 
+
             <button
                 type="button"
                 class="btn btn-secondary"
@@ -1086,19 +1072,20 @@ body {
             id="presupuesto"
         >
 
+
             <!-- ENCABEZADO -->
 
             <div class="doc-header">
 
                 <div class="brand-area">
 
-                    <div
-                        class="logo-icon"
-                        id="logoPreviewBox"
-                    >
+
+                    <!-- LOGO FIJO -->
+
+                    <div class="logo-icon">
 
                         <img
-                            id="logoPreview"
+                            src="FOTOSLAVADO/ICONO.jpeg"
                             alt="Logo LavoTodo"
                         >
 
@@ -1111,13 +1098,17 @@ body {
                             LAVO<span>TODO</span>
                         </div>
 
+
                         <div class="company-data">
 
                             Hidrolavados · Limpieza ·
-                            Impermeabilizaciones<br>
+                            Impermeabilizaciones
+
+                            <br>
 
                             Tel:
                             <span id="prevTelefono"></span>
+
                             <br>
 
                             WhatsApp:
@@ -1155,6 +1146,7 @@ body {
             <!-- DATOS PRESUPUESTO -->
 
             <div class="info-grid">
+
 
                 <div class="info-box">
 
@@ -1222,6 +1214,7 @@ body {
 
 
             <div class="client-grid">
+
 
                 <div class="client-box">
 
@@ -1302,6 +1295,7 @@ body {
 
                 </thead>
 
+
                 <tbody id="prevItems"></tbody>
 
             </table>
@@ -1318,6 +1312,7 @@ body {
                 <div class="illustrative-images-title">
                     Imágenes ilustrativas del trabajo
                 </div>
+
 
                 <div
                     class="illustrative-images-grid"
@@ -1385,6 +1380,7 @@ body {
 
                 LavoTodo · Hidrolavados y servicios generales ·
                 WhatsApp:
+
                 <span id="prevWhatsappFooter"></span>
 
             </div>
@@ -1397,6 +1393,7 @@ body {
 
 
 <script>
+
 
 /* =========================================================
    FUNCIONES GENERALES
@@ -1467,8 +1464,9 @@ function limpiarNombre(nombre) {
 
     return String(nombre || "")
         .trim()
-        .replace(/[\\/:*?"<>|]/g, "-")
+        .replace(/[\/\\:*?"<>|]/g, "-")
         .replace(/\s+/g, " ");
+
 }
 
 
@@ -1495,6 +1493,7 @@ function obtenerNumero() {
 
     return String(numero)
         .padStart(4, "0");
+
 }
 
 
@@ -1633,6 +1632,7 @@ function numeroEnLetras(numero) {
             " " +
             convertirMenorMil(resto)
         );
+
     }
 
 
@@ -1667,6 +1667,7 @@ function numeroEnLetras(numero) {
             }
 
             return texto;
+
         }
 
 
@@ -1677,6 +1678,7 @@ function numeroEnLetras(numero) {
 
             const resto =
                 n % 1000000;
+
 
             let texto =
                 millones === 1
@@ -1692,9 +1694,7 @@ function numeroEnLetras(numero) {
                 if (resto < 1000) {
 
                     texto +=
-                        convertirMenorMil(
-                            resto
-                        );
+                        convertirMenorMil(resto);
 
                 } else {
 
@@ -1702,13 +1702,16 @@ function numeroEnLetras(numero) {
                         convertir(resto);
 
                 }
+
             }
 
             return texto;
+
         }
 
 
         return String(n);
+
     }
 
 
@@ -1722,6 +1725,7 @@ function numeroEnLetras(numero) {
 
 
     return resultado + " pesos";
+
 }
 
 
@@ -1737,12 +1741,14 @@ function escapeHTML(valor) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+
 }
 
 
 function escapeAttribute(valor) {
 
     return escapeHTML(valor);
+
 }
 
 
@@ -1814,6 +1820,7 @@ function agregarItem(
 
 
     actualizar();
+
 }
 
 
@@ -1831,6 +1838,7 @@ function eliminarItem(id) {
 
 
     actualizar();
+
 }
 
 
@@ -1865,61 +1873,7 @@ function obtenerItems() {
 
 
     return items;
-}
 
-
-/* =========================================================
-   LOGO
-========================================================= */
-
-let logoDataURL = "";
-
-
-function cargarLogo(event) {
-
-    const archivo =
-        event.target.files[0];
-
-
-    if (!archivo) {
-
-        logoDataURL = "";
-
-        $("logoPreview").src = "";
-
-        $("logoPreviewBox")
-            .classList
-            .remove("has-image");
-
-        return;
-    }
-
-
-    const lector =
-        new FileReader();
-
-
-    lector.onload =
-        function(e) {
-
-            logoDataURL =
-                e.target.result;
-
-
-            $("logoPreview").src =
-                logoDataURL;
-
-
-            $("logoPreviewBox")
-                .classList
-                .add("has-image");
-
-        };
-
-
-    lector.readAsDataURL(
-        archivo
-    );
 }
 
 
@@ -1980,12 +1934,8 @@ function cargarImagenes(event) {
     });
 
 
-    /*
-       Permitimos volver a seleccionar
-       las mismas imágenes.
-    */
-
     event.target.value = "";
+
 }
 
 
@@ -2000,6 +1950,7 @@ function eliminarImagen(index) {
     actualizarMiniaturasImagenes();
 
     actualizar();
+
 }
 
 
@@ -2041,6 +1992,7 @@ function actualizarMiniaturasImagenes() {
 
         }
     );
+
 }
 
 
@@ -2145,9 +2097,11 @@ function actualizar() {
 
 
         tr.innerHTML = `
+
             <td>
                 Sin trabajos cargados
             </td>
+
         `;
 
 
@@ -2164,11 +2118,13 @@ function actualizar() {
 
 
             tr.innerHTML = `
+
                 <td>
                     ${escapeHTML(
                         item.descripcion
                     )}
                 </td>
+
             `;
 
 
@@ -2274,6 +2230,7 @@ function actualizar() {
 
     $("prevObservaciones").textContent =
         $("observaciones").value || "";
+
 }
 
 
@@ -2338,13 +2295,11 @@ function obtenerDatos() {
         observaciones:
             $("observaciones").value,
 
-        logo:
-            logoDataURL,
-
         imagenes:
             imagenesIlustrativas
 
     };
+
 }
 
 
@@ -2373,6 +2328,7 @@ function guardarPresupuesto() {
         );
 
     }
+
 }
 
 
@@ -2398,6 +2354,7 @@ function esperarRender() {
         });
 
     });
+
 }
 
 
@@ -2421,6 +2378,7 @@ function esperarImagenes(elemento) {
 
 
     return Promise.all(
+
         imagenes.map(img => {
 
             if (img.complete) {
@@ -2439,7 +2397,9 @@ function esperarImagenes(elemento) {
             });
 
         })
+
     );
+
 }
 
 
@@ -2497,6 +2457,7 @@ function crearElementoPDF() {
             clone
 
     };
+
 }
 
 
@@ -2524,10 +2485,6 @@ async function crearPDF() {
         );
 
 
-        /*
-           Altura REAL.
-        */
-
         const ancho =
             794;
 
@@ -2537,10 +2494,6 @@ async function crearPDF() {
                 pdf.elemento.scrollHeight
             );
 
-
-        /*
-           Capturamos TODO.
-        */
 
         const canvas =
             await html2canvas(
@@ -2625,11 +2578,6 @@ async function crearPDF() {
             (margen * 2);
 
 
-        /*
-           Escala para que TODO
-           entre en una sola hoja.
-        */
-
         const escalaAncho =
             anchoDisponible /
             canvas.width;
@@ -2674,19 +2622,24 @@ async function crearPDF() {
             );
 
 
-        /*
-           UNA SOLA PÁGINA.
-        */
-
         documento.addImage(
+
             imagen,
+
             "JPEG",
+
             posicionX,
+
             posicionY,
+
             imagenAncho,
+
             imagenAlto,
+
             undefined,
+
             "FAST"
+
         );
 
 
@@ -2740,6 +2693,7 @@ async function crearPDF() {
         }
 
     }
+
 }
 
 
@@ -2790,6 +2744,7 @@ function descargarBlob(
         );
 
     }, 1000);
+
 }
 
 
@@ -2825,8 +2780,11 @@ async function generarPDF() {
 
 
         descargarBlob(
+
             resultado.blob,
+
             resultado.filename
+
         );
 
 
@@ -2853,6 +2811,7 @@ async function generarPDF() {
             textoOriginal;
 
     }
+
 }
 
 
@@ -2938,6 +2897,7 @@ function generarMensajeWhatsApp() {
 
 
     return mensaje;
+
 }
 
 
@@ -2976,6 +2936,7 @@ function normalizarWhatsApp(
 
 
     return limpio;
+
 }
 
 
@@ -2999,6 +2960,7 @@ function abrirWhatsApp() {
         url,
         "_blank"
     );
+
 }
 
 
@@ -3007,14 +2969,6 @@ function abrirWhatsApp() {
 ========================================================= */
 
 async function compartirPDF(resultado) {
-
-    /*
-       Esta es la parte que intenta
-       enviar el PDF como ARCHIVO.
-
-       Los navegadores compatibles permiten
-       compartir el Blob como File.
-    */
 
     if (
         navigator.share &&
@@ -3033,11 +2987,15 @@ async function compartirPDF(resultado) {
 
 
         const datosCompartir = {
+
             files: [archivo],
+
             title:
                 "Presupuesto LavoTodo",
+
             text:
                 "Presupuesto LavoTodo"
+
         };
 
 
@@ -3052,16 +3010,11 @@ async function compartirPDF(resultado) {
             );
 
             return true;
+
         }
 
     }
 
-
-    /*
-       Si el navegador no permite
-       compartir archivos:
-       descargamos el PDF y abrimos WhatsApp.
-    */
 
     descargarBlob(
         resultado.blob,
@@ -3076,6 +3029,7 @@ async function compartirPDF(resultado) {
 
 
     return false;
+
 }
 
 
@@ -3093,6 +3047,9 @@ async function generarYCompartir() {
         boton.textContent;
 
 
+    let resultado = null;
+
+
     try {
 
         boton.disabled =
@@ -3106,7 +3063,7 @@ async function generarYCompartir() {
         guardarPresupuesto();
 
 
-        const resultado =
+        resultado =
             await crearPDF();
 
 
@@ -3127,15 +3084,6 @@ async function generarYCompartir() {
         );
 
 
-        /*
-           Si el usuario cancela
-           la ventana de compartir,
-           no hacemos nada.
-
-           Si realmente hubo otro error,
-           ofrecemos descarga.
-        */
-
         if (
             error &&
             error.name ===
@@ -3143,15 +3091,29 @@ async function generarYCompartir() {
         ) {
 
             return;
+
         }
 
 
         try {
 
-            descargarBlob(
-                resultado,
-                "Presupuesto_LavoTodo.pdf"
-            );
+            if (
+                resultado &&
+                resultado.blob
+            ) {
+
+                descargarBlob(
+                    resultado.blob,
+                    resultado.filename
+                );
+
+            } else {
+
+                alert(
+                    "No se pudo generar el PDF."
+                );
+
+            }
 
         } catch (e) {
 
@@ -3172,6 +3134,7 @@ async function generarYCompartir() {
             textoOriginal;
 
     }
+
 }
 
 
@@ -3183,43 +3146,25 @@ document.addEventListener(
     "DOMContentLoaded",
     function() {
 
-        /*
-           Número.
-        */
+
+        /* Número */
 
         $("numero").value =
             obtenerNumero();
 
 
-        /*
-           Fecha.
-        */
+        /* Fecha */
 
         $("fecha").value =
             fechaHoy();
 
 
-        /*
-           Primer trabajo.
-        */
+        /* Primer trabajo */
 
         agregarItem();
 
 
-        /*
-           Logo.
-        */
-
-        $("logoInput")
-            .addEventListener(
-                "change",
-                cargarLogo
-            );
-
-
-        /*
-           Imágenes.
-        */
+        /* Imágenes */
 
         $("imagesInput")
             .addEventListener(
@@ -3228,9 +3173,7 @@ document.addEventListener(
             );
 
 
-        /*
-           Campos.
-        */
+        /* Campos */
 
         const campos =
             document.querySelectorAll(
