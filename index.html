@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Panel de Aplicaciones</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #cbd5e1;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .apps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 25px;
+        }
+
+        .app {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            transition: 0.2s;
+            border: 1px solid #e5e7eb;
+        }
+
+        .app:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        .app h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .app p {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 11px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+
+        /* Ventana de contraseña */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 10px;
+        }
+
+        .modal-content p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .error {
+            color: #dc2626;
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .cancel {
+            background: #6b7280;
+            margin-left: 8px;
+        }
+
+        .cancel:hover {
+            background: #4b5563;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Panel de Aplicaciones</h1>
+    <p>Acceso a tus herramientas</p>
+</header>
+
+
+<div class="container">
+
+    <div class="apps">
+
+        <!-- CONTROL DE GASTOS BRASIL -->
+
+        <div class="app">
+            <div class="icon">🇧🇷</div>
+
+            <h2>Control de Gastos Brasil</h2>
+
+            <p>
+                Control y seguimiento de gastos,
+                ingresos y presupuesto del viaje.
+            </p>
+
+            <button onclick="abrirApp('brasil')">
+                Ingresar
+            </button>
+        </div>
+
+
+        <!-- GENERADOR PDF -->
+
+        <div class="app">
+            <div class="icon">📄</div>
+
+            <h2>Generador de PDF</h2>
+
+            <p>
+                Crear y generar documentos
+                PDF rápidamente.
+            </p>
+
+            <button onclick="abrirApp('pdf')">
+                Ingresar
+            </button>
+        </div>
+
+
+        <!-- APP 3 -->
+
+        <div class="app">
+            <div class="icon">🔧</div>
+
+            <h2>Aplicación 3</h2>
+
+            <p>
+                Próximamente.
+            </p>
+
+            <button onclick="abrirApp('app3')">
+                Ingresar
+            </button>
+        </div>
+
+
+        <!-- APP 4 -->
+
+        <div class="app">
+            <div class="icon">🔧</div>
+
+            <h2>Aplicación 4</h2>
+
+            <p>
+                Próximamente.
+            </p>
+
+            <button onclick="abrirApp('app4')">
+                Ingresar
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+
+<footer>
+    Panel privado · 2026
+</footer>
+
+
+<!-- MODAL CONTRASEÑA -->
+
+<div class="modal" id="modal">
+
+    <div class="modal-content">
+
+        <h2 id="modalTitulo">
+            Acceso protegido
+        </h2>
+
+        <p>
+            Ingresá la contraseña para continuar.
+        </p>
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Contraseña"
+            onkeydown="if(event.key === 'Enter') verificar()"
+        >
+
+        <div class="error" id="error">
+            Contraseña incorrecta.
+        </div>
+
+        <button onclick="verificar()">
+            Entrar
+        </button>
+
+        <button class="cancel" onclick="cerrarModal()">
+            Cancelar
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /*
+    ==========================================
+    CONFIGURACIÓN
+    ==========================================
+    */
+
+    const aplicaciones = {
+
+        brasil: {
+            nombre: "Control de Gastos Brasil",
+
+            contraseña: "1234",
+
+            pagina: "brasil.html"
+        },
+
+        pdf: {
+            nombre: "Generador de PDF",
+
+            contraseña: "5678",
+
+            pagina: "pdf.html"
+        },
+
+        app3: {
+            nombre: "Aplicación 3",
+
+            contraseña: "1111",
+
+            pagina: "app3.html"
+        },
+
+        app4: {
+            nombre: "Aplicación 4",
+
+            contraseña: "2222",
+
+            pagina: "app4.html"
+        }
+
+    };
+
+
+    let aplicacionSeleccionada = null;
+
+
+    /*
+    ==========================================
+    ABRIR VENTANA DE CONTRASEÑA
+    ==========================================
+    */
+
+    function abrirApp(app) {
+
+        aplicacionSeleccionada = app;
+
+        document.getElementById("modalTitulo").innerText =
+            "Acceso: " + aplicaciones[app].nombre;
+
+        document.getElementById("password").value = "";
+
+        document.getElementById("error").style.display = "none";
+
+        document.getElementById("modal").style.display = "flex";
+
+        setTimeout(() => {
+            document.getElementById("password").focus();
+        }, 100);
+
+    }
+
+
+    /*
+    ==========================================
+    VERIFICAR CONTRASEÑA
+    ==========================================
+    */
+
+    function verificar() {
+
+        const password =
+            document.getElementById("password").value;
+
+        const app =
+            aplicaciones[aplicacionSeleccionada];
+
+
+        if (password === app.contraseña) {
+
+            window.location.href = app.pagina;
+
+        } else {
+
+            document.getElementById("error").style.display = "block";
+
+            document.getElementById("password").value = "";
+
+            document.getElementById("password").focus();
+
+        }
+
+    }
+
+
+    /*
+    ==========================================
+    CERRAR MODAL
+    ==========================================
+    */
+
+    function cerrarModal() {
+
+        document.getElementById("modal").style.display = "none";
+
+        aplicacionSeleccionada = null;
+
+    }
+
+
+    /*
+    CERRAR HACIENDO CLICK AFUERA
+    */
+
+    document.getElementById("modal").addEventListener("click", function(event) {
+
+        if (event.target === this) {
+            cerrarModal();
+        }
+
+    });
+
+</script>
+
+</body>
+</html>

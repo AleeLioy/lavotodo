@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presupuesto - Hidrolavados Lavo Todo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #e2e8f0;
+            padding: 20px;
+            color: #1e293b;
+        }
+
+        .app-container {
+            max-width: 1250px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* Panel de Controles (Formulario) */
+        .controls-panel {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .controls-panel h2 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #333;
+            padding-bottom: 6px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 7px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 90px;
+        }
+
+        .btn-mic {
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-mic.recording {
+            background: #dc2626;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .btn-print {
+            background-color: #0f172a;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+
+        .btn-print:hover {
+            background-color: #334155;
+        }
+
+        /* Vista Previa de la Hoja A4 */
+        .preview-container {
+            display: flex;
+            justify-content: center;
+        }
+
+        .invoice-sheet {
+            background: #ffffff;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+            border: 2px solid #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sheet-top-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Cabecera Principal */
+        .header-main-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 2px solid #000;
+        }
+
+        .header-col-left {
+            padding: 10px;
+            border-right: 2px solid #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .logo-graphic {
+            width: 44px;
+            height: 34px;
+            margin-bottom: 2px;
+        }
+
+        .brand-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+        }
+
+        .brand-subtitle {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        .company-address {
+            font-size: 0.72rem;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .header-col-right {
+            display: grid;
+            grid-template-rows: auto 1fr;
+        }
+
+        .header-right-top-row {
+            display: grid;
+            grid-template-columns: 45px 1fr;
+            border-bottom: 2px solid #000;
+        }
+
+        .box-letter-p {
+            border-right: 2px solid #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.3rem;
+            font-weight: 800;
+            background-color: #fff;
+        }
+
+        .title-presupuesto-text {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .header-right-bottom-row {
+            padding: 8px 10px;
+            font-size: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        /* Recuadro de WhatsApp cerrado completamente */
+        .whatsapp-row-box {
+            border: 2px solid #000;
+            border-top: none;
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            background-color: #fff;
+            color: #000;
+        }
+
+        /* Cliente */
+        .client-name-display {
+            font-size: 1.05rem;
+            font-weight: 700;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+
+        /* Barra Descripcion */
+        .bar-descripcion {
+            border: 2px solid #000;
+            background-color: #e2e8f0;
+            color: #1d4ed8;
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+
+        /* Cuadro central */
+        .main-description-box {
+            border: 2px solid #000;
+            min-height: 320px;
+            padding: 14px;
+            margin-bottom: 12px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        /* Pie de página y totales (Sin espacio entre observaciones y totales) */
+        .sheet-footer-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .obs-container-wrapper {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .obs-box-inner {
+            width: 210px;
+            border: 2px solid #000;
+            border-bottom: none;
+        }
+
+        .obs-header-bar {
+            background-color: #e2e8f0;
+            color: #1d4ed8;
+            font-size: 0.7rem;
+            text-align: center;
+            font-weight: 700;
+            padding: 4px;
+            text-transform: uppercase;
+        }
+
+        .conditions-notice-box {
+            border: 2px solid #000;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 8px;
+        }
+
+        .totals-grid-box {
+            display: grid;
+            grid-template-columns: 1fr 210px;
+            border: 2px solid #000;
+            border-top: none;
+        }
+
+        .amount-in-words {
+            padding: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            border-right: 2px solid #000;
+            text-transform: lowercase;
+        }
+
+        .amount-numbers-side {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .total-pesos-header {
+            border-bottom: 2px solid #000;
+            font-size: 0.7rem;
+            text-align: center;
+            font-weight: 700;
+            padding: 4px;
+            background-color: #e2e8f0;
+            color: #1d4ed8;
+            text-transform: uppercase;
+        }
+
+        .total-numeric-value {
+            padding: 8px 10px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .controls-panel {
+                display: none !important;
+            }
+            .app-container {
+                display: block;
+            }
+            .invoice-sheet {
+                border: 2px solid #000 !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                height: 100vh !important;
+                margin: 0;
+                padding: 10mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Panel de control interactivo -->
+        <div class="controls-panel">
+            <h2>Datos del Presupuesto</h2>
+            
+            <div class="form-group">
+                <label>Fecha:</label>
+                <input type="text" id="input-fecha" value="28/09/2026">
+            </div>
+
+            <div class="form-group">
+                <label>Razón Social:</label>
+                <input type="text" id="input-razon" value="Alejandro Miguel Lioy">
+            </div>
+
+            <div class="form-group">
+                <label>C.U.I.T.:</label>
+                <input type="text" id="input-cuit" value="27-23761098-8">
+            </div>
+
+            <div class="form-group">
+                <label>Teléfono Cabecera:</label>
+                <input type="text" id="input-tel" value="3416205291">
+            </div>
+
+            <div class="form-group">
+                <label>WhatsApp:</label>
+                <input type="text" id="input-wsp" value="+543416205291 - +543413688060">
+            </div>
+
+            <div class="form-group">
+                <label>Cliente / Destinatario:</label>
+                <input type="text" id="input-cliente" value="Parroquia San lorenzo">
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Descripción / Detalle:
+                    <button type="button" class="btn-mic" id="btn-dictar" onclick="toggleDictado()">🎙️ Dictar</button>
+                </label>
+                <textarea id="input-desc">PINTURA
+- Se realizara mamposteria necesario antes de pintar, en los espacios redactados a continuacion
+
+- Se realizara pintura de:
+            - Pared medianera de pasillo
+            - Peredes exteriores a casa parroquial</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Condición:</label>
+                <input type="text" id="input-condicion" value="El presupuesto no incluye materiales">
+            </div>
+
+            <div class="form-group">
+                <label>Monto en Letras:</label>
+                <input type="text" id="input-letras" value="un millon doscientos mil pesos">
+            </div>
+
+            <div class="form-group">
+                <label>Monto Numérico:</label>
+                <input type="text" id="input-monto" value="1.200.000,00">
+            </div>
+
+            <button class="btn-print" onclick="window.print()">Generar / Guardar PDF</button>
+        </div>
+
+        <!-- Vista Previa Exacta -->
+        <div class="preview-container">
+            <div class="invoice-sheet">
+                <div class="sheet-top-section">
+                    <div class="header-main-box">
+                        <div class="header-col-left">
+                            <div class="logo-container">
+                                <svg class="logo-graphic" viewBox="0 0 100 75" fill="none" stroke="currentColor" stroke-width="5">
+                                    <path d="M18 62 L50 12 L82 62 Z" />
+                                    <line x1="33" y1="40" x2="67" y2="40" />
+                                    <line x1="26" y1="52" x2="74" y2="52" />
+                                    <circle cx="50" cy="6" r="5" fill="currentColor"/>
+                                </svg>
+                                <div class="brand-title">HIDROLAVADOS</div>
+                                <div class="brand-subtitle">LAVO TODO</div>
+                            </div>
+                            <div class="company-address">
+                                Direcion: Union 1535 &nbsp;-&nbsp; Tel: <span id="view-tel">3416205291</span>
+                            </div>
+                        </div>
+                        <div class="header-col-right">
+                            <div class="header-right-top-row">
+                                <div class="box-letter-p">P</div>
+                                <div class="title-presupuesto-text">PRESUPUESTO</div>
+                            </div>
+                            <div class="header-right-bottom-row">
+                                <div><strong>Fecha:</strong> <span id="view-fecha">28/09/2026</span></div>
+                                <div>RAZON SOCIAL: <span id="view-razon">Alejandro Miguel Lioy</span></div>
+                                <div>C.U.I.T. Nº <span id="view-cuit">27-23761098-8</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="whatsapp-row-box">
+                        WhastsApp: <span id="view-wsp">+543416205291 - +543413688060</span>
+                    </div>
+
+                    <div class="client-name-display" id="view-cliente">
+                        Parroquia San lorenzo
+                    </div>
+
+                    <div class="bar-descripcion">Descripcion</div>
+
+                    <div class="main-description-box" id="view-desc">PINTURA
+- Se realizara mamposteria necesario antes de pintar, en los espacios redactados a continuacion
+
+- Se realizara pintura de:
+            - Pared medianera de pasillo
+            - Peredes exteriores a casa parroquial</div>
+                </div>
+
+                <div class="sheet-footer-section">
+                    <div class="obs-container-wrapper">
+                        <div class="obs-box-inner">
+                            <div class="obs-header-bar">Observaciones</div>
+                        </div>
+                    </div>
+
+                    <div class="conditions-notice-box" id="view-condicion">
+                        El presupuesto no incluye materiales
+                    </div>
+
+                    <div class="totals-grid-box">
+                        <div class="amount-in-words" id="view-letras">
+                            un millon doscientos mil pesos
+                        </div>
+                        <div class="amount-numbers-side">
+                            <div class="total-pesos-header">TOTAL en PESOS</div>
+                            <div class="total-numeric-value">
+                                <span>$</span>
+                                <span id="view-monto">1.200.000,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fields = [
+            { id: 'input-fecha', view: 'view-fecha' },
+            { id: 'input-razon', view: 'view-razon' },
+            { id: 'input-cuit', view: 'view-cuit' },
+            { id: 'input-tel', view: 'view-tel' },
+            { id: 'input-wsp', view: 'view-wsp' },
+            { id: 'input-cliente', view: 'view-cliente' },
+            { id: 'input-desc', view: 'view-desc' },
+            { id: 'input-condicion', view: 'view-condicion' },
+            { id: 'input-letras', view: 'view-letras' },
+            { id: 'input-monto', view: 'view-monto' }
+        ];
+
+        fields.forEach(item => {
+            const inputElement = document.getElementById(item.id);
+            const viewElement = document.getElementById(item.view);
+
+            inputElement.addEventListener('input', () => {
+                viewElement.textContent = inputElement.value;
+            });
+        });
+
+        // Configuración robusta del Dictado por Voz (Speech Recognition)
+        let recognition = null;
+        let isRecording = false;
+
+        function initSpeech() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) return null;
+            const rec = new SpeechRecognition();
+            rec.lang = 'es-AR';
+            rec.continuous = true;
+            rec.interimResults = true;
+            return rec;
+        }
+
+        recognition = initSpeech();
+
+        if (recognition) {
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                const inputDesc = document.getElementById('input-desc');
+                inputDesc.value = transcript;
+                document.getElementById('view-desc').textContent = transcript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Error de voz:", event.error);
+                stopDictado();
+            };
+
+            recognition.onend = () => {
+                stopDictado();
+            };
+        }
+
+        function toggleDictado() {
+            if (!recognition) {
+                alert('Tu navegador no soporta reconocimiento de voz. Utiliza Google Chrome.');
+                return;
+            }
+
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                try {
+                    recognition.start();
+                    isRecording = true;
+                    const btn = document.getElementById('btn-dictar');
+                    btn.textContent = '⏹️ Grabando...';
+                    btn.classList.add('recording');
+                } catch (e) {
+                    recognition = initSpeech();
+                    if (recognition) recognition.start();
+                }
+            }
+        }
+
+        function stopDictado() {
+            isRecording = false;
+            const btn = document.getElementById('btn-dictar');
+            if (btn) {
+                btn.textContent = '🎙️ Dictar';
+                btn.classList.remove('recording');
+            }
+        }
+    </script>
+</body>
+</html>
+
