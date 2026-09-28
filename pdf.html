@@ -1,613 +1,2395 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presupuesto - Hidrolavados Lavo Todo</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', Arial, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        body {
-            background-color: #e2e8f0;
-            padding: 20px;
-            color: #1e293b;
-        }
+<title>Presupuestos - LavoTodo</title>
 
-        .app-container {
-            max-width: 1250px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 400px 1fr;
-            gap: 20px;
-            align-items: start;
-        }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-        /* Panel de Controles (Formulario) */
-        .controls-panel {
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 20px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-        .controls-panel h2 {
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-            border-bottom: 2px solid #333;
-            padding-bottom: 6px;
-        }
+<style>
 
-        .form-group {
-            margin-bottom: 12px;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        .form-group label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            margin-bottom: 3px;
-            color: #333;
-        }
+body {
+    margin: 0;
+    background: #eef1f4;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #20252b;
+}
 
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 7px;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            font-size: 0.85rem;
-        }
+.app {
+    display: grid;
+    grid-template-columns: 410px 1fr;
+    min-height: 100vh;
+}
 
-        .form-group textarea {
-            resize: vertical;
-            height: 90px;
-        }
+/* =========================
+   PANEL
+========================= */
 
-        .btn-mic {
-            background: #2563eb;
-            color: #fff;
-            border: none;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-mic.recording {
-            background: #dc2626;
-            animation: pulse 1.5s infinite;
-        }
+.panel {
+    background: #fff;
+    border-right: 1px solid #d9dde2;
+    padding: 25px;
+    overflow-y: auto;
+}
 
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
+.panel h1 {
+    margin: 0 0 5px;
+    font-size: 25px;
+    font-weight: 800;
+}
 
-        .btn-print {
-            background-color: #0f172a;
-            color: #fff;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: background 0.2s;
-        }
+.panel-subtitle {
+    color: #707780;
+    font-size: 13px;
+    margin-bottom: 25px;
+}
 
-        .btn-print:hover {
-            background-color: #334155;
-        }
+.section-title {
+    margin-top: 25px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #eeeeee;
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
 
-        /* Vista Previa de la Hoja A4 */
-        .preview-container {
-            display: flex;
-            justify-content: center;
-        }
+.form-group {
+    margin-bottom: 13px;
+}
 
-        .invoice-sheet {
-            background: #ffffff;
-            width: 210mm;
-            min-height: 297mm;
-            padding: 15mm;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-            border: 2px solid #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #4e555c;
+}
 
-        .sheet-top-section {
-            display: flex;
-            flex-direction: column;
-        }
+input,
+textarea,
+select {
+    width: 100%;
+    border: 1px solid #cfd4da;
+    border-radius: 7px;
+    padding: 10px 11px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    background: #fff;
+    outline: none;
+}
 
-        /* Cabecera Principal */
-        .header-main-box {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            border: 2px solid #000;
-        }
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
 
-        .header-col-left {
-            padding: 10px;
-            border-right: 2px solid #000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            justify-content: center;
-        }
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: #555;
+}
 
-        .logo-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 4px;
-        }
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
 
-        .logo-graphic {
-            width: 44px;
-            height: 34px;
-            margin-bottom: 2px;
-        }
+/* =========================
+   ITEMS
+========================= */
 
-        .brand-title {
-            font-size: 1.35rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            line-height: 1.1;
-        }
+.item {
+    border: 1px solid #d9dde2;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 10px;
+    background: #fafbfc;
+}
 
-        .brand-subtitle {
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-        }
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
 
-        .company-address {
-            font-size: 0.72rem;
-            margin-top: 4px;
-            font-weight: 500;
-        }
+.item-title {
+    font-weight: 800;
+    font-size: 13px;
+}
 
-        .header-col-right {
-            display: grid;
-            grid-template-rows: auto 1fr;
-        }
+.delete-item {
+    border: 0;
+    background: #f1f1f1;
+    color: #b00020;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 8px;
+    font-size: 12px;
+}
 
-        .header-right-top-row {
-            display: grid;
-            grid-template-columns: 45px 1fr;
-            border-bottom: 2px solid #000;
-        }
+.add-item {
+    width: 100%;
+    border: 1px dashed #999;
+    background: white;
+    border-radius: 7px;
+    padding: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
 
-        .box-letter-p {
-            border-right: 2px solid #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.3rem;
-            font-weight: 800;
-            background-color: #fff;
-        }
+.add-item:hover {
+    background: #f5f5f5;
+}
 
-        .title-presupuesto-text {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-        }
+/* =========================
+   BOTONES
+========================= */
 
-        .header-right-bottom-row {
-            padding: 8px 10px;
-            font-size: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 4px;
-        }
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 25px;
+}
 
-        /* Recuadro de WhatsApp cerrado completamente */
-        .whatsapp-row-box {
-            border: 2px solid #000;
-            border-top: none;
-            padding: 6px 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            background-color: #fff;
-            color: #000;
-        }
+.btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 13px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 13px;
+}
 
-        /* Cliente */
-        .client-name-display {
-            font-size: 1.05rem;
-            font-weight: 700;
-            border-bottom: 2px solid #000;
-            padding-bottom: 6px;
-            margin-bottom: 12px;
-        }
+.btn-primary {
+    background: #1d2329;
+    color: white;
+}
 
-        /* Barra Descripcion */
-        .bar-descripcion {
-            border: 2px solid #000;
-            background-color: #e2e8f0;
-            color: #1d4ed8;
-            text-align: center;
-            font-size: 0.78rem;
-            font-weight: 700;
-            padding: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 12px;
-        }
+.btn-whatsapp {
+    background: #25d366;
+    color: white;
+}
 
-        /* Cuadro central */
-        .main-description-box {
-            border: 2px solid #000;
-            min-height: 320px;
-            padding: 14px;
-            margin-bottom: 12px;
-            font-size: 0.88rem;
-            line-height: 1.5;
-            white-space: pre-wrap;
-        }
+.btn-secondary {
+    background: #e9ecef;
+    color: #20252b;
+}
 
-        /* Pie de página y totales (Sin espacio entre observaciones y totales) */
-        .sheet-footer-section {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
+.btn-danger {
+    background: #f2f2f2;
+    color: #b00020;
+}
 
-        .obs-container-wrapper {
-            display: flex;
-            justify-content: flex-end;
-        }
+/* =========================
+   PREVIEW
+========================= */
 
-        .obs-box-inner {
-            width: 210px;
-            border: 2px solid #000;
-            border-bottom: none;
-        }
+.preview-area {
+    padding: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
 
-        .obs-header-bar {
-            background-color: #e2e8f0;
-            color: #1d4ed8;
-            font-size: 0.7rem;
-            text-align: center;
-            font-weight: 700;
-            padding: 4px;
-            text-transform: uppercase;
-        }
+.paper {
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    padding: 15mm;
+    position: relative;
+}
 
-        .conditions-notice-box {
-            border: 2px solid #000;
-            text-align: center;
-            font-weight: 700;
-            font-size: 0.85rem;
-            padding: 8px;
-        }
+/* =========================
+   CABECERA
+========================= */
 
-        .totals-grid-box {
-            display: grid;
-            grid-template-columns: 1fr 210px;
-            border: 2px solid #000;
-            border-top: none;
-        }
+.header {
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    gap: 25px;
+    border-bottom: 2px solid #20252b;
+    padding-bottom: 18px;
+}
 
-        .amount-in-words {
-            padding: 10px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            border-right: 2px solid #000;
-            text-transform: lowercase;
-        }
+.company {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
 
-        .amount-numbers-side {
-            display: flex;
-            flex-direction: column;
-        }
+.logo-box {
+    width: 145px;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #aaa;
+    border-radius: 8px;
+    background: #fafafa;
+}
 
-        .total-pesos-header {
-            border-bottom: 2px solid #000;
-            font-size: 0.7rem;
-            text-align: center;
-            font-weight: 700;
-            padding: 4px;
-            background-color: #e2e8f0;
-            color: #1d4ed8;
-            text-transform: uppercase;
-        }
+.logo-box span {
+    font-size: 18px;
+    font-weight: 800;
+}
 
-        .total-numeric-value {
-            padding: 8px 10px;
-            font-size: 1.05rem;
-            font-weight: 800;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+.company-info h2 {
+    margin: 0;
+    font-size: 23px;
+}
 
-        @media print {
-            body {
-                background: none;
-                padding: 0;
-            }
-            .controls-panel {
-                display: none !important;
-            }
-            .app-container {
-                display: block;
-            }
-            .invoice-sheet {
-                border: 2px solid #000 !important;
-                box-shadow: none !important;
-                width: 100% !important;
-                height: 100vh !important;
-                margin: 0;
-                padding: 10mm;
-            }
-        }
-    </style>
+.company-info p {
+    margin: 4px 0;
+    font-size: 11px;
+    color: #555;
+}
+
+.document-title {
+    text-align: right;
+}
+
+.document-letter {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    border: 2px solid #222;
+    align-items: center;
+    justify-content: center;
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.document-title h1 {
+    margin: 5px 0 0;
+    font-size: 18px;
+}
+
+.document-title p {
+    margin: 5px 0 0;
+    font-size: 11px;
+}
+
+/* =========================
+   DATOS
+========================= */
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border: 1px solid #d0d4d8;
+    margin-top: 20px;
+}
+
+.info-box {
+    padding: 10px;
+    border-bottom: 1px solid #d0d4d8;
+}
+
+.info-box:nth-child(odd) {
+    border-right: 1px solid #d0d4d8;
+}
+
+.info-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #777;
+    font-weight: 800;
+    margin-bottom: 3px;
+}
+
+.info-value {
+    font-size: 11px;
+    font-weight: 600;
+    min-height: 14px;
+}
+
+.section-header {
+    margin-top: 20px;
+    background: #20252b;
+    color: white;
+    padding: 8px 10px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+/* =========================
+   TABLA
+========================= */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid #d2d6da;
+    padding: 9px;
+    font-size: 10px;
+    vertical-align: top;
+}
+
+th {
+    background: #f1f2f3;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.work-name {
+    font-weight: 800;
+    margin-bottom: 4px;
+}
+
+.work-description {
+    color: #555;
+    line-height: 1.5;
+}
+
+/* =========================
+   TOTAL
+========================= */
+
+.total-area {
+    margin-top: 15px;
+    margin-left: auto;
+    width: 280px;
+}
+
+.total-final {
+    display: flex;
+    justify-content: space-between;
+    padding: 11px 0;
+    font-size: 18px;
+    font-weight: 800;
+    border-top: 2px solid #222;
+    border-bottom: 2px solid #222;
+}
+
+/* =========================
+   CONDICIONES
+========================= */
+
+.condition-box {
+    border: 1px solid #d1d5d9;
+    padding: 10px;
+    font-size: 10px;
+    min-height: 40px;
+    line-height: 1.5;
+}
+
+.amount-words {
+    margin-top: 12px;
+    font-size: 10px;
+}
+
+.footer {
+    margin-top: 40px;
+    padding-top: 15px;
+    border-top: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #666;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1100px) {
+
+    .app {
+        grid-template-columns: 1fr;
+    }
+
+    .panel {
+        border-right: 0;
+    }
+
+    .preview-area {
+        padding: 15px;
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 700px) {
+
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        grid-template-columns: 1fr;
+    }
+
+    .document-title {
+        text-align: left;
+    }
+}
+
+@media print {
+
+    body {
+        background: white;
+    }
+
+    .panel {
+        display: none !important;
+    }
+
+    .preview-area {
+        padding: 0;
+    }
+
+    .paper {
+        box-shadow: none;
+        margin: 0;
+    }
+}
+
+</style>
 </head>
+
 <body>
 
-    <div class="app-container">
-        <!-- Panel de control interactivo -->
-        <div class="controls-panel">
-            <h2>Datos del Presupuesto</h2>
-            
-            <div class="form-group">
-                <label>Fecha:</label>
-                <input type="text" id="input-fecha" value="28/09/2026">
+<div class="app">
+
+<!-- =====================================================
+     PANEL DE EDICIÓN
+===================================================== -->
+
+<div class="panel">
+
+<h1>Presupuesto</h1>
+
+<div class="panel-subtitle">
+Generador de presupuestos · LavoTodo
+</div>
+
+
+<!-- =========================
+     DATOS PRESUPUESTO
+========================= -->
+
+<div class="section-title">
+Datos del presupuesto
+</div>
+
+
+<div class="grid-2">
+
+<div class="form-group">
+
+<label>N.º de presupuesto</label>
+
+<input id="numero" readonly>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Fecha</label>
+
+<input type="date" id="fecha">
+
+</div>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Validez del presupuesto</label>
+
+<select id="validez">
+
+<option>7 días</option>
+<option selected>15 días</option>
+<option>30 días</option>
+<option>60 días</option>
+<option>90 días</option>
+
+</select>
+
+</div>
+
+
+<!-- =========================
+     DATOS LAVOTODO
+========================= -->
+
+<div class="section-title">
+Datos de LavoTodo
+</div>
+
+
+<div class="form-group">
+
+<label>Razón social / Responsable</label>
+
+<input
+id="razon"
+value="Alejandro Miguel Lioy">
+
+</div>
+
+
+<div class="grid-2">
+
+<div class="form-group">
+
+<label>C.U.I.T.</label>
+
+<input
+id="cuit"
+value="27-23761098-8">
+
+</div>
+
+
+<div class="form-group">
+
+<label>Teléfono</label>
+
+<input
+id="telefono"
+value="3416205291">
+
+</div>
+
+</div>
+
+
+<div class="form-group">
+
+<label>WhatsApp</label>
+
+<input
+id="whatsapp"
+value="+5493413688060">
+
+</div>
+
+
+<!-- =========================
+     DATOS CLIENTE
+========================= -->
+
+<div class="section-title">
+Datos del cliente
+</div>
+
+
+<div class="form-group">
+
+<label>Cliente / Destinatario</label>
+
+<input
+id="cliente"
+placeholder="Nombre del cliente">
+
+</div>
+
+
+<div class="form-group">
+
+<label>Dirección</label>
+
+<input
+id="direccion"
+placeholder="Dirección del trabajo">
+
+</div>
+
+
+<div class="grid-2">
+
+<div class="form-group">
+
+<label>Localidad</label>
+
+<input
+id="localidad"
+placeholder="Rosario">
+
+</div>
+
+
+<div class="form-group">
+
+<label>C.P.</label>
+
+<input id="cp">
+
+</div>
+
+</div>
+
+
+<div class="grid-2">
+
+<div class="form-group">
+
+<label>Teléfono cliente</label>
+
+<input id="telefonoCliente">
+
+</div>
+
+
+<div class="form-group">
+
+<label>Email cliente</label>
+
+<input
+id="emailCliente"
+type="email">
+
+</div>
+
+</div>
+
+
+<!-- =========================
+     DETALLE
+========================= -->
+
+<div class="section-title">
+Detalle del trabajo
+</div>
+
+
+<div id="items"></div>
+
+
+<button
+type="button"
+class="add-item"
+onclick="agregarItem()">
+
+＋ Agregar trabajo
+
+</button>
+
+
+<!-- =========================
+     PRECIO
+========================= -->
+
+<div class="section-title">
+Precio final
+</div>
+
+
+<div class="form-group">
+
+<label>Precio final del trabajo</label>
+
+<input
+type="number"
+id="precioFinal"
+placeholder="Ej. 1200000"
+min="0"
+step="1">
+
+</div>
+
+
+<div class="form-group">
+
+<label>Monto en letras</label>
+
+<input
+id="montoLetras"
+readonly>
+
+</div>
+
+
+<!-- =========================
+     CONDICIONES
+========================= -->
+
+<div class="section-title">
+Condiciones
+</div>
+
+
+<div class="form-group">
+
+<label>Forma de pago</label>
+
+<select id="formaPago">
+
+<option>Contado</option>
+
+<option>
+Transferencia bancaria
+</option>
+
+<option>
+Mercado Pago
+</option>
+
+<option>
+50% anticipo / 50% final
+</option>
+
+<option>
+30% anticipo / 70% final
+</option>
+
+<option>
+A convenir
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Condición</label>
+
+<textarea id="condicion">El presupuesto no incluye materiales.</textarea>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Observaciones</label>
+
+<textarea
+id="observaciones"
+placeholder="Observaciones adicionales..."></textarea>
+
+</div>
+
+
+<!-- =========================
+     BOTONES
+========================= -->
+
+<div class="buttons">
+
+<button
+class="btn btn-primary"
+onclick="generarPDF()">
+
+📄 Generar PDF
+
+</button>
+
+
+<button
+class="btn btn-whatsapp"
+onclick="generarYCompartir()">
+
+📲 Generar PDF + compartir
+
+</button>
+
+
+<button
+class="btn btn-secondary"
+onclick="abrirWhatsApp()">
+
+💬 Abrir WhatsApp con mensaje
+
+</button>
+
+
+<button
+class="btn btn-danger"
+onclick="nuevoPresupuesto()">
+
+🗑️ Nuevo presupuesto
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     PREVISUALIZACIÓN A4
+===================================================== -->
+
+<div class="preview-area">
+
+<div class="paper" id="presupuesto">
+
+
+<!-- CABECERA -->
+
+<div class="header">
+
+<div class="company">
+
+<div class="logo-box">
+
+<span>LAVO TODO</span>
+
+</div>
+
+
+<div class="company-info">
+
+<h2>LAVO TODO</h2>
+
+<p>
+Hidrolavados profesionales
+</p>
+
+<p>
+WhatsApp:
+<span id="prevWhatsapp"></span>
+</p>
+
+</div>
+
+</div>
+
+
+<div class="document-title">
+
+<div class="document-letter">
+P
+</div>
+
+<h1>PRESUPUESTO</h1>
+
+<p>
+N.º <span id="prevNumero"></span>
+</p>
+
+</div>
+
+</div>
+
+
+<!-- DATOS -->
+
+<div class="info-grid">
+
+<div class="info-box">
+
+<div class="info-label">
+Fecha
+</div>
+
+<div class="info-value"
+id="prevFecha"></div>
+
+</div>
+
+
+<div class="info-box">
+
+<div class="info-label">
+Validez
+</div>
+
+<div class="info-value"
+id="prevValidez"></div>
+
+</div>
+
+
+<div class="info-box">
+
+<div class="info-label">
+Responsable
+</div>
+
+<div class="info-value"
+id="prevRazon"></div>
+
+</div>
+
+
+<div class="info-box">
+
+<div class="info-label">
+C.U.I.T.
+</div>
+
+<div class="info-value"
+id="prevCuit"></div>
+
+</div>
+
+</div>
+
+
+<!-- CLIENTE -->
+
+<div class="section-header">
+Datos del cliente
+</div>
+
+
+<div class="info-grid">
+
+<div class="info-box">
+
+<div class="info-label">
+Cliente
+</div>
+
+<div class="info-value"
+id="prevCliente"></div>
+
+</div>
+
+
+<div class="info-box">
+
+<div class="info-label">
+Teléfono
+</div>
+
+<div class="info-value"
+id="prevTelefonoCliente"></div>
+
+</div>
+
+
+<div class="info-box">
+
+<div class="info-label">
+Dirección
+</div>
+
+<div class="info-value"
+id="prevDireccion"></div>
+
+</div>
+
+
+<div class="info-box">
+
+<div class="info-label">
+Localidad
+</div>
+
+<div class="info-value"
+id="prevLocalidad"></div>
+
+</div>
+
+</div>
+
+
+<!-- DETALLE -->
+
+<div class="section-header">
+Detalle del trabajo
+</div>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th style="width:30%">
+Trabajo
+</th>
+
+<th>
+Descripción
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="prevItems"></tbody>
+
+</table>
+
+
+<!-- TOTAL -->
+
+<div class="total-area">
+
+<div class="total-final">
+
+<span>
+TOTAL
+</span>
+
+<strong id="prevTotal">
+$ 0,00
+</strong>
+
+</div>
+
+</div>
+
+
+<!-- CONDICIONES -->
+
+<div class="section-header">
+Condiciones y forma de pago
+</div>
+
+
+<div class="condition-box">
+
+<strong>
+Forma de pago:
+</strong>
+
+<span id="prevFormaPago"></span>
+
+
+<br><br>
+
+
+<strong>
+Condición:
+</strong>
+
+<span id="prevCondicion"></span>
+
+</div>
+
+
+<div class="amount-words">
+
+<strong>
+Importe en letras:
+</strong>
+
+<span id="prevMontoLetras"></span>
+
+</div>
+
+
+<div class="condition-box"
+style="margin-top:10px;">
+
+<strong>
+Observaciones:
+</strong>
+
+<br>
+
+<span id="prevObservaciones"></span>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<div class="footer">
+
+<div>
+LavoTodo · Hidrolavados profesionales
+</div>
+
+<div>
+WhatsApp:
+<span id="prevWhatsappFooter"></span>
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   UTILIDADES
+===================================================== */
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function formatoMoneda(numero) {
+
+    numero = Number(numero) || 0;
+
+    return numero.toLocaleString("es-AR", {
+        style: "currency",
+        currency: "ARS",
+        minimumFractionDigits: 2
+    });
+
+}
+
+
+function fechaArgentina(fecha) {
+
+    if (!fecha) return "";
+
+    const partes = fecha.split("-");
+
+    if (partes.length !== 3) return fecha;
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+}
+
+
+function limpiarNombre(nombre) {
+
+    return (nombre || "Cliente")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+
+}
+
+
+/* =====================================================
+   NÚMERO PRESUPUESTO
+===================================================== */
+
+function obtenerNumero() {
+
+    let numero =
+        Number(
+            localStorage.getItem(
+                "lavotodo_numero_presupuesto"
+            ) || 0
+        );
+
+    numero++;
+
+    localStorage.setItem(
+        "lavotodo_numero_presupuesto",
+        numero
+    );
+
+    return "P-" +
+        String(numero).padStart(4, "0");
+
+}
+
+
+/* =====================================================
+   FECHA HOY
+===================================================== */
+
+function fechaHoy() {
+
+    const hoy = new Date();
+
+    return hoy.getFullYear() +
+        "-" +
+        String(
+            hoy.getMonth() + 1
+        ).padStart(2, "0") +
+        "-" +
+        String(
+            hoy.getDate()
+        ).padStart(2, "0");
+
+}
+
+
+/* =====================================================
+   NÚMERO A LETRAS
+===================================================== */
+
+function numeroEnLetras(numero) {
+
+    numero = Math.floor(
+        Number(numero) || 0
+    );
+
+    if (numero === 0) {
+        return "Cero pesos";
+    }
+
+    if (numero < 0) {
+        return "Menos " +
+            numeroEnLetras(Math.abs(numero));
+    }
+
+
+    const unidades = [
+        "",
+        "uno",
+        "dos",
+        "tres",
+        "cuatro",
+        "cinco",
+        "seis",
+        "siete",
+        "ocho",
+        "nueve"
+    ];
+
+
+    const especiales = [
+        "diez",
+        "once",
+        "doce",
+        "trece",
+        "catorce",
+        "quince",
+        "dieciséis",
+        "diecisiete",
+        "dieciocho",
+        "diecinueve"
+    ];
+
+
+    const decenas = [
+        "",
+        "",
+        "veinte",
+        "treinta",
+        "cuarenta",
+        "cincuenta",
+        "sesenta",
+        "setenta",
+        "ochenta",
+        "noventa"
+    ];
+
+
+    const centenas = [
+        "",
+        "ciento",
+        "doscientos",
+        "trescientos",
+        "cuatrocientos",
+        "quinientos",
+        "seiscientos",
+        "setecientos",
+        "ochocientos",
+        "novecientos"
+    ];
+
+
+    function convertirMenorMil(n) {
+
+        if (n === 0) return "";
+
+        if (n === 100) return "cien";
+
+        if (n < 10) {
+            return unidades[n];
+        }
+
+        if (n < 20) {
+            return especiales[n - 10];
+        }
+
+        if (n < 30) {
+
+            if (n === 20) {
+                return "veinte";
+            }
+
+            return "veinti" +
+                unidades[n - 20];
+
+        }
+
+
+        if (n < 100) {
+
+            const d =
+                Math.floor(n / 10);
+
+            const u =
+                n % 10;
+
+            if (u === 0) {
+                return decenas[d];
+            }
+
+            return decenas[d] +
+                " y " +
+                unidades[u];
+
+        }
+
+
+        const c =
+            Math.floor(n / 100);
+
+        const resto =
+            n % 100;
+
+
+        if (resto === 0) {
+            return centenas[c];
+        }
+
+        return centenas[c] +
+            " " +
+            convertirMenorMil(resto);
+
+    }
+
+
+    function convertir(n) {
+
+        if (n < 1000) {
+            return convertirMenorMil(n);
+        }
+
+
+        if (n < 1000000) {
+
+            const miles =
+                Math.floor(n / 1000);
+
+            const resto =
+                n % 1000;
+
+
+            let texto;
+
+            if (miles === 1) {
+                texto = "mil";
+            } else {
+                texto =
+                    convertirMenorMil(miles) +
+                    " mil";
+            }
+
+
+            if (resto > 0) {
+
+                texto +=
+                    " " +
+                    convertirMenorMil(resto);
+
+            }
+
+            return texto;
+
+        }
+
+
+        if (n < 1000000000) {
+
+            const millones =
+                Math.floor(
+                    n / 1000000
+                );
+
+            const resto =
+                n % 1000000;
+
+
+            let texto;
+
+
+            if (millones === 1) {
+                texto = "un millón";
+            } else {
+                texto =
+                    convertir(millones) +
+                    " millones";
+            }
+
+
+            if (resto > 0) {
+
+                texto +=
+                    " " +
+                    convertir(resto);
+
+            }
+
+            return texto;
+
+        }
+
+
+        if (n < 1000000000000) {
+
+            const milesMillones =
+                Math.floor(
+                    n / 1000000000
+                );
+
+            const resto =
+                n % 1000000000;
+
+
+            let texto;
+
+
+            if (milesMillones === 1) {
+                texto =
+                    "mil millones";
+            } else {
+                texto =
+                    convertir(milesMillones) +
+                    " mil millones";
+            }
+
+
+            if (resto > 0) {
+
+                texto +=
+                    " " +
+                    convertir(resto);
+
+            }
+
+            return texto;
+
+        }
+
+
+        return "Importe demasiado grande";
+
+    }
+
+
+    let texto =
+        convertir(numero);
+
+
+    texto =
+        texto.charAt(0).toUpperCase() +
+        texto.slice(1);
+
+
+    return texto + " pesos";
+
+}
+
+
+/* =====================================================
+   ITEMS
+===================================================== */
+
+let contadorItems = 0;
+
+
+function agregarItem(
+    nombre = "",
+    descripcion = ""
+) {
+
+    contadorItems++;
+
+    const id =
+        contadorItems;
+
+
+    const div =
+        document.createElement("div");
+
+
+    div.className =
+        "item";
+
+
+    div.dataset.id =
+        id;
+
+
+    div.innerHTML = `
+
+        <div class="item-header">
+
+            <div class="item-title">
+                Trabajo ${id}
             </div>
 
-            <div class="form-group">
-                <label>Razón Social:</label>
-                <input type="text" id="input-razon" value="Alejandro Miguel Lioy">
-            </div>
+            <button
+                type="button"
+                class="delete-item"
+                onclick="eliminarItem(${id})">
 
-            <div class="form-group">
-                <label>C.U.I.T.:</label>
-                <input type="text" id="input-cuit" value="27-23761098-8">
-            </div>
+                Eliminar
 
-            <div class="form-group">
-                <label>Teléfono Cabecera:</label>
-                <input type="text" id="input-tel" value="3416205291">
-            </div>
+            </button>
 
-            <div class="form-group">
-                <label>WhatsApp:</label>
-                <input type="text" id="input-wsp" value="+543416205291 - +543413688060">
-            </div>
-
-            <div class="form-group">
-                <label>Cliente / Destinatario:</label>
-                <input type="text" id="input-cliente" value="Parroquia San lorenzo">
-            </div>
-
-            <div class="form-group">
-                <label>
-                    Descripción / Detalle:
-                    <button type="button" class="btn-mic" id="btn-dictar" onclick="toggleDictado()">🎙️ Dictar</button>
-                </label>
-                <textarea id="input-desc">PINTURA
-- Se realizara mamposteria necesario antes de pintar, en los espacios redactados a continuacion
-
-- Se realizara pintura de:
-            - Pared medianera de pasillo
-            - Peredes exteriores a casa parroquial</textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Condición:</label>
-                <input type="text" id="input-condicion" value="El presupuesto no incluye materiales">
-            </div>
-
-            <div class="form-group">
-                <label>Monto en Letras:</label>
-                <input type="text" id="input-letras" value="un millon doscientos mil pesos">
-            </div>
-
-            <div class="form-group">
-                <label>Monto Numérico:</label>
-                <input type="text" id="input-monto" value="1.200.000,00">
-            </div>
-
-            <button class="btn-print" onclick="window.print()">Generar / Guardar PDF</button>
         </div>
 
-        <!-- Vista Previa Exacta -->
-        <div class="preview-container">
-            <div class="invoice-sheet">
-                <div class="sheet-top-section">
-                    <div class="header-main-box">
-                        <div class="header-col-left">
-                            <div class="logo-container">
-                                <svg class="logo-graphic" viewBox="0 0 100 75" fill="none" stroke="currentColor" stroke-width="5">
-                                    <path d="M18 62 L50 12 L82 62 Z" />
-                                    <line x1="33" y1="40" x2="67" y2="40" />
-                                    <line x1="26" y1="52" x2="74" y2="52" />
-                                    <circle cx="50" cy="6" r="5" fill="currentColor"/>
-                                </svg>
-                                <div class="brand-title">HIDROLAVADOS</div>
-                                <div class="brand-subtitle">LAVO TODO</div>
-                            </div>
-                            <div class="company-address">
-                                Direcion: Union 1535 &nbsp;-&nbsp; Tel: <span id="view-tel">3416205291</span>
-                            </div>
-                        </div>
-                        <div class="header-col-right">
-                            <div class="header-right-top-row">
-                                <div class="box-letter-p">P</div>
-                                <div class="title-presupuesto-text">PRESUPUESTO</div>
-                            </div>
-                            <div class="header-right-bottom-row">
-                                <div><strong>Fecha:</strong> <span id="view-fecha">28/09/2026</span></div>
-                                <div>RAZON SOCIAL: <span id="view-razon">Alejandro Miguel Lioy</span></div>
-                                <div>C.U.I.T. Nº <span id="view-cuit">27-23761098-8</span></div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="whatsapp-row-box">
-                        WhastsApp: <span id="view-wsp">+543416205291 - +543413688060</span>
-                    </div>
+        <div class="form-group">
 
-                    <div class="client-name-display" id="view-cliente">
-                        Parroquia San lorenzo
-                    </div>
+            <label>
+                Nombre del trabajo
+            </label>
 
-                    <div class="bar-descripcion">Descripcion</div>
+            <input
+                type="text"
+                class="item-nombre"
+                value="${nombre}"
+                placeholder="Ej. Hidrolavado de fachada"
+                oninput="actualizar()">
 
-                    <div class="main-description-box" id="view-desc">PINTURA
-- Se realizara mamposteria necesario antes de pintar, en los espacios redactados a continuacion
-
-- Se realizara pintura de:
-            - Pared medianera de pasillo
-            - Peredes exteriores a casa parroquial</div>
-                </div>
-
-                <div class="sheet-footer-section">
-                    <div class="obs-container-wrapper">
-                        <div class="obs-box-inner">
-                            <div class="obs-header-bar">Observaciones</div>
-                        </div>
-                    </div>
-
-                    <div class="conditions-notice-box" id="view-condicion">
-                        El presupuesto no incluye materiales
-                    </div>
-
-                    <div class="totals-grid-box">
-                        <div class="amount-in-words" id="view-letras">
-                            un millon doscientos mil pesos
-                        </div>
-                        <div class="amount-numbers-side">
-                            <div class="total-pesos-header">TOTAL en PESOS</div>
-                            <div class="total-numeric-value">
-                                <span>$</span>
-                                <span id="view-monto">1.200.000,00</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
-    </div>
 
-    <script>
-        const fields = [
-            { id: 'input-fecha', view: 'view-fecha' },
-            { id: 'input-razon', view: 'view-razon' },
-            { id: 'input-cuit', view: 'view-cuit' },
-            { id: 'input-tel', view: 'view-tel' },
-            { id: 'input-wsp', view: 'view-wsp' },
-            { id: 'input-cliente', view: 'view-cliente' },
-            { id: 'input-desc', view: 'view-desc' },
-            { id: 'input-condicion', view: 'view-condicion' },
-            { id: 'input-letras', view: 'view-letras' },
-            { id: 'input-monto', view: 'view-monto' }
-        ];
 
-        fields.forEach(item => {
-            const inputElement = document.getElementById(item.id);
-            const viewElement = document.getElementById(item.view);
+        <div class="form-group"
+             style="margin-bottom:0;">
 
-            inputElement.addEventListener('input', () => {
-                viewElement.textContent = inputElement.value;
-            });
+            <label>
+                Descripción
+            </label>
+
+            <textarea
+                class="item-descripcion"
+                placeholder="Describí qué trabajo se realizará..."
+                oninput="actualizar()">${descripcion}</textarea>
+
+        </div>
+
+    `;
+
+
+    $("items").appendChild(div);
+
+    actualizar();
+
+}
+
+
+function eliminarItem(id) {
+
+    const item =
+        document.querySelector(
+            `.item[data-id="${id}"]`
+        );
+
+
+    if (item) {
+
+        item.remove();
+
+        actualizar();
+
+    }
+
+}
+
+
+/* =====================================================
+   OBTENER ITEMS
+===================================================== */
+
+function obtenerItems() {
+
+    const items = [];
+
+
+    document.querySelectorAll(
+        ".item"
+    ).forEach(item => {
+
+        const nombre =
+            item.querySelector(
+                ".item-nombre"
+            ).value;
+
+
+        const descripcion =
+            item.querySelector(
+                ".item-descripcion"
+            ).value;
+
+
+        items.push({
+
+            nombre,
+            descripcion
+
         });
 
-        // Configuración robusta del Dictado por Voz (Speech Recognition)
-        let recognition = null;
-        let isRecording = false;
+    });
 
-        function initSpeech() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) return null;
-            const rec = new SpeechRecognition();
-            rec.lang = 'es-AR';
-            rec.continuous = true;
-            rec.interimResults = true;
-            return rec;
+
+    return items;
+
+}
+
+
+/* =====================================================
+   ACTUALIZAR
+===================================================== */
+
+function actualizar() {
+
+    /* DATOS */
+
+    $("prevNumero").textContent =
+        $("numero").value;
+
+    $("prevFecha").textContent =
+        fechaArgentina(
+            $("fecha").value
+        );
+
+    $("prevValidez").textContent =
+        $("validez").value;
+
+    $("prevRazon").textContent =
+        $("razon").value;
+
+    $("prevCuit").textContent =
+        $("cuit").value;
+
+    $("prevWhatsapp").textContent =
+        $("whatsapp").value;
+
+    $("prevWhatsappFooter").textContent =
+        $("whatsapp").value;
+
+    $("prevCliente").textContent =
+        $("cliente").value;
+
+    $("prevTelefonoCliente").textContent =
+        $("telefonoCliente").value;
+
+    $("prevDireccion").textContent =
+        $("direccion").value;
+
+    $("prevLocalidad").textContent =
+        $("localidad").value;
+
+
+    /* ITEMS */
+
+    const tbody =
+        $("prevItems");
+
+
+    tbody.innerHTML = "";
+
+
+    const items =
+        obtenerItems();
+
+
+    items.forEach(item => {
+
+        const tr =
+            document.createElement("tr");
+
+
+        tr.innerHTML = `
+
+            <td>
+
+                <div class="work-name">
+                    ${escapeHTML(item.nombre || "-")}
+                </div>
+
+            </td>
+
+
+            <td>
+
+                <div class="work-description">
+                    ${escapeHTML(item.descripcion || "-")}
+                </div>
+
+            </td>
+
+        `;
+
+
+        tbody.appendChild(tr);
+
+    });
+
+
+    /* PRECIO */
+
+    const precio =
+        Number(
+            $("precioFinal").value
+        ) || 0;
+
+
+    $("prevTotal").textContent =
+        formatoMoneda(precio);
+
+
+    /* MONTO EN LETRAS */
+
+    $("montoLetras").value =
+        numeroEnLetras(precio);
+
+
+    $("prevMontoLetras").textContent =
+        numeroEnLetras(precio);
+
+
+    /* CONDICIONES */
+
+    $("prevFormaPago").textContent =
+        $("formaPago").value;
+
+    $("prevCondicion").textContent =
+        $("condicion").value;
+
+    $("prevObservaciones").textContent =
+        $("observaciones").value ||
+        "-";
+
+}
+
+
+/* =====================================================
+   SEGURIDAD HTML
+===================================================== */
+
+function escapeHTML(texto) {
+
+    return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =====================================================
+   EVENTOS
+===================================================== */
+
+document.querySelectorAll(
+    "input, textarea, select"
+).forEach(element => {
+
+    element.addEventListener(
+        "input",
+        actualizar
+    );
+
+    element.addEventListener(
+        "change",
+        actualizar
+    );
+
+});
+
+
+/* =====================================================
+   GUARDAR
+===================================================== */
+
+function obtenerDatos() {
+
+    return {
+
+        numero:
+            $("numero").value,
+
+        fecha:
+            $("fecha").value,
+
+        validez:
+            $("validez").value,
+
+        razon:
+            $("razon").value,
+
+        cuit:
+            $("cuit").value,
+
+        telefono:
+            $("telefono").value,
+
+        whatsapp:
+            $("whatsapp").value,
+
+        cliente:
+            $("cliente").value,
+
+        direccion:
+            $("direccion").value,
+
+        localidad:
+            $("localidad").value,
+
+        cp:
+            $("cp").value,
+
+        telefonoCliente:
+            $("telefonoCliente").value,
+
+        emailCliente:
+            $("emailCliente").value,
+
+        items:
+            obtenerItems(),
+
+        precioFinal:
+            $("precioFinal").value,
+
+        formaPago:
+            $("formaPago").value,
+
+        condicion:
+            $("condicion").value,
+
+        montoLetras:
+            $("montoLetras").value,
+
+        observaciones:
+            $("observaciones").value
+
+    };
+
+}
+
+
+function guardarPresupuesto() {
+
+    const datos =
+        obtenerDatos();
+
+
+    const historial =
+        JSON.parse(
+            localStorage.getItem(
+                "lavotodo_presupuestos"
+            ) || "[]"
+        );
+
+
+    historial.push(datos);
+
+
+    localStorage.setItem(
+        "lavotodo_presupuestos",
+        JSON.stringify(historial)
+    );
+
+}
+
+
+/* =====================================================
+   CREAR PDF
+===================================================== */
+
+async function crearPDF() {
+
+    actualizar();
+
+
+    const elemento =
+        document.getElementById(
+            "presupuesto"
+        );
+
+
+    const cliente =
+        limpiarNombre(
+            $("cliente").value
+        );
+
+
+    const numero =
+        $("numero").value;
+
+
+    const fecha =
+        $("fecha").value
+        .split("-")
+        .reverse()
+        .join("-");
+
+
+    const nombreArchivo =
+        `Presupuesto_${numero}_${cliente}_${fecha}.pdf`;
+
+
+    const opciones = {
+
+        margin: 0,
+
+        filename:
+            nombreArchivo,
+
+        image: {
+
+            type: "jpeg",
+
+            quality: 0.98
+
+        },
+
+        html2canvas: {
+
+            scale: 2,
+
+            useCORS: true,
+
+            allowTaint: true,
+
+            backgroundColor: "#ffffff",
+
+            logging: false,
+
+            windowWidth:
+                elemento.scrollWidth,
+
+            windowHeight:
+                elemento.scrollHeight
+
+        },
+
+        pagebreak: {
+
+            mode: [
+                "avoid-all",
+                "css",
+                "legacy"
+            ]
+
+        },
+
+        jsPDF: {
+
+            unit: "mm",
+
+            format: "a4",
+
+            orientation: "portrait"
+
         }
 
-        recognition = initSpeech();
+    };
 
-        if (recognition) {
-            recognition.onresult = (event) => {
-                let transcript = '';
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
+
+    const blob =
+        await html2pdf()
+            .set(opciones)
+            .from(elemento)
+            .outputPdf("blob");
+
+
+    return {
+
+        blob,
+        filename: nombreArchivo
+
+    };
+
+}
+
+
+/* =====================================================
+   PDF
+===================================================== */
+
+async function generarPDF() {
+
+    try {
+
+        actualizar();
+
+        guardarPresupuesto();
+
+
+        const resultado =
+            await crearPDF();
+
+
+        const url =
+            URL.createObjectURL(
+                resultado.blob
+            );
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href =
+            url;
+
+
+        link.download =
+            resultado.filename;
+
+
+        document.body.appendChild(link);
+
+
+        link.click();
+
+
+        link.remove();
+
+
+        setTimeout(() => {
+
+            URL.revokeObjectURL(url);
+
+        }, 5000);
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "ERROR PDF:",
+            error
+        );
+
+
+        alert(
+            "No se pudo generar el PDF."
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   PDF + COMPARTIR
+===================================================== */
+
+async function generarYCompartir() {
+
+    try {
+
+        actualizar();
+
+        guardarPresupuesto();
+
+
+        const resultado =
+            await crearPDF();
+
+
+        const archivo =
+            new File(
+                [
+                    resultado.blob
+                ],
+                resultado.filename,
+                {
+                    type:
+                        "application/pdf"
                 }
-                const inputDesc = document.getElementById('input-desc');
-                inputDesc.value = transcript;
-                document.getElementById('view-desc').textContent = transcript;
-            };
+            );
 
-            recognition.onerror = (event) => {
-                console.error("Error de voz:", event.error);
-                stopDictado();
-            };
 
-            recognition.onend = () => {
-                stopDictado();
-            };
+        const mensaje =
+            generarMensajeWhatsApp();
+
+
+        if (
+            navigator.share &&
+            navigator.canShare &&
+            navigator.canShare({
+                files: [archivo]
+            })
+        ) {
+
+            await navigator.share({
+
+                title:
+                    "Presupuesto LavoTodo",
+
+                text:
+                    mensaje,
+
+                files:
+                    [archivo]
+
+            });
+
+
+            return;
+
         }
 
-        function toggleDictado() {
-            if (!recognition) {
-                alert('Tu navegador no soporta reconocimiento de voz. Utiliza Google Chrome.');
-                return;
-            }
 
-            if (isRecording) {
-                recognition.stop();
-            } else {
-                try {
-                    recognition.start();
-                    isRecording = true;
-                    const btn = document.getElementById('btn-dictar');
-                    btn.textContent = '⏹️ Grabando...';
-                    btn.classList.add('recording');
-                } catch (e) {
-                    recognition = initSpeech();
-                    if (recognition) recognition.start();
-                }
-            }
+        /* FALLBACK */
+
+        const url =
+            URL.createObjectURL(
+                resultado.blob
+            );
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.href =
+            url;
+
+
+        link.download =
+            resultado.filename;
+
+
+        document.body.appendChild(link);
+
+
+        link.click();
+
+
+        link.remove();
+
+
+        setTimeout(() => {
+
+            URL.revokeObjectURL(url);
+
+        }, 5000);
+
+
+        setTimeout(() => {
+
+            abrirWhatsApp();
+
+        }, 800);
+
+    }
+
+    catch (error) {
+
+        console.error(
+            error
+        );
+
+
+        if (
+            error.name !==
+            "AbortError"
+        ) {
+
+            alert(
+                "No se pudo compartir el PDF."
+            );
+
         }
 
-        function stopDictado() {
-            isRecording = false;
-            const btn = document.getElementById('btn-dictar');
-            if (btn) {
-                btn.textContent = '🎙️ Dictar';
-                btn.classList.remove('recording');
-            }
-        }
-    </script>
+    }
+
+}
+
+
+/* =====================================================
+   WHATSAPP
+===================================================== */
+
+function generarMensajeWhatsApp() {
+
+    const cliente =
+        $("cliente").value ||
+        "cliente";
+
+
+    const total =
+        $("prevTotal").textContent;
+
+
+    return `Hola ${cliente}.
+
+Te envío el presupuesto solicitado de LavoTodo.
+
+Presupuesto: ${$("numero").value}
+Total: ${total}
+
+Cualquier consulta quedo a disposición.
+
+LavoTodo
+Hidrolavados profesionales
+WhatsApp: ${$("whatsapp").value}`;
+
+}
+
+
+function normalizarWhatsApp(numero) {
+
+    return (
+        numero || ""
+    ).replace(
+        /\D/g,
+        ""
+    );
+
+}
+
+
+function abrirWhatsApp() {
+
+    const mensaje =
+        generarMensajeWhatsApp();
+
+
+    const numero =
+        normalizarWhatsApp(
+            $("telefonoCliente").value
+        );
+
+
+    let url;
+
+
+    if (numero) {
+
+        url =
+            `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+
+    }
+
+    else {
+
+        url =
+            `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+
+    }
+
+
+    window.open(
+        url,
+        "_blank"
+    );
+
+}
+
+
+/* =====================================================
+   DICTADO
+===================================================== */
+
+function iniciarDictado() {
+
+    alert(
+        "Ahora vamos a agregar el dictado directamente a cada descripción."
+    );
+
+}
+
+
+/* =====================================================
+   NUEVO PRESUPUESTO
+===================================================== */
+
+function nuevoPresupuesto() {
+
+    if (
+        !confirm(
+            "¿Querés comenzar un presupuesto nuevo?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    $("numero").value =
+        obtenerNumero();
+
+
+    $("fecha").value =
+        fechaHoy();
+
+
+    $("cliente").value =
+        "";
+
+    $("direccion").value =
+        "";
+
+    $("localidad").value =
+        "";
+
+    $("cp").value =
+        "";
+
+    $("telefonoCliente").value =
+        "";
+
+    $("emailCliente").value =
+        "";
+
+    $("precioFinal").value =
+        "";
+
+    $("montoLetras").value =
+        "";
+
+    $("observaciones").value =
+        "";
+
+
+    $("items").innerHTML =
+        "";
+
+
+    contadorItems =
+        0;
+
+
+    agregarItem();
+
+
+    actualizar();
+
+}
+
+
+/* =====================================================
+   INICIALIZACIÓN
+===================================================== */
+
+$("numero").value =
+    obtenerNumero();
+
+
+$("fecha").value =
+    fechaHoy();
+
+
+agregarItem();
+
+
+actualizar();
+
+</script>
+
 </body>
 </html>
-
